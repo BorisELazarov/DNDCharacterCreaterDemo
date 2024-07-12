@@ -1,15 +1,13 @@
 package com.example.dndCharacterCreatorDemo.entities;
 
-
-import com.fasterxml.jackson.databind.ser.Serializers;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name="users")
 public class User extends BaseEntity {
-    @Column(name="username", unique = true)
+    @Column(unique = true)
     private String username;
-    @Column(name="password")
+    @Column
     private String password;
 
     public User() {
