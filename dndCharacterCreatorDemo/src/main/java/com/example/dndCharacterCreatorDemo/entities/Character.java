@@ -5,8 +5,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Column;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.JoinTable;
+import jakarta.persistence.OneToMany;
 
 import java.util.Set;
 
@@ -36,11 +35,11 @@ public class Character extends BaseEntity{
     @Column
     private int baseCha;
 
-    @ManyToMany(mappedBy = "characters")
-    private Set<Proficiency> proficiencies;
+    @OneToMany(mappedBy = "character")
+    private Set<ProficiencyCharacter> proficiencyCharacters;
 
-    @ManyToMany(mappedBy = "characters")
-    private Set<Spell> spells;
+    @OneToMany(mappedBy = "character")
+    private Set<SpellCharacter> spellCharacters;
 
     public String getName() {
         return name;
