@@ -25,7 +25,7 @@ public class UserService {
     public void addUser(User user) {
         Optional<User> userByUsername=userRepo.findAll()
                 .stream()
-                .filter(x->x.getUsername().equals(user.getUsername()))
+                .filter(x->x.getUsername().equals(user.getUsername()) && !x.isDeleted())
                 .findFirst();
         if (userByUsername.isPresent()) {
             throw new IllegalArgumentException("Error: there is already user with such name");
@@ -45,7 +45,7 @@ public class UserService {
                 !username.equals(foundUser.getUsername())) {
             Optional<User> userByUsername=userRepo.findAll()
                     .stream()
-                    .filter(x->x.getUsername().equals(username))
+                    .filter(x->x.getUsername().equals(username) && !x.isDeleted())
                     .findFirst();
             if(userByUsername.isPresent())
             {

@@ -7,8 +7,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 
 @Entity
-@Table
-public class ProficiencyCharacter extends SoftDeletable {
+@Table(name="Proficiency_Characters")
+public class ProficiencyCharacter{
     @Id
     @ManyToOne
     @JoinColumn(name="proficiencyId")

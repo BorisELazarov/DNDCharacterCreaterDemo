@@ -2,9 +2,10 @@ package com.example.dndCharacterCreatorDemo.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinTable;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import jakarta.persistence.JoinColumn;
 
 import java.util.Set;
 
@@ -27,20 +28,18 @@ public class Spell extends BaseEntity{
     private int duration;
     @Column
     private String description;
-//    @ManyToMany
-//    @JoinTable(
-//            name = "Spell_Characters",
-//            joinColumns = { @JoinColumn(name = "spellId") },
-//            inverseJoinColumns = { @JoinColumn(name = "characterId") }
-//    )
-    @OneToMany(mappedBy = "spell")
-    private Set<SpellCharacter> spellCharacters;
-//    @ManyToMany
-//    @JoinTable(
-//            name = "Spell_Classes",
-//            joinColumns = { @JoinColumn(name = "spellId") },
-//            inverseJoinColumns = { @JoinColumn(name = "classId") }
-//    )
-    @OneToMany(mappedBy = "spell")
-    private Set<SpellClass> spellClasses;
+    @ManyToMany
+    @JoinTable(
+            name = "Spell_Characters",
+            joinColumns = { @JoinColumn(name = "spellId") },
+            inverseJoinColumns = { @JoinColumn(name = "characterId") }
+    )
+    private Set<Character> characters;
+    @ManyToMany
+    @JoinTable(
+            name = "Spell_Classes",
+            joinColumns = { @JoinColumn(name = "spellId") },
+            inverseJoinColumns = { @JoinColumn(name = "classId") }
+    )
+    private Set<DNDclass> dndClasses;
 }
