@@ -38,8 +38,8 @@ public class Character extends BaseEntity{
     @OneToMany(mappedBy = "character")
     private Set<ProficiencyCharacter> proficiencyCharacters;
 
-    @OneToMany(mappedBy = "character")
-    private Set<SpellCharacter> spellCharacters;
+    @OneToMany(mappedBy = "characters")
+    private Set<Spell> spells;
 
     public String getName() {
         return name;
