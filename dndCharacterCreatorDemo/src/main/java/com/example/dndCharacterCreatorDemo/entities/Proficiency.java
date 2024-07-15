@@ -19,14 +19,13 @@ public class Proficiency extends BaseEntity {
 //    )
     @OneToMany(mappedBy = "proficiency")
     private Set<ProficiencyCharacter> proficiencyCharacters;
-//    @ManyToMany
-//    @JoinTable(
-//            name = "Proficiency_Classes",
-//            joinColumns = { @JoinColumn(name = "proficiencyId") },
-//            inverseJoinColumns = { @JoinColumn(name = "classId") }
-//    )
-    @OneToMany(mappedBy = "proficiency")
-    private Set<ProficiencyClass> proficiencyClasses;
+    @ManyToMany
+    @JoinTable(
+            name = "Proficiency_Classes",
+            joinColumns = { @JoinColumn(name = "proficiencyId") },
+            inverseJoinColumns = { @JoinColumn(name = "classId") }
+    )
+    private Set<DNDclass> dndClasses;
 
     public String getName() {
         return name;
