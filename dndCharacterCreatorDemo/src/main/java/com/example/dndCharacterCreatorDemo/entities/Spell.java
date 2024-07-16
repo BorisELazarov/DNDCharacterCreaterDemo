@@ -12,21 +12,21 @@ import java.util.Set;
 @Entity
 @Table
 public class Spell extends BaseEntity{
-    @Column
+    @Column(nullable = false)
     private String name;
-    @Column
+    @Column(nullable = false)
     private int level;
-    @Column
+    @Column(nullable = false)
     private String castingTime;
     @Column
     private int range;
     @Column
     private String target;
-    @Column
+    @Column(nullable = false)
     private String components;
-    @Column
+    @Column(nullable = false)
     private int duration;
-    @Column
+    @Column(nullable = false)
     private String description;
     @ManyToMany
     @JoinTable(
