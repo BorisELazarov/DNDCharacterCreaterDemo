@@ -10,10 +10,10 @@ import jakarta.persistence.GenerationType;
 public class BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
+    @Column(nullable = false)
     protected Long id;
 
-    @Column
+    @Column(nullable = false)
     protected boolean isDeleted;
 
     public Long getId() {
