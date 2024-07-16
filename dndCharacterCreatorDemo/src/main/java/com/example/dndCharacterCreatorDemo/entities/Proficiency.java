@@ -7,16 +7,10 @@ import java.util.Set;
 @Entity
 @Table(name="proficiencies")
 public class Proficiency extends BaseEntity {
-    @Column(unique = true)
+    @Column(nullable = false)
     private String name;
-    @Column
-    private String description;
-//    @ManyToMany
-//    @JoinTable(
-//            name = "Proficiency_Characters",
-//            joinColumns = { @JoinColumn(name = "proficiencyId") },
-//            inverseJoinColumns = { @JoinColumn(name = "characterId") }
-//    )
+    @Column(nullable = false)
+    private String type;
     @OneToMany(mappedBy = "proficiency")
     private Set<ProficiencyCharacter> proficiencyCharacters;
     @ManyToMany
@@ -35,11 +29,11 @@ public class Proficiency extends BaseEntity {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
+    public String getType() {
+        return type;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setType(String type) {
+        this.type = type;
     }
 }

@@ -12,7 +12,7 @@ import java.util.Set;
 @Entity
 @Table
 public class Character extends BaseEntity{
-    @Column
+    @Column(nullable = false)
     private String name;
     @ManyToOne
     @JoinColumn(name="userId")
@@ -20,20 +20,20 @@ public class Character extends BaseEntity{
     @ManyToOne
     @JoinColumn(name="classId")
     private DNDclass dndClass;
-    @Column
+    @Column(nullable = false)
     private int level;
-    @Column
-    private int baseStr;
-    @Column
-    private int baseDex;
-    @Column
-    private int baseCon;
-    @Column
-    private int baseInt;
-    @Column
-    private int baseWis;
-    @Column
-    private int baseCha;
+    @Column(nullable = false)
+    private int baseStr=10;
+    @Column(nullable = false)
+    private int baseDex=10;
+    @Column(nullable = false)
+    private int baseCon=10;
+    @Column(nullable = false)
+    private int baseInt=10;
+    @Column(nullable = false)
+    private int baseWis=10;
+    @Column(nullable = false)
+    private int baseCha=10;
 
     @OneToMany(mappedBy = "character")
     private Set<ProficiencyCharacter> proficiencyCharacters;
