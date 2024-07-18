@@ -13,27 +13,27 @@ import java.util.Set;
 @Entity
 @Table(name = "characters")
 public class Character extends BaseEntity{
-    @Column(nullable = false)
+    @Column(name="name", nullable = false)
     private String name;
     @ManyToOne
-    @JoinColumn(name="userId")
+    @JoinColumn(name="user_id")
     private User user;
     @ManyToOne
-    @JoinColumn(name="classId")
+    @JoinColumn(name="class_id")
     private DNDclass dndClass;
-    @Column(nullable = false)
+    @Column(name="level", nullable = false)
     private int level;
-    @Column(nullable = false)
+    @Column(name = "base_str", nullable = false)
     private int baseStr=10;
-    @Column(nullable = false)
+    @Column(name = "base_dex", nullable = false)
     private int baseDex=10;
-    @Column(nullable = false)
+    @Column(name = "base_con", nullable = false)
     private int baseCon=10;
-    @Column(nullable = false)
+    @Column(name = "base_int", nullable = false)
     private int baseInt=10;
-    @Column(nullable = false)
+    @Column(name = "base_wis", nullable = false)
     private int baseWis=10;
-    @Column(nullable = false)
+    @Column(name = "base_cha", nullable = false)
     private int baseCha=10;
 
     @OneToMany(mappedBy = "character")

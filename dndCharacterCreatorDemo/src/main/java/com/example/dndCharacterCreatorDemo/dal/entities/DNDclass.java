@@ -7,11 +7,11 @@ import java.util.Set;
 @Entity
 @Table(name = "Classes")
 public class DNDclass extends BaseEntity{
-    @Column(unique = true)
+    @Column(name="name", unique = true)
     private String name;
-    @Column(nullable = false)
+    @Column(name="description", nullable = false)
     private String description;
-    @Column(nullable = false)
+    @Column(name="hit_dice", nullable = false)
     private int hitDice;
     @ManyToMany(mappedBy = "dndClasses")
     private Set<Proficiency> proficiencies;

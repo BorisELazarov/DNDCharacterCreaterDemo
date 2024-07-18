@@ -7,12 +7,12 @@ import jakarta.persistence.*;
 public class ProficiencyCharacter{
     @Id
     @ManyToOne
-    @JoinColumn(name="proficiencyId")
+    @JoinColumn(name="proficiency_id")
     private Proficiency proficiency;
     @Id
     @ManyToOne
-    @JoinColumn(name="characterId")
+    @JoinColumn(name="character_id")
     private Character character;
-    @Column(nullable = false)
+    @Column(name="expertise", nullable = false)
     private boolean expertise;
 }

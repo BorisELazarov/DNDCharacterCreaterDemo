@@ -12,21 +12,21 @@ import java.util.Set;
 @Entity
 @Table(name = "spells")
 public class Spell extends BaseEntity{
-    @Column(nullable = false)
+    @Column(name="name", nullable = false)
     private String name;
-    @Column(nullable = false)
+    @Column(name="level", nullable = false)
     private int level;
-    @Column(nullable = false)
+    @Column(name="casting_time", nullable = false)
     private String castingTime;
     @Column(name="casting_range")
     private int castingRange;
-    @Column
+    @Column(name="target")
     private String target;
-    @Column(nullable = false)
+    @Column(name="components", nullable = false)
     private String components;
-    @Column(nullable = false)
+    @Column(name="duration", nullable = false)
     private int duration;
-    @Column(nullable = false)
+    @Column(name="description", nullable = false)
     private String description;
     @ManyToMany
     @JoinTable(

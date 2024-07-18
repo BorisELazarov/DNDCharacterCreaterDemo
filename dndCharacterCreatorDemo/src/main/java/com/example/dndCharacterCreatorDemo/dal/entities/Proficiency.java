@@ -7,9 +7,9 @@ import java.util.Set;
 @Entity
 @Table(name="proficiencies")
 public class Proficiency extends BaseEntity {
-    @Column(nullable = false)
+    @Column(name="name", nullable = false)
     private String name;
-    @Column(nullable = false)
+    @Column(name="type", nullable = false)
     private String type;
     @OneToMany(mappedBy = "proficiency")
     private Set<ProficiencyCharacter> proficiencyCharacters;
@@ -20,6 +20,14 @@ public class Proficiency extends BaseEntity {
             inverseJoinColumns = { @JoinColumn(name = "classId") }
     )
     private Set<DNDclass> dndClasses;
+
+    public Proficiency() {
+    }
+
+    public Proficiency(String name, String type) {
+        this.name = name;
+        this.type = type;
+    }
 
     public String getName() {
         return name;
