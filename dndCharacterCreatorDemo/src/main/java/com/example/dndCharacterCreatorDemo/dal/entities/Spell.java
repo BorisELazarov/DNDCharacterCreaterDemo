@@ -18,8 +18,8 @@ public class Spell extends BaseEntity{
     private int level;
     @Column(nullable = false)
     private String castingTime;
-    @Column
-    private int range;
+    @Column(name="casting_range")
+    private int castingRange;
     @Column
     private String target;
     @Column(nullable = false)
@@ -30,14 +30,14 @@ public class Spell extends BaseEntity{
     private String description;
     @ManyToMany
     @JoinTable(
-            name = "Spell_Characters",
+            name = "Character_Spells",
             joinColumns = { @JoinColumn(name = "spellId") },
             inverseJoinColumns = { @JoinColumn(name = "characterId") }
     )
     private Set<Character> characters;
     @ManyToMany
     @JoinTable(
-            name = "Spell_Classes",
+            name = "Class_Spells",
             joinColumns = { @JoinColumn(name = "spellId") },
             inverseJoinColumns = { @JoinColumn(name = "classId") }
     )

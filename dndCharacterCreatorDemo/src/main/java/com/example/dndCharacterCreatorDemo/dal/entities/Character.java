@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToMany;
 
 import java.util.Set;
 
@@ -38,7 +39,7 @@ public class Character extends BaseEntity{
     @OneToMany(mappedBy = "character")
     private Set<ProficiencyCharacter> proficiencyCharacters;
 
-    @OneToMany(mappedBy = "characters")
+    @ManyToMany(mappedBy = "characters")
     private Set<Spell> spells;
 
     public String getName() {
