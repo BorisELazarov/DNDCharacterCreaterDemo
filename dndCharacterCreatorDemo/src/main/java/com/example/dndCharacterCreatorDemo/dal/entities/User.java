@@ -5,9 +5,9 @@ import jakarta.persistence.*;
 @Entity
 @Table(name="users")
 public class User extends BaseEntity {
-    @Column(nullable = false)
+    @Column(name="username", nullable = false)
     private String username;
-    @Column(nullable = false)
+    @Column(name="password", nullable = false)
     private String password;
 
     public User() {

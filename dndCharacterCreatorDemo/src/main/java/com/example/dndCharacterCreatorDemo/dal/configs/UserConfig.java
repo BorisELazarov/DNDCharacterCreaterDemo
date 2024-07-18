@@ -1,4 +1,4 @@
-package com.example.dndCharacterCreatorDemo.bll.configs;
+package com.example.dndCharacterCreatorDemo.dal.configs;
 
 import com.example.dndCharacterCreatorDemo.dal.entities.User;
 import com.example.dndCharacterCreatorDemo.dal.repos.UserRepo;
@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class UserConfig {
     @Bean
-    CommandLineRunner commandLineRunner(UserRepo userRepo){
+    CommandLineRunner seedUser(UserRepo userRepo){
         return args -> {
             if (!userRepo.findAll()
                     .stream()
