@@ -25,6 +25,7 @@ public class Proficiency extends BaseEntity {
     }
 
     public Proficiency(String name, String type) {
+
         this.name = name;
         this.type = type;
     }

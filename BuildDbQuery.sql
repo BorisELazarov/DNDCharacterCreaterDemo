@@ -4,11 +4,20 @@ create database dnddb;
 
 use dnddb;
 
+create table roles(
+id bigint primary key auto_increment,
+title nvarchar(20) not null default 'user',
+is_deleted bit not null default 0
+);
+
 create table users(
 id bigint primary key auto_increment,
 username nvarchar(50) not null,
 password nvarchar(50) not null,
-is_deleted bit not null default 0
+is_deleted bit not null default 0,
+role_id bigint not null,
+foreign key(role_id)
+references roles(id)
 );
 
 create table classes(

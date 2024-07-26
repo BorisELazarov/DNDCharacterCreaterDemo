@@ -15,8 +15,8 @@ public class DNDclass extends BaseEntity{
     private int hitDice;
     @ManyToMany(mappedBy = "dndClasses")
     private Set<Proficiency> proficiencies;
-    @ManyToMany(mappedBy = "dndClasses")
-    private Set<Spell> spells;
+    @OneToMany(mappedBy = "dndClass")
+    private Set<ClassSpell> classSpells;
 
     public String getName() {
         return name;

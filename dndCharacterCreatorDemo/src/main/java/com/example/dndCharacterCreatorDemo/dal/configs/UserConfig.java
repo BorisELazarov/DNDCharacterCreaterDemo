@@ -1,5 +1,6 @@
 package com.example.dndCharacterCreatorDemo.dal.configs;
 
+import com.example.dndCharacterCreatorDemo.dal.entities.Role;
 import com.example.dndCharacterCreatorDemo.dal.entities.User;
 import com.example.dndCharacterCreatorDemo.dal.repos.UserRepo;
 import org.springframework.boot.CommandLineRunner;
@@ -14,10 +15,12 @@ public class UserConfig {
                     .stream()
                     .filter(x->x.getUsername().equals("Boris"))
                     .findFirst().isPresent()) {
-                User user = new User(
-                        "Boris",
-                        "BPass"
-                );
+                User user = new User();
+                user.setUsername("Boris");
+                user.setPassword("BPass");
+                Role role=new Role();
+                role.setTitle("admin");
+                user.setRole(role);
                 userRepo.save(user);
             }
         };

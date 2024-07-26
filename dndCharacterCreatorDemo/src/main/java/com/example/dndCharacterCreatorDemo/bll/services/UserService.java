@@ -3,7 +3,9 @@ package com.example.dndCharacterCreatorDemo.bll.services;
 import com.example.dndCharacterCreatorDemo.bll.dtos.UserDTO;
 import com.example.dndCharacterCreatorDemo.bll.mappers.IMapper;
 import com.example.dndCharacterCreatorDemo.bll.mappers.UserMapper;
+import com.example.dndCharacterCreatorDemo.dal.entities.Role;
 import com.example.dndCharacterCreatorDemo.dal.entities.User;
+import com.example.dndCharacterCreatorDemo.dal.repos.RoleRepo;
 import com.example.dndCharacterCreatorDemo.dal.repos.UserRepo;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +18,13 @@ import java.util.Optional;
 @Service
 public class UserService {
     private final UserRepo userRepo;
+    private final RoleRepo roleRepo;
     private final IMapper<UserDTO,User> mapper;
 
     @Autowired
-    public UserService(UserRepo userRepo) {
+    public UserService(UserRepo userRepo, RoleRepo roleRepo) {
         this.userRepo=userRepo;
+        this.roleRepo=roleRepo;
         this.mapper=new UserMapper();
     }
 
@@ -42,6 +46,7 @@ public class UserService {
             throw new IllegalArgumentException("Error: there is already user with such name");
         }
         User user=mapper.fromDto(userDTO);
+        //roleRepo.save(user.getRole());
         userRepo.save(user);
     }
 
