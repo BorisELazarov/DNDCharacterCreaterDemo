@@ -2,7 +2,7 @@ package com.example.dndCharacterCreatorDemo.dal.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.JoinColumn;
@@ -28,18 +28,9 @@ public class Spell extends BaseEntity{
     private int duration;
     @Column(name="description", nullable = false)
     private String description;
-    @ManyToMany
-    @JoinTable(
-            name = "Character_Spells",
-            joinColumns = { @JoinColumn(name = "spellId") },
-            inverseJoinColumns = { @JoinColumn(name = "characterId") }
-    )
-    private Set<Character> characters;
-    @ManyToMany
-    @JoinTable(
-            name = "Class_Spells",
-            joinColumns = { @JoinColumn(name = "spellId") },
-            inverseJoinColumns = { @JoinColumn(name = "classId") }
-    )
-    private Set<DNDclass> dndClasses;
+    @OneToMany(mappedBy = "spell")
+    private Set<CharacterSpell> characterSpells;
+
+    @OneToMany(mappedBy = "spell")
+    private Set<ClassSpell> classSpells;
 }

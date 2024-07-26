@@ -1,6 +1,7 @@
 package com.example.dndCharacterCreatorDemo.bll.mappers;
 
 import com.example.dndCharacterCreatorDemo.bll.dtos.UserDTO;
+import com.example.dndCharacterCreatorDemo.dal.entities.Role;
 import com.example.dndCharacterCreatorDemo.dal.entities.User;
 import com.example.dndCharacterCreatorDemo.dal.repos.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,9 @@ public class UserMapper implements IMapper<UserDTO,User>{
         entity.setIsDeleted(dto.getIsDeleted());
         entity.setUsername(dto.getUsername());
         entity.setPassword(dto.getPassword());
+        Role role=new Role();
+        role.setTitle(dto.getRole());
+        entity.setRole(role);
         return entity;
     }
 
@@ -24,6 +28,7 @@ public class UserMapper implements IMapper<UserDTO,User>{
         dto.setIsDeleted(entity.getIsDeleted());
         dto.setUsername(entity.getUsername());
         dto.setPassword(entity.getPassword());
+        dto.setRole(entity.getRole().getTitle());
         return dto;
     }
 }
