@@ -15,9 +15,7 @@ public class UserConfig {
                     .stream()
                     .filter(x->x.getUsername().equals("Boris"))
                     .findFirst().isPresent()) {
-                User user = new User();
-                user.setUsername("Boris");
-                user.setPassword("BPass");
+                User user = new User("Boris","BPass");
                 Role role=new Role();
                 role.setTitle("admin");
                 user.setRole(role);

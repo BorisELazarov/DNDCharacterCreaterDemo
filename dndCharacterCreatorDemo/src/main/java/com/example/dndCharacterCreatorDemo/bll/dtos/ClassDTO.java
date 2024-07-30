@@ -5,13 +5,14 @@ import com.example.dndCharacterCreatorDemo.dal.entities.Spell;
 import jakarta.persistence.Column;
 import jakarta.persistence.ManyToMany;
 
+import java.util.List;
 import java.util.Set;
 
 public class ClassDTO extends BaseDTO{
     private String name;
     private String description;
     private int hitDice;
-    //private Set<Proficiency> proficiencies;
+    private List<ProficiencyDTO> proficiencies;
     //private Set<Spell> spells;
 
     public ClassDTO() {
@@ -43,5 +44,13 @@ public class ClassDTO extends BaseDTO{
 
     public void setHitDice(int hitDice) {
         this.hitDice = hitDice;
+    }
+
+    public List<ProficiencyDTO> getProficiencies() {
+        return proficiencies;
+    }
+
+    public void setProficiencies(List<ProficiencyDTO> proficiencies) {
+        this.proficiencies = proficiencies;
     }
 }

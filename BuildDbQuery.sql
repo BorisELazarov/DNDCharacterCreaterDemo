@@ -10,6 +10,22 @@ title nvarchar(20) not null default 'user',
 is_deleted bit not null default 0
 );
 
+create table privileges(
+id bigint primary key auto_increment,
+title nvarchar(40) not null,
+is_deleted bit not null default 0
+);
+
+create table role_privileges(
+	role_id bigint not null,
+    foreign key(role_id)
+    references roles(id),
+	privilege_id bigint not null,
+    foreign key(privilege_id)
+    references privileges(id),
+    primary key(role_id, privilege_id)
+);
+
 create table users(
 id bigint primary key auto_increment,
 username nvarchar(50) not null,

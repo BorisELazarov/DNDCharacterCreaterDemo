@@ -2,7 +2,7 @@ package com.example.dndCharacterCreatorDemo.dal.entities;
 
 import jakarta.persistence.*;
 
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name="proficiencies")
@@ -11,15 +11,10 @@ public class Proficiency extends BaseEntity {
     private String name;
     @Column(name="type", nullable = false)
     private String type;
-    @OneToMany(mappedBy = "proficiency")
-    private Set<ProficiencyCharacter> proficiencyCharacters;
-    @ManyToMany
-    @JoinTable(
-            name = "Proficiency_Classes",
-            joinColumns = { @JoinColumn(name = "proficiencyId") },
-            inverseJoinColumns = { @JoinColumn(name = "classId") }
-    )
-    private Set<DNDclass> dndClasses;
+//    @OneToMany(mappedBy = "proficiency")
+//    private List<ProficiencyCharacter> proficiencyCharacters;
+//    @ManyToMany(mappedBy = "proficiencies")
+//    private List<DNDclass> dndClasses;
 
     public Proficiency() {
     }

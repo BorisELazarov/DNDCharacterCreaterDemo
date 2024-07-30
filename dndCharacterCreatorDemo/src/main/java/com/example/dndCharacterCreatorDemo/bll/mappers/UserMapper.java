@@ -3,10 +3,9 @@ package com.example.dndCharacterCreatorDemo.bll.mappers;
 import com.example.dndCharacterCreatorDemo.bll.dtos.UserDTO;
 import com.example.dndCharacterCreatorDemo.dal.entities.Role;
 import com.example.dndCharacterCreatorDemo.dal.entities.User;
-import com.example.dndCharacterCreatorDemo.dal.repos.UserRepo;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class UserMapper implements IMapper<UserDTO,User>{
 
@@ -30,5 +29,19 @@ public class UserMapper implements IMapper<UserDTO,User>{
         dto.setPassword(entity.getPassword());
         dto.setRole(entity.getRole().getTitle());
         return dto;
+    }
+
+    @Override
+    public List<User> fromDtos(List<UserDTO> userDTOS) {
+        return userDTOS.stream()
+                .map(x-> fromDto(x))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UserDTO> toDtos(List<User> users) {
+        return users.stream()
+                .map(x-> toDto(x))
+                .collect(Collectors.toList());
     }
 }
