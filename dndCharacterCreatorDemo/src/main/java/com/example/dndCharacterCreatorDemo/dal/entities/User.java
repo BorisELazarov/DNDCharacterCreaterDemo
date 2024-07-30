@@ -2,7 +2,7 @@ package com.example.dndCharacterCreatorDemo.dal.entities;
 
 import jakarta.persistence.*;
 
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name="users")
@@ -13,7 +13,7 @@ public class User extends BaseEntity {
     private String password;
 
     @OneToMany(mappedBy = "user")
-    private Set<Character> characters;
+    private List<Character> characters;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name="role_id", referencedColumnName = "id")

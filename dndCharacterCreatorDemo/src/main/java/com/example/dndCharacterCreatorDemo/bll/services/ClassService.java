@@ -1,17 +1,14 @@
 package com.example.dndCharacterCreatorDemo.bll.services;
 
 import com.example.dndCharacterCreatorDemo.bll.dtos.ClassDTO;
-import com.example.dndCharacterCreatorDemo.bll.dtos.ProficiencyDTO;
 import com.example.dndCharacterCreatorDemo.bll.mappers.ClassMapper;
 import com.example.dndCharacterCreatorDemo.bll.mappers.IMapper;
 import com.example.dndCharacterCreatorDemo.dal.entities.DNDclass;
-import com.example.dndCharacterCreatorDemo.dal.entities.Proficiency;
 import com.example.dndCharacterCreatorDemo.dal.repos.ClassRepo;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,12 +24,7 @@ public class ClassService {
     }
 
     public List<ClassDTO> getClasses() {
-        List<DNDclass> dndClasses=classRepo.findAll();
-        List<ClassDTO> classDTOS=new ArrayList<>();
-        for (DNDclass dndClass:dndClasses) {
-            classDTOS.add(mapper.toDto(dndClass));
-        }
-        return classDTOS;
+        return mapper.toDtos(classRepo.findAll());
     }
 
     public void addClass(ClassDTO classDTO) {

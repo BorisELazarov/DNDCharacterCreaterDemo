@@ -7,7 +7,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "characters")
@@ -35,12 +35,12 @@ public class Character extends BaseEntity{
     @Column(name = "base_cha", nullable = false)
     private int baseCha=10;
 
-    @OneToMany(mappedBy = "character")
-    private Set<ProficiencyCharacter> proficiencyCharacters;
+    @OneToMany(mappedBy = "id.character")
+    private List<ProficiencyCharacter> proficiencyCharacters;
 
 
-    @OneToMany(mappedBy = "character")
-    private Set<CharacterSpell> characterSpells;
+    @OneToMany(mappedBy = "id.character")
+    private List<CharacterSpell> characterSpells;
 
     public String getName() {
         return name;

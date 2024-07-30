@@ -1,13 +1,11 @@
 package com.example.dndCharacterCreatorDemo.dal.entities;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import jakarta.persistence.JoinColumn;
 
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "spells")
@@ -28,9 +26,9 @@ public class Spell extends BaseEntity{
     private int duration;
     @Column(name="description", nullable = false)
     private String description;
-    @OneToMany(mappedBy = "spell")
-    private Set<CharacterSpell> characterSpells;
-
-    @OneToMany(mappedBy = "spell")
-    private Set<ClassSpell> classSpells;
+//    @OneToMany(mappedBy = "spell")
+//    private List<CharacterSpell> characterSpells;
+//
+//    @OneToMany(mappedBy = "spell")
+//    private List<ClassSpell> classSpells;
 }

@@ -8,7 +8,6 @@ import com.example.dndCharacterCreatorDemo.dal.repos.ProficiencyRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,12 +24,7 @@ public class ProficiencyService  {
     }
 
     public List<ProficiencyDTO> getProficiencies() {
-        List<Proficiency> proficiencies=proficiencyRepo.findAll();
-        List<ProficiencyDTO> proficiencyDTOS=new ArrayList<>();
-        for (Proficiency proficiency:proficiencies) {
-            proficiencyDTOS.add(mapper.toDto(proficiency));
-        }
-        return proficiencyDTOS;
+        return mapper.toDtos(proficiencyRepo.findAll());
     }
 
     public void addProficiency(ProficiencyDTO proficiencyDTO) {

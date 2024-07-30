@@ -3,6 +3,9 @@ package com.example.dndCharacterCreatorDemo.bll.mappers;
 import com.example.dndCharacterCreatorDemo.bll.dtos.ProficiencyDTO;
 import com.example.dndCharacterCreatorDemo.dal.entities.Proficiency;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class ProficiencyMapper implements IMapper<ProficiencyDTO, Proficiency>{
 
     @Override
@@ -21,5 +24,19 @@ public class ProficiencyMapper implements IMapper<ProficiencyDTO, Proficiency>{
         proficiencyDTO.setType(proficiency.getType());
         proficiencyDTO.setIsDeleted(proficiencyDTO.getIsDeleted());
         return proficiencyDTO;
+    }
+
+    @Override
+    public List<ProficiencyDTO> toDtos(List<Proficiency> proficiencies){
+        return  proficiencies.stream()
+                .map(x-> toDto(x))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Proficiency> fromDtos(List<ProficiencyDTO> proficiencyDTOS){
+        return  proficiencyDTOS.stream()
+                .map(x->fromDto(x))
+                .collect(Collectors.toList());
     }
 }

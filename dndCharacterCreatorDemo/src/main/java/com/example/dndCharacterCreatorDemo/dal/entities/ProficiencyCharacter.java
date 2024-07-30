@@ -5,14 +5,8 @@ import jakarta.persistence.*;
 @Entity
 @Table(name="Proficiency_Characters")
 public class ProficiencyCharacter{
-    @Id
-    @ManyToOne
-    @JoinColumn(name="proficiency_id")
-    private Proficiency proficiency;
-    @Id
-    @ManyToOne
-    @JoinColumn(name="character_id")
-    private Character character;
+    @EmbeddedId
+    private ProficiencyCharacterPairId id;
     @Column(name="expertise", nullable = false)
     private boolean expertise;
 }

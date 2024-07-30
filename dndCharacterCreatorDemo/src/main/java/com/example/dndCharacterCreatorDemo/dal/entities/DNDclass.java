@@ -2,7 +2,7 @@ package com.example.dndCharacterCreatorDemo.dal.entities;
 
 import jakarta.persistence.*;
 
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "Classes")
@@ -13,10 +13,15 @@ public class DNDclass extends BaseEntity{
     private String description;
     @Column(name="hit_dice", nullable = false)
     private int hitDice;
-    @ManyToMany(mappedBy = "dndClasses")
-    private Set<Proficiency> proficiencies;
-    @OneToMany(mappedBy = "dndClass")
-    private Set<ClassSpell> classSpells;
+    @ManyToMany(cascade ={CascadeType.PERSIST,CascadeType.MERGE})
+    @JoinTable(
+            name = "Proficiency_Classes",
+            joinColumns = { @JoinColumn(name = "classId") },
+            inverseJoinColumns = { @JoinColumn(name = "proficiencyId") }
+    )
+    private List<Proficiency> proficiencies;
+    @OneToMany(mappedBy = "id.dndClass")
+    private List<ClassSpell> classSpells;
 
     public String getName() {
         return name;
@@ -40,5 +45,13 @@ public class DNDclass extends BaseEntity{
 
     public void setHitDice(int hitDice) {
         this.hitDice = hitDice;
+    }
+
+    public List<Proficiency> getProficiencies() {
+        return proficiencies;
+    }
+
+    public void setProficiencies(List<Proficiency> proficiencies) {
+        this.proficiencies = proficiencies;
     }
 }
