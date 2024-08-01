@@ -1,0 +1,95 @@
+package com.example.dndcharactercreatordemo.dal.entities;
+
+import com.example.dndcharactercreatordemo.enums.HitDiceEnum;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+
+import java.util.List;
+import java.util.Objects;
+
+@Entity
+@Table(name = "Classes")
+public class DNDclass extends BaseEntity{
+    @Column(name="name", unique = true)
+    @NotBlank(message = "Name must not be empty")
+    @Size(max = 40, message = "Name must have 40 characters at max")
+    private String name;
+    @Column(name="description", nullable = false)
+    @NotBlank(message = "Description must not be empty")
+    @Size(max=65535, message = "The description must have maximum 65 535 characters")
+    private String description;
+    @Column(name="hit_dice", nullable = false)
+    @NotNull(message = "The hit dice must not be empty")
+    @Enumerated(EnumType.STRING)
+//    @Min(value = 0, message = "The hit dice must be at least 6")
+//    @Max(value = 3, message = "The hit dice must be at max 12")
+    private HitDiceEnum hitDice;
+    @ManyToMany
+    @JoinTable(
+            name = "Proficiency_Classes",
+            joinColumns = { @JoinColumn(name = "class_id") },
+            inverseJoinColumns = { @JoinColumn(name = "proficiency_id") }
+    )
+    private List<Proficiency> proficiencies;
+    @OneToMany(mappedBy = "id.dndClass")
+    private List<ClassSpell> classSpells;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public HitDiceEnum getHitDice() {
+        return hitDice;
+    }
+
+    public void setHitDice(HitDiceEnum hitDice) {
+        this.hitDice = hitDice;
+    }
+
+    public List<Proficiency> getProficiencies() {
+        return proficiencies;
+    }
+
+    public void setProficiencies(List<Proficiency> proficiencies) {
+        this.proficiencies = proficiencies;
+    }
+
+    public List<ClassSpell> getClassSpells() {
+        return classSpells;
+    }
+
+    public void setClassSpells(List<ClassSpell> classSpells) {
+        this.classSpells = classSpells;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (super.equals(o))
+            return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DNDclass dnDclass = (DNDclass) o;
+        return Objects.equals(name, dnDclass.name) && Objects.equals(description, dnDclass.description)
+                && hitDice == dnDclass.hitDice && Objects.equals(proficiencies, dnDclass.proficiencies)
+                && Objects.equals(classSpells, dnDclass.classSpells)
+                && Objects.equals(isDeleted, dnDclass.isDeleted);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, description,
+                hitDice, proficiencies, classSpells,
+                isDeleted);
+    }
+}

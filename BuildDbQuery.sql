@@ -5,22 +5,22 @@ create database dnddb;
 use dnddb;
 
 create table roles(
-id bigint primary key auto_increment,
-title nvarchar(20) not null default 'user',
-is_deleted bit not null default 0
+id int primary key auto_increment,
+title nvarchar(20) not null default 'user'-- ,
+-- is_deleted bit not null default 0
 );
 
 create table privileges(
-id bigint primary key auto_increment,
-title nvarchar(40) not null,
-is_deleted bit not null default 0
+id int primary key auto_increment,
+title nvarchar(40) not null-- ,
+-- is_deleted bit not null default 0
 );
 
 create table role_privileges(
-	role_id bigint not null,
+	role_id int not null,
     foreign key(role_id)
     references roles(id),
-	privilege_id bigint not null,
+	privilege_id int not null,
     foreign key(privilege_id)
     references privileges(id),
     primary key(role_id, privilege_id)
@@ -31,7 +31,7 @@ id bigint primary key auto_increment,
 username nvarchar(50) not null,
 password nvarchar(50) not null,
 is_deleted bit not null default 0,
-role_id bigint not null,
+role_id int null,
 foreign key(role_id)
 references roles(id)
 );
@@ -40,9 +40,8 @@ create table classes(
 id bigint primary key auto_increment,
 name nvarchar(50) not null,
 description text not null,
-hit_dice int not null,
-is_deleted bit not null default 0,
-check(hit_dice>0)
+hit_dice enum('D6','D8','D10','D12') not null,
+is_deleted bit not null default 0
 );
 
 CREATE TABLE characters(
@@ -54,16 +53,22 @@ references users(id),
 class_id bigint not null,
 foreign key(class_id)
 references classes(id),
-level int not null default 0,
-base_str int not null default 10,
-base_dex int not null default 10,
-base_con int not null default 10,
-base_int int not null default 10,
-base_wis int not null default 10,
-base_cha int not null default 10,
+level tinyint not null default 0,
+base_str tinyint not null default 10,
+base_dex tinyint not null default 10,
+base_con tinyint not null default 10,
+base_int tinyint not null default 10,
+base_wis tinyint not null default 10,
+base_cha tinyint not null default 10,
 is_deleted bit not null default 0,
 inspiration int null default 0,
-check(level>=0)
+check(level>=0 AND level <=20),
+check(base_str>=0),
+check(base_dex>=0),
+check(base_con>=0),
+check(base_int>=0),
+check(base_wis>=0),
+check(base_cha>=0)
 );
 
 create table spells(
@@ -78,9 +83,10 @@ duration int not null default 0,
 description text not null,
 is_deleted bit not null default 0,
 check(casting_range>=0),
-check(casting_time>=0),
+check(casting_time!=''),
+check(target!=''),
 check(duration>=0),
-check(level>=0)
+check(level>=0 and level <10)
 );
 
 create table character_spells(
