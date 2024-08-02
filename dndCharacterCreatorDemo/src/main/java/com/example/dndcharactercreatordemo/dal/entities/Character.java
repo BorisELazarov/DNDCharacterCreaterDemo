@@ -147,19 +147,13 @@ public class Character extends BaseEntity{
             return true;
         if (o == null || getClass() != o.getClass()) return false;
         Character character = (Character) o;
-        return level == character.level && baseStr == character.baseStr
-                && baseDex == character.baseDex && baseCon == character.baseCon
-                && baseInt == character.baseInt && baseWis == character.baseWis
-                && baseCha == character.baseCha && Objects.equals(name, character.name)
-                && Objects.equals(user, character.user) && Objects.equals(dndClass, character.dndClass)
-                && Objects.equals(proficiencyCharacters, character.proficiencyCharacters)
-                && Objects.equals(characterSpells, character.characterSpells)
-                && Objects.equals(isDeleted, character.isDeleted);
+        return Objects.equals(name, character.name)
+                && isDeleted && character.isDeleted;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, user, dndClass,
+        return Objects.hash(name, user, dndClass,
                 level, baseStr, baseDex, baseCon,
                 baseInt, baseWis, baseCha,
                 proficiencyCharacters, characterSpells,

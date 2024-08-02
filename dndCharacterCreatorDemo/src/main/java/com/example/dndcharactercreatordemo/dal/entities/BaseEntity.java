@@ -9,7 +9,7 @@ import jakarta.persistence.GenerationType;
 import java.util.Objects;
 
 @MappedSuperclass
-public class BaseEntity {
+public abstract class BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
@@ -18,15 +18,15 @@ public class BaseEntity {
     @Column(nullable = false)
     protected boolean isDeleted=false;
 
-    public BaseEntity() {
-    }
-
-    public BaseEntity(Long id) {
-        this.id = id;
+    protected BaseEntity() {
     }
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public boolean getIsDeleted() {

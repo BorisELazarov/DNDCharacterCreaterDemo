@@ -34,6 +34,6 @@ public class Privilege{
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title);
+        return Objects.hash(title);
     }
 }

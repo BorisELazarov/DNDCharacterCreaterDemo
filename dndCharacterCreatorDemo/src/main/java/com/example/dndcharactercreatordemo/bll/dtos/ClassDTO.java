@@ -2,43 +2,37 @@ package com.example.dndcharactercreatordemo.bll.dtos;
 
 import com.example.dndcharactercreatordemo.enums.HitDiceEnum;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ClassDTO extends BaseDTO{
-    private String name;
-    private String description;
-    private HitDiceEnum hitDice;
-    private List<ProficiencyDTO> proficiencies;
+
+    private final String name;
+    private final String description;
+    private final HitDiceEnum hitDice;
+    private final List<ProficiencyDTO> proficiencies;
+    public ClassDTO(Long id, Boolean isDeleted, String name, String description,
+                    HitDiceEnum hitDice, List<ProficiencyDTO> proficiencies) {
+        super(id, isDeleted);
+        this.name = name;
+        this.description = description;
+        this.hitDice = hitDice;
+        this.proficiencies = proficiencies;
+    }
 
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public HitDiceEnum getHitDice() {
         return hitDice;
     }
 
-    public void setHitDice(HitDiceEnum hitDice) {
-        this.hitDice = hitDice;
-    }
-
     public List<ProficiencyDTO> getProficiencies() {
-        return proficiencies;
-    }
-
-    public void setProficiencies(List<ProficiencyDTO> proficiencies) {
-        this.proficiencies = proficiencies;
+        return new ArrayList<>(proficiencies);
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -29,7 +30,7 @@ public class UserService {
 
     public void addUser(UserDTO userDTO) {
         User userByUsername=userRepo.findByUsername(userDTO.getUsername());
-        if (userByUsername!=null || userByUsername.getIsDeleted()) {
+        if (userByUsername!=null && !userByUsername.getIsDeleted()) {
             throw new IllegalArgumentException("Error: there is already user with such name");
         }
         User user=mapper.fromDto(userDTO);
@@ -38,10 +39,11 @@ public class UserService {
 
     @Transactional
     public void updateUser(Long id, String username, String password) {
-        if (!userRepo.existsById(id)) {
+        Optional<User> optionalUser=userRepo.findById(id);
+        if (optionalUser.isEmpty()) {
             userNotFound();
         }
-        User foundUser=userRepo.findById(id).get();
+        User foundUser=optionalUser.get();
         if (username!=null &&
                 username.length()>0 &&
                 !username.equals(foundUser.getUsername())) {
@@ -60,12 +62,16 @@ public class UserService {
     }
 
     public void deleteUser(Long id) {
-        if (!userRepo.existsById(id)) {
+        Optional<User> optionalUser=userRepo.findById(id);
+        if (optionalUser.isPresent()){
+            User foundUser=optionalUser.get();
+            foundUser.setIsDeleted(true);
+            userRepo.save(foundUser);
+        }
+        else {
             userNotFound();
         }
-        User foundUser=userRepo.findById(id).get();
-        foundUser.setIsDeleted(true);
-        userRepo.save(foundUser);
+
     }
 
     private void userNotFound(){
@@ -73,9 +79,10 @@ public class UserService {
     }
 
     public UserDTO getUser(Long id) {
-        if (!userRepo.existsById(id)) {
+        Optional<User> optionalUser=userRepo.findById(id);
+        if (optionalUser.isEmpty()){
             userNotFound();
         }
-        return mapper.toDto(userRepo.findById(id).get());
+        return mapper.toDto(optionalUser.get());
     }
 }

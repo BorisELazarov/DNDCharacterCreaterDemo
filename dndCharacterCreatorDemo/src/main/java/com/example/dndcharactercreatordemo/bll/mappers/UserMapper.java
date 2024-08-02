@@ -6,7 +6,6 @@ import com.example.dndcharactercreatordemo.dal.entities.User;
 import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class UserMapper implements IMapper<UserDTO,User>{
     private final RoleRepo roleRepo;
@@ -33,27 +32,26 @@ public class UserMapper implements IMapper<UserDTO,User>{
     public UserDTO toDto(User entity) {
         if(entity==null)
             return null;
-        UserDTO dto=new UserDTO();
-        dto.setId(entity.getId());
-        dto.setIsDeleted(entity.getIsDeleted());
-        dto.setUsername(entity.getUsername());
-        dto.setPassword(entity.getPassword());
-        if(!entity.getRole().equals(null))
-            dto.setRole(entity.getRole().getTitle());
-        return dto;
+        return new UserDTO(
+                entity.getId(),
+                entity.getUsername(),
+                entity.getPassword(),
+                entity.getRole().getTitle(),
+                entity.getIsDeleted()
+        );
     }
 
     @Override
     public List<User> fromDtos(List<UserDTO> userDTOS) {
         return userDTOS.stream()
-                .map(x-> fromDto(x))
-                .collect(Collectors.toList());
+                .map(this::fromDto)
+                .toList();
     }
 
     @Override
     public List<UserDTO> toDtos(List<User> users) {
         return users.stream()
-                .map(x-> toDto(x))
-                .collect(Collectors.toList());
+                .map(this::toDto)
+                .toList();
     }
 }

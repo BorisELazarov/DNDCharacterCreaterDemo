@@ -44,14 +44,6 @@ public class Spell extends BaseEntity{
     @Size(max=65535, message = "The description must have maximum 65 535 characters")
     private String description;
 
-
-    public Spell() {
-    }
-
-    public Spell(Long id) {
-        super(id);
-    }
-
     public String getName() {
         return name;
     }
@@ -123,16 +115,14 @@ public class Spell extends BaseEntity{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Spell spell = (Spell) o;
-        return level == spell.level && castingRange == spell.castingRange && duration == spell.duration
-                && Objects.equals(name, spell.name) && Objects.equals(castingTime, spell.castingTime)
-                && Objects.equals(target, spell.target) && Objects.equals(components, spell.components)
-                && Objects.equals(description, spell.description)
-                && Objects.equals(isDeleted, spell.isDeleted);
+        return level == spell.level && Objects.equals(name, spell.name)
+                && Objects.equals(description, spell.description) && isDeleted
+                && spell.getIsDeleted();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, level, castingTime,
+        return Objects.hash(name, level, castingTime,
                 castingRange, target, components,
                 duration, description, isDeleted);
     }

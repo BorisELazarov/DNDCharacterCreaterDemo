@@ -10,67 +10,50 @@ public class SpellDTO extends BaseDTO{
     private int duration;
     private String description;
 
-    public String getName() {
-        return name;
+    public SpellDTO(Long id, Boolean isDeleted,
+                    String name, int level, String castingTime,
+                    int castingRange, String target, String components,
+                    int duration, String description) {
+        super(id, isDeleted);
+        this.name = name;
+        this.level = level;
+        this.castingTime = castingTime;
+        this.castingRange = castingRange;
+        this.target = target;
+        this.components = components;
+        this.duration = duration;
+        this.description = description;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getName() {
+        return name;
     }
 
     public int getLevel() {
         return level;
     }
 
-    public void setLevel(int level) {
-        this.level = level;
-    }
-
     public String getCastingTime() {
         return castingTime;
-    }
-
-    public void setCastingTime(String castingTime) {
-        this.castingTime = castingTime;
     }
 
     public int getCastingRange() {
         return castingRange;
     }
 
-    public void setCastingRange(int castingRange) {
-        this.castingRange = castingRange;
-    }
-
     public String getTarget() {
         return target;
-    }
-
-    public void setTarget(String target) {
-        this.target = target;
     }
 
     public String getComponents() {
         return components;
     }
 
-    public void setComponents(String components) {
-        this.components = components;
-    }
-
     public int getDuration() {
         return duration;
     }
 
-    public void setDuration(int duration) {
-        this.duration = duration;
-    }
-
     public String getDescription() {
         return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 }

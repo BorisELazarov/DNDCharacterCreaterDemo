@@ -29,15 +29,15 @@ public class ProficiencyService  {
 
     public void addProficiency(ProficiencyDTO proficiencyDTO) {
         Proficiency proficiencyByName=proficiencyRepo.findByName(proficiencyDTO.getName());
-        if (proficiencyByName!=null && proficiencyByName.getIsDeleted()) {
-            throw new IllegalArgumentException("Error: there is already skill with such name!");
+        if (!(proficiencyByName==null || proficiencyByName.getIsDeleted())) {
+            throw new IllegalArgumentException("Error: there is already proficiency with such name!");
         }
         proficiencyRepo.save(mapper.fromDto(proficiencyDTO));
     }
 
     public ProficiencyDTO getProficiency(Long id) {
         Optional<Proficiency> proficiency=proficiencyRepo.findById(id);
-        if (!proficiency.isPresent()) {
+        if (proficiency.isEmpty()) {
             proficiencyNotFound();
         }
         return mapper.toDto(proficiency.get());
@@ -51,7 +51,7 @@ public class ProficiencyService  {
 
     public void updateProficiency(Long id, String name, String type) {
         Optional<Proficiency> proficiency=proficiencyRepo.findById(id);
-        if (!proficiency.isPresent()) {
+        if (proficiency.isEmpty()) {
             proficiencyNotFound();
         }
         Proficiency foundProficiency=proficiency.get();
@@ -59,7 +59,7 @@ public class ProficiencyService  {
                 name.length()>0 &&
                 !name.equals(foundProficiency.getName())) {
             Proficiency proficiencyByUsername=proficiencyRepo.findByName(name);
-            if(proficiencyByUsername!=null && !proficiencyByUsername.getIsDeleted())
+            if (!(proficiencyByUsername==null || proficiencyByUsername.getIsDeleted()))
             {
                 throw new IllegalArgumentException("Error: there is already proficiency with such name");
             }
@@ -74,12 +74,14 @@ public class ProficiencyService  {
     }
 
     public void deleteProficiency(Long id) {
-        if (!proficiencyRepo.existsById(id))
-        {
+        Optional<Proficiency> optionalProficiency=proficiencyRepo.findById(id);
+        if (optionalProficiency.isEmpty()){
             proficiencyNotFound();
         }
-        Proficiency proficiency=proficiencyRepo.findById(id).get();
-        proficiency.setIsDeleted(true);
-        proficiencyRepo.save(proficiency);
+        else {
+            Proficiency proficiency=optionalProficiency.get();
+            proficiency.setIsDeleted(true);
+            proficiencyRepo.save(proficiency);
+        }
     }
 }

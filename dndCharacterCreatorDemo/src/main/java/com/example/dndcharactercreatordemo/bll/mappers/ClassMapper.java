@@ -24,6 +24,7 @@ public class ClassMapper implements IMapper<ClassDTO,DNDclass>{
         dndClass.setIsDeleted(classDTO.getIsDeleted());
         dndClass.setProficiencies(
                 proficiencyMapper.fromDtos(classDTO.getProficiencies())
+                        .stream().collect(Collectors.toSet())
         );
         return dndClass;
     }
@@ -32,29 +33,28 @@ public class ClassMapper implements IMapper<ClassDTO,DNDclass>{
     public ClassDTO toDto(DNDclass dndClass) {
         if(dndClass==null)
             return null;
-        ClassDTO classDTO = new ClassDTO();
-        classDTO.setId(dndClass.getId());
-        classDTO.setDescription(dndClass.getDescription());
-        classDTO.setName(dndClass.getName());
-        classDTO.setHitDice(dndClass.getHitDice());
-        classDTO.setIsDeleted(dndClass.getIsDeleted());
-        classDTO.setProficiencies(
-                proficiencyMapper.toDtos(dndClass.getProficiencies())
+        return new ClassDTO(dndClass.getId(),dndClass.getIsDeleted(),
+                dndClass.getName(),
+                dndClass.getDescription(),
+                dndClass.getHitDice(),
+                proficiencyMapper.toDtos(
+                        dndClass.getProficiencies()
+                                .stream().toList()
+                )
         );
-        return  classDTO;
     }
 
     @Override
     public List<DNDclass> fromDtos(List<ClassDTO> classDTOS) {
         return classDTOS.stream()
-                .map(x-> fromDto(x))
-                .collect(Collectors.toList());
+                .map(this::fromDto)
+                .toList();
     }
 
     @Override
     public List<ClassDTO> toDtos(List<DNDclass> dndClasses) {
         return dndClasses.stream()
-                .map(x->toDto(x))
-                .collect(Collectors.toList());
+                .map(this::toDto)
+                .toList();
     }
 }

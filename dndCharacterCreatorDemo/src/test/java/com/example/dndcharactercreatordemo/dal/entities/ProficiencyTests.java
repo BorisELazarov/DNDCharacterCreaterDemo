@@ -21,12 +21,13 @@ class ProficiencyTests {
     }
     @Test
     void equalsIds(){
-
-        Proficiency proficiency1=new Proficiency(1L);
+        Proficiency proficiency1=new Proficiency();
+        proficiency1.setId(1L);
         proficiency1.setName("Archery");
         proficiency1.setType("Weapons");
         proficiency1.setIsDeleted(true);
-        Proficiency proficiency2=new Proficiency(1L);
+        Proficiency proficiency2=new Proficiency();
+        proficiency2.setId(1L);
         proficiency2.setName("Archery");
         proficiency2.setType("Skills");
         proficiency2.setIsDeleted(true);
@@ -34,7 +35,8 @@ class ProficiencyTests {
     }
     @Test
     void hash(){
-        Proficiency proficiency1=new Proficiency(1L);
+        Proficiency proficiency1=new Proficiency();
+        proficiency1.setId(1L);
         proficiency1.setName("Archery");
         proficiency1.setType("Weapons");
         proficiency1.setIsDeleted(true);

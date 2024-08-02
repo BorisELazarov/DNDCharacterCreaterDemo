@@ -43,7 +43,7 @@ public class ClassService {
     @Transactional
     public void updateClass(Long id, String username, String description, HitDiceEnum hitDice) {
         Optional<DNDclass> dndClass= classRepo.findById(id);
-        if (!dndClass.isPresent()) {
+        if (dndClass.isEmpty()) {
             dndClassNotFound();
         }
         DNDclass foundDNDClass=dndClass.get();
@@ -73,12 +73,17 @@ public class ClassService {
     }
 
     public void deleteClass(Long id) {
-        if (!classRepo.existsById(id)){
+        Optional<DNDclass> optionalClass=classRepo.findById(id);
+        if (optionalClass.isPresent()){
+
+            DNDclass dndClass= optionalClass.get();
+            dndClass.setIsDeleted(true);
+            classRepo.save(dndClass);
+        }
+        else {
+
             dndClassNotFound();
         }
-        DNDclass dndClass= classRepo.findById(id).get();
-        dndClass.setIsDeleted(true);
-        classRepo.save(dndClass);
     }
 
     private void dndClassNotFound(){
@@ -87,7 +92,7 @@ public class ClassService {
 
     public ClassDTO getClass(Long id) {
         Optional<DNDclass> dndClass= classRepo.findById(id);
-        if (!dndClass.isPresent()) {
+        if (dndClass.isEmpty()) {
             dndClassNotFound();
         }
         return mapper.toDto(dndClass.get());

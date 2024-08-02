@@ -6,6 +6,7 @@ import jakarta.validation.constraints.*;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "Classes")
@@ -30,7 +31,7 @@ public class DNDclass extends BaseEntity{
             joinColumns = { @JoinColumn(name = "class_id") },
             inverseJoinColumns = { @JoinColumn(name = "proficiency_id") }
     )
-    private List<Proficiency> proficiencies;
+    private Set<Proficiency> proficiencies;
     @OneToMany(mappedBy = "id.dndClass")
     private List<ClassSpell> classSpells;
 
@@ -58,11 +59,11 @@ public class DNDclass extends BaseEntity{
         this.hitDice = hitDice;
     }
 
-    public List<Proficiency> getProficiencies() {
+    public Set<Proficiency> getProficiencies() {
         return proficiencies;
     }
 
-    public void setProficiencies(List<Proficiency> proficiencies) {
+    public void setProficiencies(Set<Proficiency> proficiencies) {
         this.proficiencies = proficiencies;
     }
 
@@ -81,14 +82,13 @@ public class DNDclass extends BaseEntity{
         if (o == null || getClass() != o.getClass()) return false;
         DNDclass dnDclass = (DNDclass) o;
         return Objects.equals(name, dnDclass.name) && Objects.equals(description, dnDclass.description)
-                && hitDice == dnDclass.hitDice && Objects.equals(proficiencies, dnDclass.proficiencies)
-                && Objects.equals(classSpells, dnDclass.classSpells)
-                && Objects.equals(isDeleted, dnDclass.isDeleted);
+                && Objects.equals(proficiencies, dnDclass.proficiencies)
+                && isDeleted && dnDclass.getIsDeleted();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description,
+        return Objects.hash(name, description,
                 hitDice, proficiencies, classSpells,
                 isDeleted);
     }

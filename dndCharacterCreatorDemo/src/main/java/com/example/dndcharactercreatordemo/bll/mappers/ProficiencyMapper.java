@@ -4,7 +4,6 @@ import com.example.dndcharactercreatordemo.bll.dtos.ProficiencyDTO;
 import com.example.dndcharactercreatordemo.dal.entities.Proficiency;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ProficiencyMapper implements IMapper<ProficiencyDTO, Proficiency>{
 
@@ -12,10 +11,13 @@ public class ProficiencyMapper implements IMapper<ProficiencyDTO, Proficiency>{
     public Proficiency fromDto(ProficiencyDTO proficiencyDTO) {
         if(proficiencyDTO==null)
             return null;
-        Proficiency proficiency=new Proficiency(proficiencyDTO.getId());
-        proficiency.setIsDeleted(proficiencyDTO.getIsDeleted());
-        proficiency.setType(proficiencyDTO.getType());
+        Proficiency proficiency=new Proficiency();
+        if (proficiencyDTO.getId()!=null) {
+            proficiency.setId(proficiencyDTO.getId());
+            proficiency.setIsDeleted(proficiencyDTO.getIsDeleted());
+        }
         proficiency.setName(proficiencyDTO.getName());
+        proficiency.setType(proficiencyDTO.getType());
         return proficiency;
     }
 
@@ -23,25 +25,22 @@ public class ProficiencyMapper implements IMapper<ProficiencyDTO, Proficiency>{
     public ProficiencyDTO toDto(Proficiency proficiency) {
         if(proficiency==null)
             return null;
-        ProficiencyDTO proficiencyDTO=new ProficiencyDTO();
-        proficiencyDTO.setId(proficiency.getId());
-        proficiencyDTO.setName(proficiency.getName());
-        proficiencyDTO.setType(proficiency.getType());
-        proficiencyDTO.setIsDeleted(proficiencyDTO.getIsDeleted());
-        return proficiencyDTO;
+        return new ProficiencyDTO(proficiency.getId(),
+                proficiency.getIsDeleted(), proficiency.getName(),
+                proficiency.getType());
     }
 
     @Override
     public List<ProficiencyDTO> toDtos(List<Proficiency> proficiencies){
         return  proficiencies.stream()
-                .map(x-> toDto(x))
-                .collect(Collectors.toList());
+                .map(this::toDto)
+                .toList();
     }
 
     @Override
     public List<Proficiency> fromDtos(List<ProficiencyDTO> proficiencyDTOS){
         return  proficiencyDTOS.stream()
-                .map(x->fromDto(x))
-                .collect(Collectors.toList());
+                .map(this::fromDto)
+                .toList();
     }
 }

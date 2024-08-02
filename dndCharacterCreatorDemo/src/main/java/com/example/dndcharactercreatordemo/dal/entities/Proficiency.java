@@ -18,13 +18,6 @@ public class Proficiency extends BaseEntity {
     @Size(max=50, message = "Type must have maximum 50 characters")
     private String type;
 
-    public Proficiency() {
-    }
-
-    public Proficiency(Long id) {
-        super(id);
-    }
-
     public String getName() {
         return name;
     }
@@ -49,11 +42,11 @@ public class Proficiency extends BaseEntity {
         if (o == null || getClass() != o.getClass()) return false;
         Proficiency proficiency = (Proficiency) o;
         return Objects.equals(name, proficiency.name) && Objects.equals(type, proficiency.type)
-                && Objects.equals(isDeleted, proficiency.isDeleted);
+                && isDeleted && proficiency.getIsDeleted();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, type, isDeleted);
+        return Objects.hash(name, type, isDeleted);
     }
 }

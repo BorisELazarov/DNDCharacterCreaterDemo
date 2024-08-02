@@ -2,21 +2,24 @@ package com.example.dndcharactercreatordemo.bll.dtos;
 
 public abstract class BaseDTO {
     protected Long id;
-    protected boolean isDeleted;
+    protected Boolean isDeleted;
+
+    protected BaseDTO() {
+    }
+
+    protected BaseDTO(Long id, Boolean isDeleted) {
+        this.id = id;
+        if (isDeleted!=null)
+            this.isDeleted = isDeleted;
+        else
+            this.isDeleted=false;
+    }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public boolean getIsDeleted() {
+    public Boolean getIsDeleted() {
         return isDeleted;
-    }
-
-    public void setIsDeleted(boolean deleted) {
-        isDeleted = deleted;
     }
 }

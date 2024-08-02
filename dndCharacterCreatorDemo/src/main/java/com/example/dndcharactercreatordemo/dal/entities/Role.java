@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "Roles")
@@ -22,7 +23,7 @@ public class Role{
             joinColumns = { @JoinColumn(name = "role_id") },
             inverseJoinColumns = { @JoinColumn(name = "privilege_id") }
     )
-    private List<Privilege> privileges;
+    private Set<Privilege> privileges;
 
     public String getTitle() {
         return title;
@@ -32,11 +33,11 @@ public class Role{
         this.title = title;
     }
 
-    public List<Privilege> getPrivileges() {
+    public Set<Privilege> getPrivileges() {
         return privileges;
     }
 
-    public void setPrivileges(List<Privilege> privileges) {
+    public void setPrivileges(Set<Privilege> privileges) {
         this.privileges = privileges;
     }
 
@@ -50,6 +51,6 @@ public class Role{
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, privileges);
+        return Objects.hash(title, privileges);
     }
 }

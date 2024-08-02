@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 @Configuration
@@ -35,7 +36,6 @@ public class Config {
         return proficiency;
     }
 
-    //To optimise
     private void addProficiencies(){
         if (proficiencyRepo.count()>0)
             return;
@@ -63,17 +63,17 @@ public class Config {
             manageData.setTitle("manage data");
             Role admin = new Role();
             admin.setTitle("admin");
-            admin.setPrivileges(new ArrayList<>());
+            admin.setPrivileges(new LinkedHashSet<>());
             admin.getPrivileges().add(manageProfile);
             admin.getPrivileges().add(manageUsers);
             Role dataManager = new Role();
             dataManager.setTitle("data manager");
-            dataManager.setPrivileges(new ArrayList<>());
+            dataManager.setPrivileges(new LinkedHashSet<>());
             dataManager.getPrivileges().add(manageProfile);
             dataManager.getPrivileges().add(manageData);
             Role user = new Role();
             user.setTitle("user");
-            user.setPrivileges(new ArrayList<>());
+            user.setPrivileges(new LinkedHashSet<>());
             user.getPrivileges().add(manageProfile);
             user.getPrivileges().add(manageCharacters);
             List<Role> roles=new ArrayList<>();
@@ -86,7 +86,9 @@ public class Config {
 
     private void addUser(){
         if (userRepo.findByUsername("Boris")==null) {
-            User user = new User("Boris", "BPass");
+            User user = new User();
+            user.setUsername("Boris");
+            user.setPassword("BPass");
             Role role= roleRepo.findByTitle("admin");
             if (role!=null)
                 user.setRole(role);

@@ -53,12 +53,14 @@ public class SpellService {
     }
 
     public void softDeleteSpell(Long id){
-        if (!repo.existsById(id))
-        {
+        Optional<Spell> optionalSpell=repo.findById(id);
+        if (optionalSpell.isPresent()){
+            Spell spell=optionalSpell.get();
+            spell.setIsDeleted(true);
+            repo.save(spell);
+
+        }else {
             spellNotFound();
         }
-        Spell spell=repo.findById(id).get();
-        spell.setIsDeleted(true);
-        repo.save(spell);
     }
 }

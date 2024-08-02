@@ -4,14 +4,14 @@ import com.example.dndcharactercreatordemo.bll.dtos.SpellDTO;
 import com.example.dndcharactercreatordemo.dal.entities.Spell;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class SpellMapper implements IMapper<SpellDTO, Spell>{
     @Override
     public Spell fromDto(SpellDTO spellDTO) {
         if (spellDTO==null)
             return null;
-        Spell spell=new Spell(spellDTO.getId());
+        Spell spell=new Spell();
+        spell.setId(spellDTO.getId());
         spell.setName(spellDTO.getName());
         spell.setDescription(spellDTO.getDescription());
         spell.setLevel(spellDTO.getLevel());
@@ -27,30 +27,22 @@ public class SpellMapper implements IMapper<SpellDTO, Spell>{
     public SpellDTO toDto(Spell spell) {
         if(spell==null)
             return null;
-        SpellDTO spellDTO=new SpellDTO();
-        spellDTO.setId(spell.getId());
-        spellDTO.setName(spell.getName());
-        spellDTO.setDescription(spell.getDescription());
-        spellDTO.setLevel(spell.getLevel());
-        spellDTO.setCastingRange(spell.getCastingRange());
-        spellDTO.setTarget(spell.getTarget());
-        spellDTO.setComponents(spell.getComponents());
-        spellDTO.setDuration(spell.getDuration());
-        spellDTO.setCastingTime(spell.getCastingTime());
-        return spellDTO;
+        return new SpellDTO(
+                spell.getId(),spell.getIsDeleted(),
+                spell.getName(), spell.getLevel(),
+                spell.getCastingTime(), spell.getCastingRange(),
+                spell.getTarget(), spell.getComponents(),
+                spell.getDuration(), spell.getDescription()
+        );
     }
 
     @Override
     public List<Spell> fromDtos(List<SpellDTO> spellDTOS) {
-        return spellDTOS.stream()
-                .map(x-> fromDto(x))
-                .collect(Collectors.toList());
+        return spellDTOS.stream().map(this::fromDto).toList();
     }
 
     @Override
     public List<SpellDTO> toDtos(List<Spell> spells) {
-        return spells.stream()
-                .map(x-> toDto(x))
-                .collect(Collectors.toList());
+        return spells.stream().map(this::toDto).toList();
     }
 }

@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name="users")
@@ -27,15 +28,6 @@ public class User extends BaseEntity {
     @JoinColumn(name="role_id", referencedColumnName = "id")
     @NotNull(message = "Role must not be null")
     private Role role;
-
-    public User() {
-    }
-
-    public User(String username, String password) {
-        this.username=username;
-        this.password=password;
-    }
-
     public String getUsername() {
         return username;
     }
@@ -67,14 +59,13 @@ public class User extends BaseEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(username, user.username) && Objects.equals(password, user.password)
-                && Objects.equals(characters, user.characters) && Objects.equals(role, user.role)
-                && Objects.equals(isDeleted, user.getIsDeleted());
+        return Objects.equals(username, user.username) && isDeleted
+                && user.getIsDeleted();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, username, password,
+        return Objects.hash(username, password,
                 characters, role, isDeleted);
     }
 }
