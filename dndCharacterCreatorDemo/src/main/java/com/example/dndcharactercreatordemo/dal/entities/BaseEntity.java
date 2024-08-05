@@ -16,10 +16,7 @@ public abstract class BaseEntity {
     protected Long id;
 
     @Column(nullable = false)
-    protected boolean isDeleted=false;
-
-    protected BaseEntity() {
-    }
+    protected Boolean isDeleted=false;
 
     public Long getId() {
         return id;
@@ -33,8 +30,11 @@ public abstract class BaseEntity {
         return isDeleted;
     }
 
-    public void setIsDeleted(boolean deleted) {
-        isDeleted = deleted;
+    public void setIsDeleted(Boolean deleted) {
+        if (deleted==null)
+            isDeleted=true;
+        else
+            isDeleted = deleted;
     }
 
     @Override

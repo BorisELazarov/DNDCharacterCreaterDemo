@@ -12,12 +12,12 @@ public class ProficiencyMapper implements IMapper<ProficiencyDTO, Proficiency>{
         if(proficiencyDTO==null)
             return null;
         Proficiency proficiency=new Proficiency();
-        if (proficiencyDTO.getId()!=null) {
-            proficiency.setId(proficiencyDTO.getId());
-            proficiency.setIsDeleted(proficiencyDTO.getIsDeleted());
+        if (proficiencyDTO.id()!=null) {
+            proficiency.setId(proficiencyDTO.id());
+            proficiency.setIsDeleted(proficiencyDTO.isDeleted());
         }
-        proficiency.setName(proficiencyDTO.getName());
-        proficiency.setType(proficiencyDTO.getType());
+        proficiency.setName(proficiencyDTO.name());
+        proficiency.setType(proficiencyDTO.type());
         return proficiency;
     }
 

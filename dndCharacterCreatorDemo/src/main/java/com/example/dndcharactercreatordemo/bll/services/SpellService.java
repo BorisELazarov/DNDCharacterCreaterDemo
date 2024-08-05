@@ -38,7 +38,7 @@ public class SpellService {
     }
 
     public void addSpell(SpellDTO spellDTO){
-        Spell spell=repo.findByName(spellDTO.getName());
+        Spell spell=repo.findByName(spellDTO.name());
         if (spell!=null && !spell.getIsDeleted()){
             throw new IllegalArgumentException("Error: there is already spell with such name!");
         }
@@ -46,7 +46,7 @@ public class SpellService {
     }
 
     public void editSpell(SpellDTO spellDTO) {
-        if (repo.existsById(spellDTO.getId()))
+        if (repo.existsById(spellDTO.id()))
             repo.save(mapper.fromDto(spellDTO));
         else
             spellNotFound();

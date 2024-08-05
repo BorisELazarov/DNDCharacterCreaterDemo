@@ -29,7 +29,7 @@ public class UserService {
     }
 
     public void addUser(UserDTO userDTO) {
-        User userByUsername=userRepo.findByUsername(userDTO.getUsername());
+        User userByUsername=userRepo.findByUsername(userDTO.username());
         if (userByUsername!=null && !userByUsername.getIsDeleted()) {
             throw new IllegalArgumentException("Error: there is already user with such name");
         }

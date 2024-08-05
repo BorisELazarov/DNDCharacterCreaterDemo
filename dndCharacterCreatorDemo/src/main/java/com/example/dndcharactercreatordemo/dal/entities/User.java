@@ -3,22 +3,18 @@ package com.example.dndcharactercreatordemo.dal.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name="users")
 public class User extends BaseEntity {
-    @Column(name="username", nullable = false)
+    @Column(name="username", nullable = false, length = 50)
     @NotBlank(message = "Username must not be empty")
-    @Size(max=50, message = "Username must have maximum 50 characters")
     private String username;
-    @Column(name="password", nullable = false)
+    @Column(name="password", nullable = false, length = 50)
     @NotBlank(message = "Password must not be empty")
-    @Size(max=50, message = "Password must have maximum 50 characters")
     private String password;
 
     @OneToMany(mappedBy = "user")

@@ -11,15 +11,15 @@ public class SpellMapper implements IMapper<SpellDTO, Spell>{
         if (spellDTO==null)
             return null;
         Spell spell=new Spell();
-        spell.setId(spellDTO.getId());
-        spell.setName(spellDTO.getName());
-        spell.setDescription(spellDTO.getDescription());
-        spell.setLevel(spellDTO.getLevel());
-        spell.setCastingRange(spellDTO.getCastingRange());
-        spell.setTarget(spellDTO.getTarget());
-        spell.setComponents(spellDTO.getComponents());
-        spell.setDuration(spellDTO.getDuration());
-        spell.setCastingTime(spellDTO.getCastingTime());
+        spell.setId(spellDTO.id());
+        spell.setName(spellDTO.name());
+        spell.setDescription(spellDTO.description());
+        spell.setLevel(spellDTO.level());
+        spell.setCastingRange(spellDTO.castingRange());
+        spell.setTarget(spellDTO.target());
+        spell.setComponents(spellDTO.components());
+        spell.setDuration(spellDTO.duration());
+        spell.setCastingTime(spellDTO.castingTime());
         return spell;
     }
 

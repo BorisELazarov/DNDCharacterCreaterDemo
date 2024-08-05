@@ -10,7 +10,6 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 import java.util.List;
 import java.util.Objects;
@@ -18,9 +17,8 @@ import java.util.Objects;
 @Entity
 @Table(name = "characters")
 public class Character extends BaseEntity{
-    @Column(name="name", nullable = false)
+    @Column(name="name", nullable = false, length = 50)
     @NotBlank(message = "Name is mandatory")
-    @Size(max=50, message = "Name must have maximum 50 characters")
     private String name;
     @ManyToOne
     @JoinColumn(name="user_id", nullable = false)

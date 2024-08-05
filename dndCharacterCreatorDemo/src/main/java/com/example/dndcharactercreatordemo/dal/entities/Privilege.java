@@ -2,7 +2,6 @@ package com.example.dndcharactercreatordemo.dal.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 import java.util.Objects;
 
@@ -12,8 +11,8 @@ public class Privilege{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column(nullable = false, length = 40)
     @NotBlank(message = "Title must not be empty")
-    @Size(max = 40, message = "The privilege must have title.")
     private String title;
 
     public String getTitle() {

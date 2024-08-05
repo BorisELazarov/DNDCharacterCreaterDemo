@@ -2,20 +2,17 @@ package com.example.dndcharactercreatordemo.dal.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 import java.util.Objects;
 
 @Entity
 @Table(name="proficiencies")
 public class Proficiency extends BaseEntity {
-    @Column(name="name", nullable = false)
+    @Column(name="name", nullable = false, length = 50)
     @NotBlank(message = "Name must not be empty")
-    @Size(max=50, message = "Name must have maximum 50 characters")
     private String name;
-    @Column(name="type", nullable = false)
+    @Column(name="type", nullable = false, length = 50)
     @NotBlank(message = "Type must not be empty")
-    @Size(max=50, message = "Type must have maximum 50 characters")
     private String type;
 
     public String getName() {

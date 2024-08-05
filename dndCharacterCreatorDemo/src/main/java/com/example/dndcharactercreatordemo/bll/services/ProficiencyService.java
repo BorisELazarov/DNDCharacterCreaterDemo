@@ -28,7 +28,7 @@ public class ProficiencyService  {
     }
 
     public void addProficiency(ProficiencyDTO proficiencyDTO) {
-        Proficiency proficiencyByName=proficiencyRepo.findByName(proficiencyDTO.getName());
+        Proficiency proficiencyByName=proficiencyRepo.findByName(proficiencyDTO.name());
         if (!(proficiencyByName==null || proficiencyByName.getIsDeleted())) {
             throw new IllegalArgumentException("Error: there is already proficiency with such name!");
         }

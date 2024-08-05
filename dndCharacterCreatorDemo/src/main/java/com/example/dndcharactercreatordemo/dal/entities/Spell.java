@@ -13,24 +13,21 @@ import java.util.Objects;
 @Entity
 @Table(name = "spells")
 public class Spell extends BaseEntity{
-    @Column(name="name", nullable = false)
+    @Column(name="name", nullable = false, length = 50)
     @NotBlank(message = "Name must not be empty")
-    @Size(max=50, message = "Name must have maximum 50 characters")
     private String name;
     @Column(name="level", nullable = false)
     @Min(value = 0, message = "Level must be at least 0")
     @Max(value = 9, message = "The maximum level is 9")
     private int level;
-    @Column(name="casting_time", nullable = false)
+    @Column(name="casting_time", nullable = false, length = 50)
     @NotBlank(message = "Casting time must not be empty")
-    @Size(max=50, message = "Casting time must have maximum 50 characters")
     private String castingTime;
     @Column(name="casting_range")
     @Min(value = 0, message = "Casting range must be at least 0 feet")
     private int castingRange;
-    @Column(name="target")
+    @Column(name="target", length = 50)
     @NotBlank(message = "Target must not be empty")
-    @Size(max=50, message = "Target must have maximum 50 characters")
     private String target;
     @Column(name="components", nullable = false)
     @NotBlank(message = "The components must not be empty")
@@ -39,9 +36,8 @@ public class Spell extends BaseEntity{
     @Column(name="duration", nullable = false)
     @Min(value = 0, message = "Duration must be at least 0")
     private int duration;
-    @Column(name="description", nullable = false)
+    @Column(name="description", nullable = false, length = 65535)
     @NotBlank(message = "Description must not be empty")
-    @Size(max=65535, message = "The description must have maximum 65 535 characters")
     private String description;
 
     public String getName() {

@@ -32,7 +32,7 @@ public class ClassService {
     }
 
     public void addClass(ClassDTO classDTO) {
-        if (classRepo.existsByName(classDTO.getName())) {
+        if (classRepo.existsByName(classDTO.name())) {
             throw new IllegalArgumentException("Error: there is already dndClass with such name");
         }
         DNDclass dndClass=mapper.fromDto(classDTO);

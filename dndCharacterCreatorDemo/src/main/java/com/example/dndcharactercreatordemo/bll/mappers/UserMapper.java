@@ -19,11 +19,11 @@ public class UserMapper implements IMapper<UserDTO,User>{
         if(dto==null)
             return null;
         User entity=new User();
-        entity.setIsDeleted(dto.getIsDeleted());
-        entity.setUsername(dto.getUsername());
-        entity.setPassword(dto.getPassword());
-        Role role=roleRepo.findByTitle(dto.getRole());
-        role.setTitle(dto.getRole());
+        entity.setIsDeleted(dto.isDeleted());
+        entity.setUsername(dto.username());
+        entity.setPassword(dto.password());
+        Role role=roleRepo.findByTitle(dto.role());
+        role.setTitle(dto.role());
         entity.setRole(role);
         return entity;
     }
@@ -34,10 +34,10 @@ public class UserMapper implements IMapper<UserDTO,User>{
             return null;
         return new UserDTO(
                 entity.getId(),
+                entity.getIsDeleted(),
                 entity.getUsername(),
                 entity.getPassword(),
-                entity.getRole().getTitle(),
-                entity.getIsDeleted()
+                entity.getRole().getTitle()
         );
     }
 

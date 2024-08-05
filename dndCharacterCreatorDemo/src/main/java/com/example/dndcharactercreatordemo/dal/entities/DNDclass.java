@@ -11,13 +11,11 @@ import java.util.Set;
 @Entity
 @Table(name = "Classes")
 public class DNDclass extends BaseEntity{
-    @Column(name="name", unique = true)
+    @Column(name="name", unique = true, length = 40)
     @NotBlank(message = "Name must not be empty")
-    @Size(max = 40, message = "Name must have 40 characters at max")
     private String name;
-    @Column(name="description", nullable = false)
+    @Column(name="description", nullable = false, length = 65535)
     @NotBlank(message = "Description must not be empty")
-    @Size(max=65535, message = "The description must have maximum 65 535 characters")
     private String description;
     @Column(name="hit_dice", nullable = false)
     @NotNull(message = "The hit dice must not be empty")

@@ -5,8 +5,8 @@ import com.example.dndcharactercreatordemo.bll.dtos.ProficiencyDTO;
 import com.example.dndcharactercreatordemo.dal.entities.DNDclass;
 import com.example.dndcharactercreatordemo.dal.entities.Proficiency;
 
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ClassMapper implements IMapper<ClassDTO,DNDclass>{
     private final IMapper<ProficiencyDTO, Proficiency> proficiencyMapper;
@@ -18,13 +18,12 @@ public class ClassMapper implements IMapper<ClassDTO,DNDclass>{
         if(classDTO==null)
             return null;
         DNDclass dndClass=new DNDclass();
-        dndClass.setName(classDTO.getName());
-        dndClass.setHitDice(classDTO.getHitDice());
-        dndClass.setDescription(classDTO.getDescription());
-        dndClass.setIsDeleted(classDTO.getIsDeleted());
+        dndClass.setName(classDTO.name());
+        dndClass.setHitDice(classDTO.hitDice());
+        dndClass.setDescription(classDTO.description());
+        dndClass.setIsDeleted(classDTO.isDeleted());
         dndClass.setProficiencies(
-                proficiencyMapper.fromDtos(classDTO.getProficiencies())
-                        .stream().collect(Collectors.toSet())
+                new LinkedHashSet<>(proficiencyMapper.fromDtos(classDTO.proficiencies()))
         );
         return dndClass;
     }
