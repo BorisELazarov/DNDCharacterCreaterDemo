@@ -1,20 +1,23 @@
 package com.example.dndcharactercreatordemo.bll.services;
 
-import com.example.dndcharactercreatordemo.bll.dtos.ProficiencyDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.ReadProficiencyDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.SaveProficiencyDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.IMapper;
 import com.example.dndcharactercreatordemo.bll.mappers.ProficiencyMapper;
 import com.example.dndcharactercreatordemo.dal.entities.Proficiency;
 import com.example.dndcharactercreatordemo.dal.repos.ProficiencyRepo;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ProficiencyService  {
     private final ProficiencyRepo proficiencyRepo;
-    private final IMapper<ProficiencyDTO, Proficiency> mapper;
+    private final IMapper<SaveProficiencyDTO, ReadProficiencyDTO, Proficiency> mapper;
 
     @Autowired
     public ProficiencyService(ProficiencyRepo proficiencyRepo)
@@ -23,11 +26,33 @@ public class ProficiencyService  {
         mapper=new ProficiencyMapper();
     }
 
-    public List<ProficiencyDTO> getProficiencies() {
+    private Proficiency seedProficiency(String name, String type){
+        Proficiency proficiency=new Proficiency();
+        proficiency.setName(name);
+        proficiency.setType(type);
+        return proficiency;
+    }
+
+    @PostConstruct
+    private void seedProficiencies(){
+        if (proficiencyRepo.count()>0)
+            return;
+        String language="Language";
+        List<Proficiency> proficiencies = new ArrayList<>();
+        proficiencies.add(seedProficiency("Common",language));
+        proficiencies.add(seedProficiency("Elven",language));
+        proficiencies.add(seedProficiency("Dwarvish",language));
+        proficiencies.add(seedProficiency("Orcish",language));
+        proficiencies.add(seedProficiency("Celestial", language));
+        proficiencies.add(seedProficiency("Infernal",language));
+        proficiencyRepo.saveAll(proficiencies);
+    }
+
+    public List<ReadProficiencyDTO> getProficiencies() {
         return mapper.toDtos(proficiencyRepo.findAll());
     }
 
-    public void addProficiency(ProficiencyDTO proficiencyDTO) {
+    public void addProficiency(SaveProficiencyDTO proficiencyDTO) {
         Proficiency proficiencyByName=proficiencyRepo.findByName(proficiencyDTO.name());
         if (!(proficiencyByName==null || proficiencyByName.getIsDeleted())) {
             throw new IllegalArgumentException("Error: there is already proficiency with such name!");
@@ -35,7 +60,7 @@ public class ProficiencyService  {
         proficiencyRepo.save(mapper.fromDto(proficiencyDTO));
     }
 
-    public ProficiencyDTO getProficiency(Long id) {
+    public ReadProficiencyDTO getProficiency(Long id) {
         Optional<Proficiency> proficiency=proficiencyRepo.findById(id);
         if (proficiency.isEmpty()) {
             proficiencyNotFound();

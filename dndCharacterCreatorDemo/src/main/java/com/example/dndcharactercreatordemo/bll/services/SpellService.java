@@ -1,6 +1,7 @@
 package com.example.dndcharactercreatordemo.bll.services;
 
-import com.example.dndcharactercreatordemo.bll.dtos.SpellDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.spells.ReadSpellDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.spells.SaveSpellDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.IMapper;
 import com.example.dndcharactercreatordemo.bll.mappers.SpellMapper;
 import com.example.dndcharactercreatordemo.dal.entities.Spell;
@@ -14,7 +15,7 @@ import java.util.Optional;
 @Service
 public class SpellService {
     private final SpellRepo repo;
-    private final IMapper<SpellDTO, Spell> mapper;
+    private final IMapper<SaveSpellDTO, ReadSpellDTO, Spell> mapper;
 
     @Autowired
     public SpellService(SpellRepo repo) {
@@ -26,18 +27,18 @@ public class SpellService {
         throw new IllegalArgumentException("Spell not found!");
     }
 
-    public List<SpellDTO> getSpells() {
+    public List<ReadSpellDTO> getSpells() {
         return mapper.toDtos(repo.findAll());
     }
 
-    public SpellDTO getSpell(Long id){
+    public ReadSpellDTO getSpell(Long id){
         Optional<Spell> spell=repo.findById(id);
-        if (!spell.isPresent())
+        if (spell.isEmpty())
             spellNotFound();
         return mapper.toDto(spell.get());
     }
 
-    public void addSpell(SpellDTO spellDTO){
+    public void addSpell(SaveSpellDTO spellDTO){
         Spell spell=repo.findByName(spellDTO.name());
         if (spell!=null && !spell.getIsDeleted()){
             throw new IllegalArgumentException("Error: there is already spell with such name!");
@@ -45,8 +46,8 @@ public class SpellService {
         repo.save(mapper.fromDto(spellDTO));
     }
 
-    public void editSpell(SpellDTO spellDTO) {
-        if (repo.existsById(spellDTO.id()))
+    public void editSpell(SaveSpellDTO spellDTO, Long id) {
+        if (repo.existsById(id))
             repo.save(mapper.fromDto(spellDTO));
         else
             spellNotFound();

@@ -1,7 +1,8 @@
 package com.example.dndcharactercreatordemo.bll.services;
 
+import com.example.dndcharactercreatordemo.bll.dtos.dndClasses.ReadClassDTO;
 import com.example.dndcharactercreatordemo.enums.HitDiceEnum;
-import com.example.dndcharactercreatordemo.bll.dtos.ClassDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.dndClasses.SaveClassDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.ClassMapper;
 import com.example.dndcharactercreatordemo.bll.mappers.IMapper;
 import com.example.dndcharactercreatordemo.dal.entities.DNDclass;
@@ -18,7 +19,7 @@ import java.util.Optional;
 public class ClassService {
     private final ClassRepo classRepo;
     private final ProficiencyRepo proficiencyRepo;
-    private final IMapper<ClassDTO,DNDclass> mapper;
+    private final IMapper<SaveClassDTO, ReadClassDTO, DNDclass> mapper;
 
     @Autowired
     public ClassService(ClassRepo classRepo,ProficiencyRepo proficiencyRepo) {
@@ -27,11 +28,11 @@ public class ClassService {
         mapper=new ClassMapper();
     }
 
-    public List<ClassDTO> getClasses() {
+    public List<ReadClassDTO> getClasses() {
         return mapper.toDtos(classRepo.findAll());
     }
 
-    public void addClass(ClassDTO classDTO) {
+    public void addClass(SaveClassDTO classDTO) {
         if (classRepo.existsByName(classDTO.name())) {
             throw new IllegalArgumentException("Error: there is already dndClass with such name");
         }
@@ -90,7 +91,7 @@ public class ClassService {
         throw new IllegalArgumentException("DND class not found!");
     }
 
-    public ClassDTO getClass(Long id) {
+    public ReadClassDTO getClass(Long id) {
         Optional<DNDclass> dndClass= classRepo.findById(id);
         if (dndClass.isEmpty()) {
             dndClassNotFound();

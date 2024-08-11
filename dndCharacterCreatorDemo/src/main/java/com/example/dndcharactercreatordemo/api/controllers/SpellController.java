@@ -1,6 +1,7 @@
 package com.example.dndcharactercreatordemo.api.controllers;
 
-import com.example.dndcharactercreatordemo.bll.dtos.SpellDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.spells.ReadSpellDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.spells.SaveSpellDTO;
 import com.example.dndcharactercreatordemo.bll.services.SpellService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,26 +19,27 @@ public class SpellController {
     }
 
     @GetMapping
-    public List<SpellDTO> getSpells(){
+    public List<ReadSpellDTO> getSpells(){
         return service.getSpells();
     }
 
-    @GetMapping(path="{spellId}")
-    public SpellDTO getSpell(@PathVariable("spellId") Long id) {
+    @GetMapping(path="/{spellId}")
+    public ReadSpellDTO getSpell(@PathVariable("spellId") Long id) {
         return service.getSpell(id);
     }
 
     @PostMapping
-    public void postSpell(@RequestBody SpellDTO spell){
+    public void postSpell(@RequestBody SaveSpellDTO spell){
         service.addSpell(spell);
     }
 
-    @PutMapping
-    public void putSpell(@RequestBody SpellDTO spell){
-        service.editSpell(spell);
+    @PutMapping(path = "/{spellId}")
+    public void putSpell(@RequestBody SaveSpellDTO spell,
+                         @PathVariable("spellId") Long id){
+        service.editSpell(spell, id);
     }
 
-    @DeleteMapping(path="{spellId}")
+    @DeleteMapping(path="/{spellId}")
     public void deleteSpell(@PathVariable("spellId") Long id) {
         service.softDeleteSpell(id);
     }

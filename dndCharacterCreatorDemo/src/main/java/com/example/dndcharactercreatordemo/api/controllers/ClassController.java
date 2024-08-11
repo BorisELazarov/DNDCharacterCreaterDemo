@@ -1,7 +1,8 @@
 package com.example.dndcharactercreatordemo.api.controllers;
 
+import com.example.dndcharactercreatordemo.bll.dtos.dndClasses.ReadClassDTO;
 import com.example.dndcharactercreatordemo.enums.HitDiceEnum;
-import com.example.dndcharactercreatordemo.bll.dtos.ClassDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.dndClasses.SaveClassDTO;
 import com.example.dndcharactercreatordemo.bll.services.ClassService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -19,18 +20,18 @@ public class ClassController {
     }
 
     @GetMapping
-    public List<ClassDTO> getClasses()
+    public List<ReadClassDTO> getClasses()
     {
         return classService.getClasses();
     }
 
     @GetMapping(path="{classId}")
-    public ClassDTO getClass(@PathVariable("classId") Long id){
+    public ReadClassDTO getClass(@PathVariable("classId") Long id){
         return classService.getClass(id);
     }
 
     @PostMapping
-    public void addClass(@RequestBody ClassDTO dndClass){
+    public void addClass(@RequestBody SaveClassDTO dndClass){
         classService.addClass(dndClass);
     }
 

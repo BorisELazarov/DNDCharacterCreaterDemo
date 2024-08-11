@@ -1,7 +1,9 @@
 package com.example.dndcharactercreatordemo.api.controllers;
 
-import com.example.dndcharactercreatordemo.bll.dtos.UserDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.users.ReadUserDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.users.SaveUserDTO;
 import com.example.dndcharactercreatordemo.bll.services.UserService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,18 +20,18 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserDTO> getUsers()
+    public List<ReadUserDTO> getAllUsers()
     {
         return userService.getUsers();
     }
 
     @GetMapping(path="{userId}")
-    public UserDTO getUser(@PathVariable("userId") Long id){
+    public ReadUserDTO getUser(@PathVariable("userId") Long id){
         return userService.getUser(id);
     }
 
     @PostMapping
-    public void registerUser(@RequestBody UserDTO user){
+    public void registerUser(@RequestBody SaveUserDTO user){
         userService.addUser(user);
     }
 
