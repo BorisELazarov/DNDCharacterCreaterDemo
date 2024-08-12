@@ -2,7 +2,11 @@ package com.example.dndcharactercreatordemo.dal.repos;
 
 import com.example.dndcharactercreatordemo.dal.entities.DNDclass;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 public interface ClassRepo extends JpaRepository<DNDclass,Long> {
     public boolean existsByName(String name);
+
+    @Query("Select c from DNDclass c where c.name=:name and c.isDeleted=false")
+    public DNDclass findByName(String name);
 }

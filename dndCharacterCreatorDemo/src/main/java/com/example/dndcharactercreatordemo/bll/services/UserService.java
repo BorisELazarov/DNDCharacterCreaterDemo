@@ -23,7 +23,7 @@ import java.util.Optional;
 @Service
 public class UserService {
     private final UserRepo userRepo;
-    private final IMapper<CreateUserDTO, SaveUserDTO, ReadUserDTO,User> mapper;
+    private final IMapper<CreateUserDTO, SaveUserDTO, ReadUserDTO, User> mapper;
     private final RoleRepo roleRepo;
 
     @Autowired
@@ -91,7 +91,7 @@ public class UserService {
 
     public void addUser(CreateUserDTO userDTO) {
         User userByUsername=userRepo.findByUsername(userDTO.username());
-        if (userByUsername!=null && !userByUsername.getIsDeleted()) {
+        if (userByUsername!=null) {
             throw new IllegalArgumentException("Error: there is already user with such name");
         }
         User user=mapper.fromCreateDto(userDTO);

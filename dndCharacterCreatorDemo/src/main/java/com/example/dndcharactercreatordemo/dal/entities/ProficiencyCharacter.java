@@ -9,4 +9,20 @@ public class ProficiencyCharacter{
     private ProficiencyCharacterPairId id;
     @Column(name="expertise", nullable = false)
     private boolean expertise;
+
+    public ProficiencyCharacterPairId getId() {
+        return id;
+    }
+
+    public void setId(ProficiencyCharacterPairId id) {
+        this.id = id;
+    }
+
+    public boolean isExpertise() {
+        return expertise;
+    }
+
+    public void setExpertise(boolean expertise) {
+        this.expertise = expertise;
+    }
 }

@@ -7,4 +7,12 @@ import jakarta.persistence.*;
 public class CharacterSpell {
     @EmbeddedId
     private CharacterSpellPairId id;
+
+    public CharacterSpellPairId getId() {
+        return id;
+    }
+
+    public void setId(CharacterSpellPairId id) {
+        this.id = id;
+    }
 }

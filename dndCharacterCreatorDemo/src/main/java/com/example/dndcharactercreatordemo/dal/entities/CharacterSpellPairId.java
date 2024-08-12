@@ -16,4 +16,20 @@ public class CharacterSpellPairId {
     @JoinColumn(name="character_id")
     @NotNull(message = "Character must not be null")
     private Character character;
+
+    public Spell getSpell() {
+        return spell;
+    }
+
+    public void setSpell(Spell spell) {
+        this.spell = spell;
+    }
+
+    public Character getCharacter() {
+        return character;
+    }
+
+    public void setCharacter(Character character) {
+        this.character = character;
+    }
 }

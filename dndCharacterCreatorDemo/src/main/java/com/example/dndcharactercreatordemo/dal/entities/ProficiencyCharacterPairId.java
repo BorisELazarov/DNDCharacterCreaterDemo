@@ -16,4 +16,20 @@ public class ProficiencyCharacterPairId implements Serializable {
     @JoinColumn(name="character_id")
     @NotNull(message = "Character must not be null")
     private Character character;
+
+    public Proficiency getProficiency() {
+        return proficiency;
+    }
+
+    public void setProficiency(Proficiency proficiency) {
+        this.proficiency = proficiency;
+    }
+
+    public Character getCharacter() {
+        return character;
+    }
+
+    public void setCharacter(Character character) {
+        this.character = character;
+    }
 }
