@@ -1,12 +1,9 @@
 package com.example.dndcharactercreatordemo.api.controllers;
 
-import com.example.dndcharactercreatordemo.bll.dtos.characters.CreateCharacterDTO;
-import com.example.dndcharactercreatordemo.bll.dtos.characters.ReadCharacterDTO;
-import com.example.dndcharactercreatordemo.bll.dtos.characters.SaveCharacterDTO;
-import com.example.dndcharactercreatordemo.bll.services.CharacterService;
+import com.example.dndcharactercreatordemo.bll.dtos.characters.CharacterDTO;
+import com.example.dndcharactercreatordemo.bll.services.interfaces.CharacterService;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.Path;
 import java.util.List;
 
 @RestController
@@ -19,17 +16,17 @@ public class CharacterController {
     }
 
     @GetMapping
-    public List<ReadCharacterDTO> getAll(){
+    public List<CharacterDTO> getAll(){
         return service.getAll();
     }
 
     @PostMapping
-    public void addCharacter(@RequestBody CreateCharacterDTO createCharacterDTO){
+    public void addCharacter(@RequestBody CharacterDTO createCharacterDTO){
         service.addCharacter(createCharacterDTO);
     }
 
     @PutMapping
-    public void editCharacter(@RequestBody SaveCharacterDTO saveCharacterDTO){
+    public void editCharacter(@RequestBody CharacterDTO saveCharacterDTO){
         service.editCharacter(saveCharacterDTO);
     }
 
@@ -39,7 +36,7 @@ public class CharacterController {
     }
 
     @GetMapping(path = "{characterId}")
-    public ReadCharacterDTO getCharacter(@PathVariable("characterId") Long id){
+    public CharacterDTO getCharacter(@PathVariable("characterId") Long id){
         return service.getCharacterById(id);
     }
 }

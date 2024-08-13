@@ -1,8 +1,7 @@
 package com.example.dndcharactercreatordemo.api.controllers;
 
-import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.CreateProficiencyDTO;
-import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.ReadProficiencyDTO;
-import com.example.dndcharactercreatordemo.bll.services.ProficiencyService;
+import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.ProficiencyDTO;
+import com.example.dndcharactercreatordemo.bll.services.interfaces.ProficiencyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,18 +18,18 @@ public class ProficiencyController {
     }
 
     @GetMapping
-    public List<ReadProficiencyDTO> getProficiencies()
+    public List<ProficiencyDTO> getProficiencies()
     {
         return proficiencyService.getProficiencies();
     }
 
     @GetMapping(path="{proficiencyId}")
-    public ReadProficiencyDTO getProficiency(@PathVariable("proficiencyId") Long id){
+    public ProficiencyDTO getProficiency(@PathVariable("proficiencyId") Long id){
         return proficiencyService.getProficiency(id);
     }
 
     @PostMapping
-    public void addProficiency(@RequestBody CreateProficiencyDTO proficiency){
+    public void addProficiency(@RequestBody ProficiencyDTO proficiency){
         proficiencyService.addProficiency(proficiency);
     }
 

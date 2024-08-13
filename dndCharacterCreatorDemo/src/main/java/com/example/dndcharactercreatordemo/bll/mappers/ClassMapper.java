@@ -1,39 +1,23 @@
 package com.example.dndcharactercreatordemo.bll.mappers;
 
-import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.CreateClassDTO;
-import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.ReadClassDTO;
-import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.SaveClassDTO;
-import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.CreateProficiencyDTO;
-import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.ReadProficiencyDTO;
-import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.SaveProficiencyDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.ClassDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.ProficiencyDTO;
 import com.example.dndcharactercreatordemo.dal.entities.DNDclass;
 import com.example.dndcharactercreatordemo.dal.entities.Proficiency;
+import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashSet;
 import java.util.List;
 
-public class ClassMapper implements IMapper<CreateClassDTO, SaveClassDTO, ReadClassDTO, DNDclass>{
-    private final IMapper<CreateProficiencyDTO, SaveProficiencyDTO, ReadProficiencyDTO, Proficiency> proficiencyMapper;
+@Component
+public class ClassMapper implements IMapper<ClassDTO, DNDclass>{
+    private final IMapper<ProficiencyDTO, Proficiency> proficiencyMapper;
     public ClassMapper(){
         proficiencyMapper=new ProficiencyMapper();
     }
-    @Override
-    public DNDclass fromCreateDto(CreateClassDTO classDTO) {
-        if(classDTO==null)
-            return null;
-        DNDclass dndClass=new DNDclass();
-        dndClass.setName(classDTO.name());
-        dndClass.setHitDice(classDTO.hitDice());
-        dndClass.setDescription(classDTO.description());
-        dndClass.setIsDeleted(classDTO.isDeleted());
-        dndClass.setProficiencies(
-                new LinkedHashSet<>(proficiencyMapper.fromSaveDTOs(classDTO.proficiencies()))
-        );
-        return dndClass;
-    }
 
     @Override
-    public DNDclass fromSaveDto(SaveClassDTO classDTO) {
+    public DNDclass fromDto(ClassDTO classDTO) {
         if(classDTO==null)
             return null;
         DNDclass dndClass=new DNDclass();
@@ -44,16 +28,17 @@ public class ClassMapper implements IMapper<CreateClassDTO, SaveClassDTO, ReadCl
         dndClass.setDescription(classDTO.description());
         dndClass.setIsDeleted(classDTO.isDeleted());
         dndClass.setProficiencies(
-                new LinkedHashSet<>(proficiencyMapper.fromSaveDTOs(classDTO.proficiencies()))
+                new LinkedHashSet<>(proficiencyMapper.fromDTOs(classDTO.proficiencies()))
         );
         return dndClass;
     }
 
     @Override
-    public ReadClassDTO toDto(DNDclass dndClass) {
+    public ClassDTO toDto(DNDclass dndClass) {
         if(dndClass==null)
             return null;
-        return new ReadClassDTO(dndClass.getId(),dndClass.getIsDeleted(),
+        return new ClassDTO(dndClass.getId().describeConstable(),
+                dndClass.getIsDeleted(),
                 dndClass.getName(),
                 dndClass.getDescription(),
                 dndClass.getHitDice(),
@@ -65,21 +50,14 @@ public class ClassMapper implements IMapper<CreateClassDTO, SaveClassDTO, ReadCl
     }
 
     @Override
-    public List<DNDclass> fromSaveDTOs(List<SaveClassDTO> classDTOS) {
+    public List<DNDclass> fromDTOs(List<ClassDTO> classDTOS) {
         return classDTOS.stream()
-                .map(this::fromSaveDto)
+                .map(this::fromDto)
                 .toList();
     }
 
     @Override
-    public List<DNDclass> fromCreateDTOs(List<CreateClassDTO> classDTOS) {
-        return classDTOS.stream()
-                .map(this::fromCreateDto)
-                .toList();
-    }
-
-    @Override
-    public List<ReadClassDTO> toDTOs(List<DNDclass> dndClasses) {
+    public List<ClassDTO> toDTOs(List<DNDclass> dndClasses) {
         return dndClasses.stream()
                 .map(this::toDto)
                 .toList();

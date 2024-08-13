@@ -1,26 +1,15 @@
 package com.example.dndcharactercreatordemo.bll.mappers;
-
-import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.CreateProficiencyDTO;
-import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.ReadProficiencyDTO;
-import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.SaveProficiencyDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.ProficiencyDTO;
 import com.example.dndcharactercreatordemo.dal.entities.Proficiency;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-public class ProficiencyMapper implements IMapper<CreateProficiencyDTO, SaveProficiencyDTO, ReadProficiencyDTO, Proficiency>{
-    @Override
-    public Proficiency fromCreateDto(CreateProficiencyDTO proficiencyDTO) {
-        if(proficiencyDTO==null)
-            return null;
-        Proficiency proficiency=new Proficiency();
-        proficiency.setIsDeleted(proficiencyDTO.isDeleted());
-        proficiency.setName(proficiencyDTO.name());
-        proficiency.setType(proficiencyDTO.type());
-        return proficiency;
-    }
+@Component
+public class ProficiencyMapper implements IMapper<ProficiencyDTO, Proficiency>{
 
     @Override
-    public Proficiency fromSaveDto(SaveProficiencyDTO proficiencyDTO) {
+    public Proficiency fromDto(ProficiencyDTO proficiencyDTO) {
         if(proficiencyDTO==null)
             return null;
         Proficiency proficiency=new Proficiency();
@@ -33,32 +22,25 @@ public class ProficiencyMapper implements IMapper<CreateProficiencyDTO, SaveProf
     }
 
     @Override
-    public ReadProficiencyDTO toDto(Proficiency proficiency) {
+    public ProficiencyDTO toDto(Proficiency proficiency) {
         if(proficiency==null)
             return null;
-        return new ReadProficiencyDTO(proficiency.getId(),
+        return new ProficiencyDTO(proficiency.getId().describeConstable(),
                 proficiency.getIsDeleted(), proficiency.getName(),
                 proficiency.getType());
     }
 
     @Override
-    public List<ReadProficiencyDTO> toDTOs(List<Proficiency> proficiencies){
+    public List<ProficiencyDTO> toDTOs(List<Proficiency> proficiencies){
         return  proficiencies.stream()
                 .map(this::toDto)
                 .toList();
     }
 
     @Override
-    public List<Proficiency> fromSaveDTOs(List<SaveProficiencyDTO> proficiencyDTOS){
+    public List<Proficiency> fromDTOs(List<ProficiencyDTO> proficiencyDTOS){
         return  proficiencyDTOS.stream()
-                .map(this::fromSaveDto)
-                .toList();
-    }
-
-    @Override
-    public List<Proficiency> fromCreateDTOs(List<CreateProficiencyDTO> proficiencyDTOS) {
-        return  proficiencyDTOS.stream()
-                .map(this::fromCreateDto)
+                .map(this::fromDto)
                 .toList();
     }
 }

@@ -1,8 +1,7 @@
 package com.example.dndcharactercreatordemo.api.controllers;
 
-import com.example.dndcharactercreatordemo.bll.dtos.users.CreateUserDTO;
-import com.example.dndcharactercreatordemo.bll.dtos.users.ReadUserDTO;
-import com.example.dndcharactercreatordemo.bll.services.UserService;
+import com.example.dndcharactercreatordemo.bll.dtos.users.UserDTO;
+import com.example.dndcharactercreatordemo.bll.services.interfaces.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,18 +18,18 @@ public class UserController {
     }
 
     @GetMapping
-    public List<ReadUserDTO> getAllUsers()
+    public List<UserDTO> getAllUsers()
     {
         return userService.getUsers();
     }
 
     @GetMapping(path="{userId}")
-    public ReadUserDTO getUser(@PathVariable("userId") Long id){
+    public UserDTO getUser(@PathVariable("userId") Long id){
         return userService.getUser(id);
     }
 
     @PostMapping
-    public void registerUser(@RequestBody CreateUserDTO user){
+    public void registerUser(@RequestBody UserDTO user){
         userService.addUser(user);
     }
 
@@ -44,6 +43,6 @@ public class UserController {
 
     @DeleteMapping(path="{userId}")
     public void deleteUser(@PathVariable("userId") Long id) {
-        userService.deleteUser(id);
+        userService.softDeleteUser(id);
     }
 }
