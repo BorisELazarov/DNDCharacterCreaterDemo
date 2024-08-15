@@ -86,6 +86,7 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Error: there is already user with such name");
         }
         User user = mapper.fromDto(userDTO);
+        roleRepo.findByTitle(userDTO.role()).ifPresent(user::setRole);
         userRepo.save(user);
     }
 

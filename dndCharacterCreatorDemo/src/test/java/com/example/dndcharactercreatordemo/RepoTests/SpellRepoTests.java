@@ -32,6 +32,24 @@ class SpellRepoTests {
                   "FIreee"
           )
         );
+        spells.add(
+                getSpell(
+                        true, "Cold",
+                        1, "A",
+                        25, "ads",
+                        "V, M", 0,
+                        "Cold cold"
+                )
+        );
+        spells.add(
+                getSpell(
+                        false, "Thunder",
+                        1, "A",
+                        20, "asfd",
+                        "V, M", 0,
+                        "Thunder"
+                )
+        );
         seedRepo.saveAll(spells);
     }
 

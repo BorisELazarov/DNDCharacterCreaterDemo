@@ -9,6 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface CharacterRepo extends JpaRepository<Character, Long> {
-    @Query("select c from Character c where name=:name and isDeleted=false")
+    @Query("select c from Character c where c.name=:name and c.isDeleted=false")
     Optional<Character> findByName(String name);
 }
