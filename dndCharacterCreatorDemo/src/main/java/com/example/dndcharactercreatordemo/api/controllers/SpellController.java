@@ -10,36 +10,41 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "api/spells")
 public class SpellController {
-    private final SpellService service;
+    private final SpellService spellService;
 
     @Autowired
-    public SpellController(SpellService service) {
-        this.service = service;
+    public SpellController(SpellService spellService) {
+        this.spellService = spellService;
     }
 
     @GetMapping
     public List<SpellDTO> getSpells(){
-        return service.getSpells();
+        return spellService.getSpells();
     }
 
     @GetMapping(path="/{spellId}")
     public SpellDTO getSpell(@PathVariable("spellId") Long id) {
-        return service.getSpell(id);
+        return spellService.getSpell(id);
     }
 
     @PostMapping
     public void postSpell(@RequestBody SpellDTO spell){
-        service.addSpell(spell);
+        spellService.addSpell(spell);
     }
 
     @PutMapping(path = "/{spellId}")
     public void putSpell(@RequestBody SpellDTO spell,
                          @PathVariable("spellId") Long id){
-        service.editSpell(spell, id);
+        spellService.editSpell(spell, id);
     }
 
-    @DeleteMapping(path="/{spellId}")
-    public void deleteSpell(@PathVariable("spellId") Long id) {
-        service.softDeleteSpell(id);
+    @DeleteMapping
+    public void softDeleteSpell(@RequestParam Long id) {
+        spellService.softDeleteSpell(id);
+    }
+
+    @DeleteMapping(path = "/confirmedDelete")
+    public void hardDeleteSpell(@RequestParam Long id){
+        spellService.hardDeleteSpell(id);
     }
 }

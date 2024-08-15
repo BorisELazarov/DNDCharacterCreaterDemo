@@ -7,6 +7,7 @@ import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class UserMapper implements IMapper<UserDTO, User>{
@@ -26,9 +27,11 @@ public class UserMapper implements IMapper<UserDTO, User>{
         entity.setIsDeleted(dto.isDeleted());
         entity.setUsername(dto.username());
         entity.setPassword(dto.password());
-        Role role=roleRepo.findByTitle(dto.role());
-        role.setTitle(dto.role());
-        entity.setRole(role);
+        Optional<Role> role=roleRepo.findByTitle(dto.role());
+        if (role.isPresent()){
+            role.get().setTitle(dto.role());
+            entity.setRole(role.get());
+        }
         return entity;
     }
 

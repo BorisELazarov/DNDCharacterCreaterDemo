@@ -5,8 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface ProficiencyRepo extends JpaRepository<Proficiency, Long> {
     @Query("Select p from Proficiency p where p.name=:name and p.isDeleted=false")
-    public Proficiency findByName(String name);
+    Optional<Proficiency> findByName(String name);
 }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -44,32 +45,32 @@ public class CharacterMapper implements IMapper<CharacterDTO, Character> {
         character.setBaseInt(dto.baseInt());
         character.setBaseWis(dto.baseWis());
         character.setBaseCha(dto.baseCha());
-        User user = userRepo.findByUsername(dto.user());
-        if (user == null)
+        Optional<User> user = userRepo.findByUsername(dto.user());
+        if (user.isEmpty())
             throw new IllegalArgumentException("There is no such user");
-        character.setUser(user);
-        DNDclass dnDclass = classRepo.findByName(dto.dndClass());
-        if (dnDclass == null)
+        character.setUser(user.get());
+        Optional<DNDclass> dnDclass = classRepo.findByName(dto.dndClass());
+        if (dnDclass.isEmpty())
             throw new IllegalArgumentException("There is no such dnd class");
-        character.setDNDclass(dnDclass);
+        character.setDNDclass(dnDclass.get());
         character.setProficiencyCharacters(new LinkedList<>());
         for (CharacterProficiencyDTO proficiencyDTO : dto.proficiencies()) {
-            Proficiency proficiency = proficiencyRepo.findByName(proficiencyDTO.name());
-            if (proficiency.getId() == null)
+            Optional<Proficiency> proficiency = proficiencyRepo.findByName(proficiencyDTO.name());
+            if (proficiency.isEmpty())
                 throw new IllegalArgumentException("There is no such proficiency");
             ProficiencyCharacter proficiencyCharacter = new ProficiencyCharacter();
             proficiencyCharacter.setExpertise(proficiencyDTO.expertise());
             proficiencyCharacter.setId(new ProficiencyCharacterPairId());
             proficiencyCharacter.getId().setCharacter(character);
-            proficiencyCharacter.getId().setProficiency(proficiency);
+            proficiencyCharacter.getId().setProficiency(proficiency.get());
             character.getProficiencyCharacters().add(proficiencyCharacter);
         }
         character.setCharacterSpells(new LinkedList<>());
         for (String spellName : dto.spells()) {
-            Spell spell = spellRepo.findByName(spellName);
+            Optional<Spell> spell = spellRepo.findByName(spellName);
             CharacterSpell characterSpell = new CharacterSpell();
             characterSpell.setId(new CharacterSpellPairId());
-            characterSpell.getId().setSpell(spell);
+            characterSpell.getId().setSpell(spell.get());
             characterSpell.getId().setCharacter(character);
             character.getCharacterSpells().add(characterSpell);
         }

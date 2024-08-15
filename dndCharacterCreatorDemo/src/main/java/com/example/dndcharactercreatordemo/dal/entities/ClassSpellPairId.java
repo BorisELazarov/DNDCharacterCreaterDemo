@@ -3,16 +3,13 @@ package com.example.dndcharactercreatordemo.dal.entities;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.NotNull;
 
 @Embeddable
 public class ClassSpellPairId {
     @ManyToOne
-    @JoinColumn(name="spell_id")
-    @NotNull(message = "Spell must not be null")
+    @JoinColumn(name="spell_id", nullable = false)
     private Spell spell;
     @ManyToOne
-    @JoinColumn(name="class_id")
-    @NotNull(message = "DND class must not be null")
+    @JoinColumn(name="class_id", nullable = false)
     private DNDclass dndClass;
 }

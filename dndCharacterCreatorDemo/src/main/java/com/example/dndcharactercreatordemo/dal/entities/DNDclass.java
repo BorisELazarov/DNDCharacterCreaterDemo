@@ -3,6 +3,7 @@ package com.example.dndcharactercreatordemo.dal.entities;
 import com.example.dndcharactercreatordemo.enums.HitDiceEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import org.hibernate.proxy.HibernateProxy;
 
 import java.util.List;
 import java.util.Objects;
@@ -10,14 +11,14 @@ import java.util.Set;
 
 @Entity
 @Table(name = "Classes")
-public class DNDclass extends BaseEntity{
-    @Column(name="name", unique = true, length = 40)
+public class DNDclass extends BaseEntity {
+    @Column(name = "name", unique = true, length = 40)
     @NotBlank(message = "Name must not be empty")
     private String name;
-    @Column(name="description", nullable = false, length = 65535)
+    @Column(name = "description", nullable = false, length = 65535)
     @NotBlank(message = "Description must not be empty")
     private String description;
-    @Column(name="hit_dice", nullable = false)
+    @Column(name = "hit_dice", nullable = false)
     @NotNull(message = "The hit dice must not be empty")
     @Enumerated(EnumType.STRING)
 //    @Min(value = 0, message = "The hit dice must be at least 6")
@@ -26,8 +27,8 @@ public class DNDclass extends BaseEntity{
     @ManyToMany
     @JoinTable(
             name = "Proficiency_Classes",
-            joinColumns = { @JoinColumn(name = "class_id") },
-            inverseJoinColumns = { @JoinColumn(name = "proficiency_id") }
+            joinColumns = {@JoinColumn(name = "class_id")},
+            inverseJoinColumns = {@JoinColumn(name = "proficiency_id")}
     )
     private Set<Proficiency> proficiencies;
     @OneToMany(mappedBy = "id.dndClass")
@@ -74,20 +75,18 @@ public class DNDclass extends BaseEntity{
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (super.equals(o))
-            return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
         DNDclass dnDclass = (DNDclass) o;
-        return Objects.equals(name, dnDclass.name) && Objects.equals(description, dnDclass.description)
-                && Objects.equals(proficiencies, dnDclass.proficiencies)
-                && isDeleted && dnDclass.getIsDeleted();
+        return getId() != null && Objects.equals(getId(), dnDclass.getId());
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(name, description,
-                hitDice, proficiencies, classSpells,
-                isDeleted);
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }

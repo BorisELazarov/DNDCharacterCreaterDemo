@@ -22,27 +22,6 @@ public class ProficiencyServiceImpl implements ProficiencyService {
         this.mapper = mapper;
     }
 
-    private Proficiency seedProficiency(String name, String type){
-        Proficiency proficiency=new Proficiency();
-        proficiency.setName(name);
-        proficiency.setType(type);
-        return proficiency;
-    }
-
-    @PostConstruct
-    private void seedProficiencies(){
-        if (proficiencyRepo.count()>0)
-            return;
-        String language="Language";
-        List<Proficiency> proficiencies = new ArrayList<>();
-        proficiencies.add(seedProficiency("Common",language));
-        proficiencies.add(seedProficiency("Elven",language));
-        proficiencies.add(seedProficiency("Dwarvish",language));
-        proficiencies.add(seedProficiency("Orcish",language));
-        proficiencies.add(seedProficiency("Celestial", language));
-        proficiencies.add(seedProficiency("Infernal",language));
-        proficiencyRepo.saveAll(proficiencies);
-    }
 
     @Override
     public List<ProficiencyDTO> getProficiencies() {
@@ -51,8 +30,8 @@ public class ProficiencyServiceImpl implements ProficiencyService {
 
     @Override
     public void addProficiency(ProficiencyDTO proficiencyDTO) {
-        Proficiency proficiencyByName=proficiencyRepo.findByName(proficiencyDTO.name());
-        if (!(proficiencyByName==null || proficiencyByName.getIsDeleted())) {
+        Optional<Proficiency> proficiencyByName=proficiencyRepo.findByName(proficiencyDTO.name());
+        if (proficiencyByName.isPresent()) {
             throw new IllegalArgumentException("Error: there is already proficiency with such name!");
         }
         proficiencyRepo.save(mapper.fromDto(proficiencyDTO));
@@ -82,8 +61,8 @@ public class ProficiencyServiceImpl implements ProficiencyService {
         if (name!=null &&
                 name.length()>0 &&
                 !name.equals(foundProficiency.getName())) {
-            Proficiency proficiencyByUsername=proficiencyRepo.findByName(name);
-            if (!(proficiencyByUsername==null || proficiencyByUsername.getIsDeleted()))
+            Optional<Proficiency> proficiencyByUsername=proficiencyRepo.findByName(name);
+            if (proficiencyByUsername.isPresent() && !proficiencyByUsername.get().getIsDeleted())
             {
                 throw new IllegalArgumentException("Error: there is already proficiency with such name");
             }
@@ -98,7 +77,7 @@ public class ProficiencyServiceImpl implements ProficiencyService {
     }
 
     @Override
-    public void deleteProficiency(Long id) {
+    public void softDeleteProficiency(Long id) {
         Optional<Proficiency> optionalProficiency=proficiencyRepo.findById(id);
         if (optionalProficiency.isEmpty()){
             proficiencyNotFound();
@@ -107,6 +86,22 @@ public class ProficiencyServiceImpl implements ProficiencyService {
             Proficiency proficiency=optionalProficiency.get();
             proficiency.setIsDeleted(true);
             proficiencyRepo.save(proficiency);
+        }
+    }
+
+    @Override
+    public void hardDeleteProficiency(Long id) {
+        Optional<Proficiency> optionalProficiency=proficiencyRepo.findById(id);
+        if (optionalProficiency.isEmpty()){
+            proficiencyNotFound();
+        }
+        else {
+            Proficiency proficiency=optionalProficiency.get();
+            if (proficiency.getIsDeleted()){
+                proficiencyRepo.delete(proficiency);
+            } else {
+                throw new IllegalArgumentException("The proficiency must be soft deleted before being hard deleted");
+            }
         }
     }
 }

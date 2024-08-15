@@ -10,4 +10,6 @@ public interface CharacterService {
     void editCharacter(CharacterDTO dto);
     void softDeleteCharacter(Long id);
     CharacterDTO getCharacterById(Long id);
+
+    void hardDeleteCharacter(Long id);
 }

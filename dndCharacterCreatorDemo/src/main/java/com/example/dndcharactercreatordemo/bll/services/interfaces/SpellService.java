@@ -14,4 +14,6 @@ public interface SpellService {
     void editSpell(SpellDTO spellDTO, Long id);
 
     void softDeleteSpell(Long id);
+
+    void hardDeleteSpell(Long id);
 }

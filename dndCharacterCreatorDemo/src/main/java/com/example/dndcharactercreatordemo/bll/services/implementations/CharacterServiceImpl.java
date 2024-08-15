@@ -27,7 +27,7 @@ public class CharacterServiceImpl implements CharacterService {
 
     @Override
     public void addCharacter(CharacterDTO dto) {
-        if (characterRepo.findByName(dto.name()) != null)
+        if (characterRepo.findByName(dto.name()).isPresent())
             throw new IllegalArgumentException("There is already character with such name!");
         characterRepo.save(mapper.fromDto(dto));
 
@@ -39,9 +39,10 @@ public class CharacterServiceImpl implements CharacterService {
             noCharacterException();
         }
 
-        Character character = characterRepo.findByName(dto.name());
+        Optional<Character> foundCharacter = characterRepo.findByName(dto.name());
 
-        if (character != null && !character.getId().equals(dto.id().orElse(null))) {
+        if (foundCharacter.isPresent()
+                && !foundCharacter.get().getId().equals(dto.id().orElse(null))) {
             throw new IllegalArgumentException("There is already character with such name!");
         }
 
@@ -57,6 +58,24 @@ public class CharacterServiceImpl implements CharacterService {
         } else {
             character.get().setIsDeleted(true);
             characterRepo.save(character.get());
+        }
+    }
+
+    @Override
+    public void hardDeleteCharacter(Long id) {
+        Optional<Character> character = characterRepo.findById(id);
+
+        if (character.isEmpty()) {
+            noCharacterException();
+        }
+        else {
+            Character foundCharacter= character.get();
+            if (foundCharacter.getIsDeleted()){
+                characterRepo.delete(foundCharacter);
+            }
+            else {
+                throw new IllegalArgumentException("The character must be soft deleted before being hard deleted");
+            }
         }
     }
 

@@ -41,8 +41,13 @@ public class ProficiencyController {
         proficiencyService.updateProficiency(id,name,type);
     }
 
-    @DeleteMapping(path="{proficiencyId}")
-    public void deleteProficiency(@PathVariable("proficiencyId") Long id) {
-        proficiencyService.deleteProficiency(id);
+    @DeleteMapping
+    public void softDeleteProficiency(@RequestParam Long id) {
+        proficiencyService.softDeleteProficiency(id);
+    }
+
+    @DeleteMapping(path = "/confirmedDelete")
+    public void hardDeleteProficiency(@RequestParam Long id){
+        proficiencyService.hardDeleteProficiency(id);
     }
 }

@@ -4,13 +4,15 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import org.hibernate.proxy.HibernateProxy;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name = "characters")
-public class Character extends BaseEntity{
+public class Character extends BaseEntity implements Serializable {
     @Column(name="name", nullable = false, length = 50)
     @NotBlank(message = "Name is mandatory")
     private String name;
@@ -147,22 +149,18 @@ public class Character extends BaseEntity{
     }
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) return true;
-        if (super.equals(o))
-            return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
         Character character = (Character) o;
-        return Objects.equals(name, character.name)
-                && isDeleted && character.isDeleted;
+        return getId() != null && Objects.equals(getId(), character.getId());
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(name, user, dndClass,
-                level, baseStr, baseDex, baseCon,
-                baseInt, baseWis, baseCha,
-                proficiencyCharacters, characterSpells,
-                isDeleted);
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }

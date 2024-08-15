@@ -12,11 +12,11 @@ import java.util.Optional;
 
 @Service
 public class SpellServiceImpl implements SpellService {
-    private final SpellRepo repo;
+    private final SpellRepo spellRepo;
     private final IMapper<SpellDTO, Spell> mapper;
 
-    public SpellServiceImpl(SpellRepo repo, IMapper<SpellDTO, Spell> mapper) {
-        this.repo = repo;
+    public SpellServiceImpl(SpellRepo spellRepo, IMapper<SpellDTO, Spell> mapper) {
+        this.spellRepo = spellRepo;
         this.mapper = mapper;
     }
 
@@ -27,12 +27,12 @@ public class SpellServiceImpl implements SpellService {
 
     @Override
     public List<SpellDTO> getSpells() {
-        return mapper.toDTOs(repo.findAll());
+        return mapper.toDTOs(spellRepo.findAll());
     }
 
     @Override
     public SpellDTO getSpell(Long id){
-        Optional<Spell> spell=repo.findById(id);
+        Optional<Spell> spell= spellRepo.findById(id);
         if (spell.isEmpty())
             spellNotFound();
         return mapper.toDto(spell.get());
@@ -40,29 +40,42 @@ public class SpellServiceImpl implements SpellService {
 
     @Override
     public void addSpell(SpellDTO spellDTO){
-        Spell spell=repo.findByName(spellDTO.name());
-        if (spell!=null && !spell.getIsDeleted()){
+        Optional<Spell> spell= spellRepo.findByName(spellDTO.name());
+        if (spell.isPresent()){
             throw new IllegalArgumentException("Error: there is already spell with such name!");
         }
-        repo.save(mapper.fromDto(spellDTO));
+        spellRepo.save(mapper.fromDto(spellDTO));
     }
 
     @Override
     public void editSpell(SpellDTO spellDTO, Long id) {
-        if (repo.existsById(id))
-            repo.save(mapper.fromDto(spellDTO));
+        if (spellRepo.existsById(id))
+            spellRepo.save(mapper.fromDto(spellDTO));
         else
             spellNotFound();
     }
 
     @Override
     public void softDeleteSpell(Long id){
-        Optional<Spell> optionalSpell=repo.findById(id);
+        Optional<Spell> optionalSpell= spellRepo.findById(id);
         if (optionalSpell.isPresent()){
             Spell spell=optionalSpell.get();
             spell.setIsDeleted(true);
-            repo.save(spell);
+            spellRepo.save(spell);
 
+        }else {
+            spellNotFound();
+        }
+    }
+
+    @Override
+    public void hardDeleteSpell(Long id){
+        Optional<Spell> optionalSpell= spellRepo.findById(id);
+        if (optionalSpell.isPresent()){
+            Spell spell=optionalSpell.get();
+            if (spell.getIsDeleted()){
+                spellRepo.delete(spell);
+            }
         }else {
             spellNotFound();
         }

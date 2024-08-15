@@ -43,8 +43,13 @@ public class ClassController {
         classService.updateClass(id,name,description,hitDice);
     }
 
-    @DeleteMapping(path="{classId}")
-    public void deleteClass(@PathVariable("classId") Long id) {
+    @DeleteMapping
+    public void softDeleteClass(@RequestParam Long id) {
         classService.softDeleteClass(id);
+    }
+
+    @DeleteMapping(path="/confirmedDelete")
+    public void hardDeleteClass(@RequestParam Long id) {
+        classService.hardDeleteClass(id);
     }
 }

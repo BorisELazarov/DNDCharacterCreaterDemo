@@ -2,7 +2,7 @@ package com.example.dndcharactercreatordemo.dal.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import org.hibernate.proxy.HibernateProxy;
 
 import java.util.List;
 import java.util.Objects;
@@ -21,9 +21,14 @@ public class User extends BaseEntity {
     private List<Character> characters;
 
     @ManyToOne
-    @JoinColumn(name="role_id", referencedColumnName = "id")
-    @NotNull(message = "Role must not be null")
+    @JoinColumn(name="role_id", referencedColumnName = "id",
+    nullable = false)
     private Role role;
+
+    public List<Character> getCharacters() {
+        return characters;
+    }
+
     public String getUsername() {
         return username;
     }
@@ -49,19 +54,18 @@ public class User extends BaseEntity {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (super.equals(o))
-            return true;
+    public final boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
         User user = (User) o;
-        return Objects.equals(username, user.username) && isDeleted
-                && user.getIsDeleted();
+        return getId() != null && Objects.equals(getId(), user.getId());
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(username, password,
-                characters, role, isDeleted);
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }

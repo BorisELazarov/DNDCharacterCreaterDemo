@@ -35,6 +35,11 @@ public class CharacterController {
         service.softDeleteCharacter(id);
     }
 
+    @DeleteMapping(path = "/confirmedDelete")
+    public void hardDeleteCharacter(@RequestParam Long id){
+        service.hardDeleteCharacter(id);
+    }
+
     @GetMapping(path = "{characterId}")
     public CharacterDTO getCharacter(@PathVariable("characterId") Long id){
         return service.getCharacterById(id);

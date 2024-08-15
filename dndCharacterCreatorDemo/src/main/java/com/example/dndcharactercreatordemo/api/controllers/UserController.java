@@ -41,8 +41,13 @@ public class UserController {
         userService.updateUser(id,username,password);
     }
 
-    @DeleteMapping(path="{userId}")
-    public void deleteUser(@PathVariable("userId") Long id) {
+    @DeleteMapping
+    public void deleteUser(@RequestParam Long id) {
         userService.softDeleteUser(id);
+    }
+
+    @DeleteMapping(path = "/confirmedDelete")
+    public void hardDeleteUser(@RequestParam Long id){
+        userService.hardDeleteUser(id);
     }
 }

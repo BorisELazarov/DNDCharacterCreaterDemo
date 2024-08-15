@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
 
@@ -105,21 +106,18 @@ public class Spell extends BaseEntity{
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (super.equals(o))
-            return true;
+    public final boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
         Spell spell = (Spell) o;
-        return level == spell.level && Objects.equals(name, spell.name)
-                && Objects.equals(description, spell.description) && isDeleted
-                && spell.getIsDeleted();
+        return getId() != null && Objects.equals(getId(), spell.getId());
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(name, level, castingTime,
-                castingRange, target, components,
-                duration, description, isDeleted);
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }

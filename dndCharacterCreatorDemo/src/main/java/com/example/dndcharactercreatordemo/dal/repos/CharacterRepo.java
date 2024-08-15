@@ -5,8 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface CharacterRepo extends JpaRepository<Character, Long> {
     @Query("select c from Character c where name=:name and isDeleted=false")
-    public Character findByName(String name);
+    Optional<Character> findByName(String name);
 }

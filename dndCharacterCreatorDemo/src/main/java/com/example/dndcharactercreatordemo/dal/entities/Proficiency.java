@@ -1,18 +1,17 @@
 package com.example.dndcharactercreatordemo.dal.entities;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import org.hibernate.proxy.HibernateProxy;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
 @Table(name="proficiencies")
-public class Proficiency extends BaseEntity {
+public class Proficiency extends BaseEntity implements Serializable {
     @Column(name="name", nullable = false, length = 50)
-    @NotBlank(message = "Name must not be empty")
     private String name;
     @Column(name="type", nullable = false, length = 50)
-    @NotBlank(message = "Type must not be empty")
     private String type;
 
     public String getName() {
@@ -32,18 +31,18 @@ public class Proficiency extends BaseEntity {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (super.equals(o))
-            return true;
+    public final boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Proficiency proficiency = (Proficiency) o;
-        return Objects.equals(name, proficiency.name) && Objects.equals(type, proficiency.type)
-                && isDeleted && proficiency.getIsDeleted();
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Proficiency that = (Proficiency) o;
+        return getId() != null && Objects.equals(getId(), that.getId());
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(name, type, isDeleted);
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }

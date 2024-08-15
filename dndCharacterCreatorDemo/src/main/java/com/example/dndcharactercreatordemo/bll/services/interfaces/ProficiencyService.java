@@ -9,5 +9,7 @@ public interface ProficiencyService {
     void addProficiency(ProficiencyDTO proficiencyDTO);
     ProficiencyDTO getProficiency(Long id);
     void updateProficiency(Long id, String name, String type);
-    void deleteProficiency(Long id);
+    void softDeleteProficiency(Long id);
+
+    void hardDeleteProficiency(Long id);
 }
