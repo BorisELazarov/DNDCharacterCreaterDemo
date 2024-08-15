@@ -12,8 +12,9 @@ import java.util.List;
 @Component
 public class ClassMapper implements IMapper<ClassDTO, DNDclass>{
     private final IMapper<ProficiencyDTO, Proficiency> proficiencyMapper;
-    public ClassMapper(){
-        proficiencyMapper=new ProficiencyMapper();
+
+    public ClassMapper(IMapper<ProficiencyDTO, Proficiency> proficiencyMapper) {
+        this.proficiencyMapper = proficiencyMapper;
     }
 
     @Override

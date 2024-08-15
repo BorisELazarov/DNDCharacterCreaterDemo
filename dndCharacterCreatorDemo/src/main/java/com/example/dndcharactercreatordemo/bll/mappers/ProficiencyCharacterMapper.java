@@ -5,9 +5,11 @@ import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.ProficiencyDTO
 import com.example.dndcharactercreatordemo.dal.entities.Proficiency;
 import com.example.dndcharactercreatordemo.dal.entities.ProficiencyCharacter;
 import com.example.dndcharactercreatordemo.dal.entities.ProficiencyCharacterPairId;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public class ProficiencyCharacterMapper implements IMapper<ProficiencyCharacterDTO, ProficiencyCharacter>{
     private final IMapper<ProficiencyDTO, Proficiency> mapper;
 
