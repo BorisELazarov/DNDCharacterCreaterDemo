@@ -1,15 +1,18 @@
 package com.example.dndcharactercreatordemo.bll.services.implementations;
 
 import com.example.dndcharactercreatordemo.bll.dtos.users.UserDTO;
-import com.example.dndcharactercreatordemo.bll.mappers.IMapper;
+import com.example.dndcharactercreatordemo.bll.mappers.interfaces.UserMapper;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.UserService;
 import com.example.dndcharactercreatordemo.dal.entities.Privilege;
 import com.example.dndcharactercreatordemo.dal.entities.Role;
 import com.example.dndcharactercreatordemo.dal.entities.User;
 import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
 import com.example.dndcharactercreatordemo.dal.repos.UserRepo;
+import com.example.dndcharactercreatordemo.exceptions.users.UserNotFoundException;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -17,10 +20,10 @@ import java.util.*;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepo userRepo;
-    private final IMapper<UserDTO, User> mapper;
+    private final UserMapper mapper;
     private final RoleRepo roleRepo;
 
-    public UserServiceImpl(UserRepo userRepo, RoleRepo roleRepo, IMapper<UserDTO, User> mapper) {
+    public UserServiceImpl(UserRepo userRepo, RoleRepo roleRepo, UserMapper mapper) {
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
         this.mapper = mapper;
@@ -34,6 +37,8 @@ public class UserServiceImpl implements UserService {
 
     //to be optimised
     private void seedRoles() {
+        if (roleRepo.count()>0)
+            return;
         List<Role> roles = new ArrayList<>();
         Set<Privilege> privileges=new LinkedHashSet<>();
 
@@ -75,27 +80,31 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDTO> getUsers() {
-        return mapper.toDTOs(userRepo.findAll());
+    public ResponseEntity<List<UserDTO>> getUsers() {
+        return new ResponseEntity<>(
+                mapper.toDTOs(userRepo.findAll()),
+                HttpStatus.OK
+        );
     }
 
     @Override
-    public void addUser(UserDTO userDTO) {
+    public ResponseEntity<Void> addUser(UserDTO userDTO) {
         Optional<User> userByUsername = userRepo.findByUsername(userDTO.username());
         if (userByUsername.isPresent()) {
             throw new IllegalArgumentException("Error: there is already user with such name");
         }
-        User user = mapper.fromDto(userDTO);
-        roleRepo.findByTitle(userDTO.role()).ifPresent(user::setRole);
+        Optional<Role> role= roleRepo.findByTitle(userDTO.role());
+        User user = mapper.fromDto(userDTO, role);
         userRepo.save(user);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
     @Transactional
-    public void updateUser(Long id, String username, String password) {
+    public ResponseEntity<Void> updateUser(Long id, String username, String password) {
         Optional<User> optionalUser = userRepo.findById(id);
         if (optionalUser.isEmpty()) {
-            userNotFound();
+            throw new UserNotFoundException();
         }
         User foundUser = optionalUser.get();
         if (username != null &&
@@ -112,50 +121,51 @@ public class UserServiceImpl implements UserService {
                 !password.equals(foundUser.getPassword())) {
             foundUser.setPassword(password);
         }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public void softDeleteUser(Long id) {
+    public ResponseEntity<Void> softDeleteUser(Long id) {
         Optional<User> optionalUser = userRepo.findById(id);
         if (optionalUser.isPresent()) {
             User foundUser = optionalUser.get();
             foundUser.setIsDeleted(true);
             userRepo.save(foundUser);
+            return new ResponseEntity<>(HttpStatus.OK);
         } else {
-            userNotFound();
+            throw new UserNotFoundException();
         }
 
     }
 
     @Override
-    public void hardDeleteUser(Long id) {
+    public ResponseEntity<Void> hardDeleteUser(Long id) {
         Optional<User> optionalUser = userRepo.findById(id);
 
         if (optionalUser.isPresent()) {
             User foundUser = optionalUser.get();
 
-            if (foundUser.getIsDeleted()) {
-                userRepo.delete(foundUser);
+            if (foundUser.getIsDeleted()) {userRepo.delete(foundUser);
+               return new ResponseEntity<>(HttpStatus.OK);
             } else {
-                throw new IllegalArgumentException("The user must be soft deleted before being hard deleted");
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
 
         } else {
-            userNotFound();
+            throw new UserNotFoundException();
         }
 
-    }
-
-    private void userNotFound() {
-        throw new IllegalArgumentException("User not found!");
     }
 
     @Override
-    public UserDTO getUser(Long id) {
+    public ResponseEntity<UserDTO> getUser(Long id) {
         Optional<User> optionalUser = userRepo.findById(id);
         if (optionalUser.isEmpty()) {
-            userNotFound();
+            throw new UserNotFoundException();
         }
-        return mapper.toDto(optionalUser.get());
+        return new ResponseEntity<>(
+                mapper.toDto(optionalUser.get()),
+                HttpStatus.OK
+        );
     }
 }

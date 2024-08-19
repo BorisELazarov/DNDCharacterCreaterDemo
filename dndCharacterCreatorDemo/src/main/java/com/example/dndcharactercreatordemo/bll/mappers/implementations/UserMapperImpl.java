@@ -1,13 +1,25 @@
-package com.example.dndcharactercreatordemo.bll.mappers;
+package com.example.dndcharactercreatordemo.bll.mappers.implementations;
 
 import com.example.dndcharactercreatordemo.bll.dtos.users.UserDTO;
+import com.example.dndcharactercreatordemo.bll.mappers.interfaces.UserMapper;
+import com.example.dndcharactercreatordemo.dal.entities.Role;
 import com.example.dndcharactercreatordemo.dal.entities.User;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
-public class UserMapper implements IMapper<UserDTO, User>{
+public class UserMapperImpl implements UserMapper {
+
+    @Override
+    public User fromDto(UserDTO dto, Optional<Role> role) {
+        if(dto==null)
+            return null;
+        User entity=fromDto(dto);
+        role.ifPresent(entity::setRole);
+        return entity;
+    }
 
     @Override
     public User fromDto(UserDTO dto) {
@@ -32,13 +44,6 @@ public class UserMapper implements IMapper<UserDTO, User>{
                 entity.getPassword(),
                 entity.getRole().getTitle()
         );
-    }
-
-    @Override
-    public List<User> fromDTOs(List<UserDTO> userDTOS) {
-        return userDTOS.stream()
-                .map(this::fromDto)
-                .toList();
     }
 
     @Override

@@ -11,10 +11,8 @@ import java.util.Objects;
 @Table(name="users")
 public class User extends BaseEntity {
     @Column(name="username", nullable = false, length = 50)
-    @NotBlank(message = "Username must not be empty")
     private String username;
     @Column(name="password", nullable = false, length = 50)
-    @NotBlank(message = "Password must not be empty")
     private String password;
 
     @OneToMany(mappedBy = "user")

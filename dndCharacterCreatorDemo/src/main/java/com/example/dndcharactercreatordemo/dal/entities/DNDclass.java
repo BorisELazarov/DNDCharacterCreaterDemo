@@ -12,14 +12,11 @@ import java.util.Set;
 @Entity
 @Table(name = "Classes")
 public class DNDclass extends BaseEntity {
-    @Column(name = "name", unique = true, length = 40)
-    @NotBlank(message = "Name must not be empty")
+    @Column(name = "name", unique = true, nullable = false, length = 40)
     private String name;
     @Column(name = "description", nullable = false, length = 65535)
-    @NotBlank(message = "Description must not be empty")
     private String description;
     @Column(name = "hit_dice", nullable = false)
-    @NotNull(message = "The hit dice must not be empty")
     @Enumerated(EnumType.STRING)
 //    @Min(value = 0, message = "The hit dice must be at least 6")
 //    @Max(value = 3, message = "The hit dice must be at max 12")

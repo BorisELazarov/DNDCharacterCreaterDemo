@@ -1,15 +1,17 @@
 package com.example.dndcharactercreatordemo.bll.services.implementations;
 
+import com.example.dndcharactercreatordemo.bll.mappers.interfaces.ClassMapper;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.ClassService;
 import com.example.dndcharactercreatordemo.dal.entities.Proficiency;
 import com.example.dndcharactercreatordemo.enums.HitDiceEnum;
 import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.ClassDTO;
-import com.example.dndcharactercreatordemo.bll.mappers.IMapper;
 import com.example.dndcharactercreatordemo.dal.entities.DNDclass;
 import com.example.dndcharactercreatordemo.dal.repos.ClassRepo;
 import com.example.dndcharactercreatordemo.dal.repos.ProficiencyRepo;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,9 +23,9 @@ import java.util.Set;
 public class ClassServiceImpl implements ClassService {
     private final ClassRepo classRepo;
     private final ProficiencyRepo proficiencyRepo;
-    private final IMapper<ClassDTO, DNDclass> mapper;
+    private final ClassMapper mapper;
 
-    public ClassServiceImpl(ClassRepo classRepo, ProficiencyRepo proficiencyRepo, IMapper<ClassDTO, DNDclass> mapper) {
+    public ClassServiceImpl(ClassRepo classRepo, ProficiencyRepo proficiencyRepo, ClassMapper mapper) {
         this.classRepo = classRepo;
         this.proficiencyRepo = proficiencyRepo;
         this.mapper = mapper;
@@ -32,7 +34,6 @@ public class ClassServiceImpl implements ClassService {
     @PostConstruct
     private void seedData(){
         seedProficiencies();
-        seedClasses();
         if (classRepo.count()==0){
             DNDclass dnDclass=new DNDclass();
             dnDclass.setName("Fighter");
@@ -50,11 +51,6 @@ public class ClassServiceImpl implements ClassService {
                 );
             }
         }
-    }
-
-    private void seedClasses(){
-        if(classRepo.count()>0)
-            return;
     }
 
     private void seedProficiencies(){
@@ -79,33 +75,36 @@ public class ClassServiceImpl implements ClassService {
     }
 
     @Override
-    public List<ClassDTO> getClasses() {
-        return mapper.toDTOs(classRepo.findAll());
+    public ResponseEntity<List<ClassDTO>> getClasses() {
+        return new ResponseEntity<>( mapper.toDTOs(classRepo.findAll()),
+                HttpStatus.OK
+                );
     }
 
     @Override
-    public void addClass(ClassDTO classDTO) {
+    public ResponseEntity<Void> addClass(ClassDTO classDTO) {
         if (classRepo.existsByName(classDTO.name())) {
-            throw new IllegalArgumentException("Error: there is already dndClass with such name");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         DNDclass dndClass = mapper.fromDto(classDTO);
         proficiencyRepo.saveAll(dndClass.getProficiencies());
         classRepo.save(dndClass);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
     @Transactional
-    public void updateClass(Long id, String name, String description, HitDiceEnum hitDice) {
+    public ResponseEntity<Void> updateClass(Long id, String name, String description, HitDiceEnum hitDice) {
         Optional<DNDclass> dndClass = classRepo.findById(id);
         if (dndClass.isEmpty()) {
-            dndClassNotFound();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         DNDclass foundDNDClass = dndClass.get();
         if (name != null &&
                 name.length() > 0 &&
                 !name.equals(foundDNDClass.getName())){
             if (classRepo.existsByName(name)) {
-                throw new IllegalArgumentException("Error: there is already dndClass with such name");
+                return new ResponseEntity<>(HttpStatus.CONFLICT);
             }
             foundDNDClass.setName(name);
         }
@@ -118,48 +117,46 @@ public class ClassServiceImpl implements ClassService {
             foundDNDClass.setHitDice(hitDice);
         }
         classRepo.save(foundDNDClass);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public void softDeleteClass(Long id) {
+    public ResponseEntity<Void> softDeleteClass(Long id) {
         Optional<DNDclass> optionalClass = classRepo.findById(id);
         if (optionalClass.isPresent()) {
 
             DNDclass dndClass = optionalClass.get();
             dndClass.setIsDeleted(true);
             classRepo.save(dndClass);
+            return new ResponseEntity<>(HttpStatus.OK);
         } else {
-
-            dndClassNotFound();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @Override
-    public void hardDeleteClass(Long id) {
+    public ResponseEntity<Void> hardDeleteClass(Long id) {
         Optional<DNDclass> optionalClass = classRepo.findById(id);
         if (optionalClass.isPresent()) {
             DNDclass foundClass = optionalClass.get();
             if (foundClass.getIsDeleted()) {
                 classRepo.delete(foundClass);
+                return new ResponseEntity<>(HttpStatus.OK);
             } else {
-                throw new IllegalArgumentException("The class must be soft deleted before being hard deleted");
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
         } else {
-
-            dndClassNotFound();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-    }
-
-    private void dndClassNotFound() {
-        throw new IllegalArgumentException("DND class not found!");
     }
 
     @Override
-    public ClassDTO getClass(Long id) {
+    public ResponseEntity<ClassDTO> getClass(Long id) {
         Optional<DNDclass> dndClass = classRepo.findById(id);
-        if (dndClass.isEmpty()) {
-            dndClassNotFound();
-        }
-        return mapper.toDto(dndClass.get());
+        return dndClass.map(dnDclass -> new ResponseEntity<>(mapper.toDto(dnDclass),
+                HttpStatus.OK
+        )).orElseGet(() -> new ResponseEntity<>(
+                HttpStatus.NOT_FOUND
+        ));
     }
 }

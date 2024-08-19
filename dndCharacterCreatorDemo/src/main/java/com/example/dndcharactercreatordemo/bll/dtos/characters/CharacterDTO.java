@@ -3,17 +3,45 @@ package com.example.dndcharactercreatordemo.bll.dtos.characters;
 import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.ClassDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.spells.SpellDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.users.UserDTO;
+import jakarta.validation.constraints.*;
 
 import java.util.Optional;
 import java.util.Set;
 
 public record CharacterDTO(
-        Optional<Long> id, Boolean isDeleted,
-        String name, UserDTO user,
-        ClassDTO dndClass, byte level,
-        byte baseStr, byte baseDex,
-        byte baseCon, byte baseInt,
-        byte baseWis, byte baseCha,
+        Optional<Long> id,
+        Boolean isDeleted,
+        @Size(min = 3, max = 50)
+        @NotNull(message = "Name must not be empty")
+        String name,
+        @NotNull
+        UserDTO user,
+        @NotNull
+        ClassDTO dndClass,
+        @Min(value = 1, message = "Level must be above 0")
+        @Max(value = 20, message = "The maximum level is 20")
+        @NotNull
+        byte level,
+        @Min(value = 0, message = "The strength stat must be at least 0")
+        @NotNull
+        byte baseStr,
+        @Min(value = 0, message = "The dexterity stat must be at least 0")
+        @NotNull
+        byte baseDex,
+        @Min(value = 0, message = "The constitution stat must be at least 0")
+        @NotNull
+        byte baseCon,
+        @Min(value = 0, message = "The intelligence stat must be at least 0")
+        @NotNull
+        byte baseInt,
+        @Min(value = 0, message = "The wisdom stat must be at least 0")
+        @NotNull
+        byte baseWis,
+        @Min(value = 0, message = "The charisma stat must be at least 0")
+        @NotNull
+        byte baseCha,
+        @NotEmpty
+        @NotNull
         Set<ProficiencyCharacterDTO> proficiencies,
         Set<SpellDTO> spells
 ) {

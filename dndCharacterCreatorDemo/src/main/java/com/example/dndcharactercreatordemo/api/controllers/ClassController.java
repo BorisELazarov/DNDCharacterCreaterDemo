@@ -4,6 +4,7 @@ import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.ClassDTO;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.ClassService;
 import com.example.dndcharactercreatordemo.enums.HitDiceEnum;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,37 +20,37 @@ public class ClassController {
     }
 
     @GetMapping
-    public List<ClassDTO> getClasses()
+    public ResponseEntity<List<ClassDTO>> getClasses()
     {
         return classService.getClasses();
     }
 
     @GetMapping(path="{classId}")
-    public ClassDTO getClass(@PathVariable("classId") Long id){
+    public ResponseEntity<ClassDTO> getClass(@PathVariable("classId") Long id){
         return classService.getClass(id);
     }
 
     @PostMapping
-    public void addClass(@RequestBody ClassDTO dndClass){
-        classService.addClass(dndClass);
+    public ResponseEntity<Void> addClass(@RequestBody ClassDTO dndClass){
+        return classService.addClass(dndClass);
     }
 
     @PutMapping(path="{classId}")
-    public void updateClass(
+    public ResponseEntity<Void> updateClass(
             @PathVariable("classId") Long id,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String description,
             @RequestParam(required = false) HitDiceEnum hitDice){
-        classService.updateClass(id,name,description,hitDice);
+        return classService.updateClass(id,name,description,hitDice);
     }
 
     @DeleteMapping
-    public void softDeleteClass(@RequestParam Long id) {
-        classService.softDeleteClass(id);
+    public ResponseEntity<Void> softDeleteClass(@RequestParam Long id) {
+        return classService.softDeleteClass(id);
     }
 
     @DeleteMapping(path="/confirmedDelete")
-    public void hardDeleteClass(@RequestParam Long id) {
-        classService.hardDeleteClass(id);
+    public ResponseEntity<Void> hardDeleteClass(@RequestParam Long id) {
+        return classService.hardDeleteClass(id);
     }
 }

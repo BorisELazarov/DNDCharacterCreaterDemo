@@ -1,19 +1,19 @@
-package com.example.dndcharactercreatordemo.bll.mappers;
+package com.example.dndcharactercreatordemo.bll.mappers.implementations;
 
 import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.ClassDTO;
-import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.ProficiencyDTO;
+import com.example.dndcharactercreatordemo.bll.mappers.interfaces.ClassMapper;
+import com.example.dndcharactercreatordemo.bll.mappers.interfaces.ProficiencyMapper;
 import com.example.dndcharactercreatordemo.dal.entities.DNDclass;
-import com.example.dndcharactercreatordemo.dal.entities.Proficiency;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashSet;
 import java.util.List;
 
 @Component
-public class ClassMapper implements IMapper<ClassDTO, DNDclass>{
-    private final IMapper<ProficiencyDTO, Proficiency> proficiencyMapper;
+public class ClassMapperImpl implements ClassMapper {
+    private final ProficiencyMapper proficiencyMapper;
 
-    public ClassMapper(IMapper<ProficiencyDTO, Proficiency> proficiencyMapper) {
+    public ClassMapperImpl(ProficiencyMapper proficiencyMapper) {
         this.proficiencyMapper = proficiencyMapper;
     }
 

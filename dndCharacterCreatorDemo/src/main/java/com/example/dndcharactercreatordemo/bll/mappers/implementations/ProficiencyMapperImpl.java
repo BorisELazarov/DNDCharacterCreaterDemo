@@ -1,21 +1,20 @@
-package com.example.dndcharactercreatordemo.bll.mappers;
+package com.example.dndcharactercreatordemo.bll.mappers.implementations;
 import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.ProficiencyDTO;
+import com.example.dndcharactercreatordemo.bll.mappers.interfaces.ProficiencyMapper;
 import com.example.dndcharactercreatordemo.dal.entities.Proficiency;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 @Component
-public class ProficiencyMapper implements IMapper<ProficiencyDTO, Proficiency>{
+public class ProficiencyMapperImpl implements ProficiencyMapper {
 
     @Override
-    public Proficiency fromDto(ProficiencyDTO proficiencyDTO, Supplier supplier) {
+    public Proficiency fromDto(ProficiencyDTO proficiencyDTO) {
         if(proficiencyDTO==null)
             return null;
         Proficiency proficiency=new Proficiency();
-        if (proficiencyDTO.id().isPresent())
-            proficiency.setId(proficiencyDTO.id().get());
+        proficiencyDTO.id().ifPresent(proficiency::setId);
         proficiency.setIsDeleted(proficiencyDTO.isDeleted());
         proficiency.setName(proficiencyDTO.name());
         proficiency.setType(proficiencyDTO.type());
@@ -39,10 +38,9 @@ public class ProficiencyMapper implements IMapper<ProficiencyDTO, Proficiency>{
     }
 
     @Override
-    public List<Proficiency> fromDTOs(List<ProficiencyDTO> proficiencyDTOS,
-                                      Supplier supplier){
+    public List<Proficiency> fromDTOs(List<ProficiencyDTO> proficiencyDTOS){
         return  proficiencyDTOS.stream()
-                .map(x->fromDto(x,supplier))
+                .map(this::fromDto)
                 .toList();
     }
 }

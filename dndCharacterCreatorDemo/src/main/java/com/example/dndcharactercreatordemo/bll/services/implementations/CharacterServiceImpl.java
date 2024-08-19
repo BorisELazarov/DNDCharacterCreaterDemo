@@ -1,10 +1,13 @@
 package com.example.dndcharactercreatordemo.bll.services.implementations;
 
 import com.example.dndcharactercreatordemo.bll.dtos.characters.CharacterDTO;
-import com.example.dndcharactercreatordemo.bll.mappers.IMapper;
+import com.example.dndcharactercreatordemo.bll.mappers.interfaces.CharacterMapper;
+import com.example.dndcharactercreatordemo.bll.mappers.interfaces.parents.ISingleParameterMapper;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.CharacterService;
 import com.example.dndcharactercreatordemo.dal.entities.Character;
 import com.example.dndcharactercreatordemo.dal.repos.CharacterRepo;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,84 +16,88 @@ import java.util.Optional;
 @Service
 public class CharacterServiceImpl implements CharacterService {
     private final CharacterRepo characterRepo;
-    private final IMapper<CharacterDTO, Character> mapper;
+    private final CharacterMapper mapper;
 
-    public CharacterServiceImpl(CharacterRepo characterRepo, IMapper<CharacterDTO, Character> mapper) {
+    public CharacterServiceImpl(CharacterRepo characterRepo, CharacterMapper mapper) {
         this.characterRepo = characterRepo;
         this.mapper = mapper;
     }
 
     @Override
-    public List<CharacterDTO> getAll() {
-        return mapper.toDTOs(characterRepo.findAll());
+    public ResponseEntity<List<CharacterDTO>> getAll() {
+        return new ResponseEntity<>(
+                mapper.toDTOs(characterRepo.findAll()),
+                HttpStatus.OK
+        );
     }
 
     @Override
-    public void addCharacter(CharacterDTO dto) {
+    public ResponseEntity<Void> addCharacter(CharacterDTO dto) {
         if (characterRepo.findByName(dto.name()).isPresent())
-            throw new IllegalArgumentException("There is already character with such name!");
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         characterRepo.save(mapper.fromDto(dto));
-
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public void editCharacter(CharacterDTO dto) {
+    public ResponseEntity<Void> editCharacter(CharacterDTO dto) {
         if (dto.id().isEmpty()) {
-            noCharacterException();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         Optional<Character> foundCharacter = characterRepo.findByName(dto.name());
 
         if (foundCharacter.isPresent()
                 && !foundCharacter.get().getId().equals(dto.id().orElse(null))) {
-            throw new IllegalArgumentException("There is already character with such name!");
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
 
         characterRepo.save(mapper.fromDto(dto));
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public void softDeleteCharacter(Long id) {
+    public ResponseEntity<Void> softDeleteCharacter(Long id) {
         Optional<Character> character = characterRepo.findById(id);
 
         if (character.isEmpty()) {
-            noCharacterException();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
             character.get().setIsDeleted(true);
             characterRepo.save(character.get());
+            return new ResponseEntity<>(HttpStatus.OK);
         }
     }
 
     @Override
-    public void hardDeleteCharacter(Long id) {
+    public ResponseEntity<Void> hardDeleteCharacter(Long id) {
         Optional<Character> character = characterRepo.findById(id);
 
         if (character.isEmpty()) {
-            noCharacterException();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         else {
             Character foundCharacter= character.get();
             if (foundCharacter.getIsDeleted()){
                 characterRepo.delete(foundCharacter);
+                return new ResponseEntity<>(HttpStatus.OK);
             }
             else {
-                throw new IllegalArgumentException("The character must be soft deleted before being hard deleted");
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
         }
     }
 
     @Override
-    public CharacterDTO getCharacterById(Long id) {
+    public ResponseEntity<CharacterDTO> getCharacterById(Long id) {
         Optional<Character> character = characterRepo.findById(id);
 
-        if (character.isEmpty()) {
-            noCharacterException();
-        }
+        return character.map(value -> new ResponseEntity<>(
+                mapper.toDto(value),
+                HttpStatus.OK
+        )).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
 
-        return mapper.toDto(character.get());
     }
 
-    private void noCharacterException() {
-        throw new IllegalArgumentException("There is no such character!");
-    }
+
 }

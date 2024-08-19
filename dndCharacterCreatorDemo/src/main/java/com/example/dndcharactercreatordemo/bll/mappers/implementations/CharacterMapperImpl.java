@@ -1,11 +1,9 @@
-package com.example.dndcharactercreatordemo.bll.mappers;
+package com.example.dndcharactercreatordemo.bll.mappers.implementations;
 
 import com.example.dndcharactercreatordemo.bll.dtos.characters.ProficiencyCharacterDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.characters.CharacterDTO;
-import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.ClassDTO;
-import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.ProficiencyDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.spells.SpellDTO;
-import com.example.dndcharactercreatordemo.bll.dtos.users.UserDTO;
+import com.example.dndcharactercreatordemo.bll.mappers.interfaces.*;
 import com.example.dndcharactercreatordemo.dal.entities.*;
 import com.example.dndcharactercreatordemo.dal.entities.Character;
 import org.springframework.stereotype.Component;
@@ -13,23 +11,19 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
-public class CharacterMapper implements IMapper<CharacterDTO, Character> {
-    private final IMapper<UserDTO, User> userMapper;
-    private final IMapper<ClassDTO, DNDclass> classMapper;
-    private final IMapper<ProficiencyDTO, Proficiency> proficiencyMapper;
-    private final IMapper<SpellDTO, Spell> spellMapper;
-    private final IMapper<ProficiencyCharacterDTO, ProficiencyCharacter> charProfMapper;
+public class CharacterMapperImpl implements CharacterMapper {
+    private final UserMapper userMapper;
+    private final ClassMapper classMapper;
+    private final ProficiencyCharacterMapper charProfMapper;
+    private final CharacterSpellMapper characterSpellMapper;
 
-    public CharacterMapper(IMapper<UserDTO, User> userMapper,
-                           IMapper<ClassDTO, DNDclass> classMapper,
-                           IMapper<ProficiencyDTO, Proficiency> proficiencyMapper,
-                           IMapper<SpellDTO, Spell> spellMapper,
-                           IMapper<ProficiencyCharacterDTO, ProficiencyCharacter> charProfMapper) {
+    public CharacterMapperImpl(UserMapper userMapper, ClassMapper classMapper,
+                               ProficiencyCharacterMapper charProfMapper,
+                               CharacterSpellMapper characterSpellMapper) {
         this.userMapper = userMapper;
         this.classMapper = classMapper;
-        this.proficiencyMapper = proficiencyMapper;
-        this.spellMapper = spellMapper;
         this.charProfMapper = charProfMapper;
+        this.characterSpellMapper = characterSpellMapper;
     }
 
     @Override
@@ -37,8 +31,7 @@ public class CharacterMapper implements IMapper<CharacterDTO, Character> {
         if (dto.name() == null)
             throw new IllegalArgumentException("Character's name must not be null");
         Character character = new Character();
-        if (dto.id().isPresent())
-            character.setId(dto.id().get());
+        dto.id().ifPresent(character::setId);
         character.setIsDeleted(dto.isDeleted());
         character.setName(dto.name());
         character.setLevel(dto.level());
@@ -57,33 +50,12 @@ public class CharacterMapper implements IMapper<CharacterDTO, Character> {
 
     private List<ProficiencyCharacter> getProficiencyCharacters(Set<ProficiencyCharacterDTO> dtos,
                                                                 Character character) {
-        List<ProficiencyCharacter> proficiencyCharacters = charProfMapper
-                .fromDTOs(dtos.stream().toList());
-        for (ProficiencyCharacter proficiencyCharacter : proficiencyCharacters) {
-            proficiencyCharacter.getId().setCharacter(character);
-        }
-        return proficiencyCharacters;
+        return charProfMapper.fromDTOs(dtos.stream().toList(),character);
     }
 
     private List<CharacterSpell> getCharacterSpells(Set<SpellDTO> dtos,
                                                     Character character) {
-        List<Spell> spells = spellMapper.fromDTOs(dtos.stream().toList());
-        List<CharacterSpell> characterSpells = new LinkedList<>();
-        for (Spell spell : spells) {
-            characterSpells.add(
-                    getCharacterSpell(spell, character)
-            );
-        }
-        return characterSpells;
-    }
-
-    private CharacterSpell getCharacterSpell(Spell spell, Character character) {
-        CharacterSpell characterSpell = new CharacterSpell();
-        CharacterSpellPairId id = new CharacterSpellPairId();
-        id.setCharacter(character);
-        id.setSpell(spell);
-        characterSpell.setId(id);
-        return characterSpell;
+        return characterSpellMapper.fromDTOs(dtos, character);
     }
 
     @Override
@@ -103,26 +75,9 @@ public class CharacterMapper implements IMapper<CharacterDTO, Character> {
                 entity.getBaseInt(),
                 entity.getBaseWis(),
                 entity.getBaseCha(),
-                new HashSet<>(charProfMapper.toDTOs(entity.getProficiencyCharacters())),
-                getSpells(entity.getCharacterSpells())
+                charProfMapper.toDTOs(entity.getProficiencyCharacters()),
+                characterSpellMapper.toDTOs(entity.getCharacterSpells())
         );
-    }
-
-    private Set<ProficiencyDTO> getProficiencies(List<ProficiencyCharacter> proficiencyCharacters) {
-        List<Proficiency> proficiencies = proficiencyCharacters
-                .stream()
-                .map(ProficiencyCharacter::getId)
-                .map(ProficiencyCharacterPairId::getProficiency)
-                .toList();
-        return new HashSet<>(proficiencyMapper.toDTOs(proficiencies));
-    }
-
-    private Set<SpellDTO> getSpells(List<CharacterSpell> characterSpells) {
-        List<Spell> spells = characterSpells
-                .stream().map(CharacterSpell::getId)
-                .map(CharacterSpellPairId::getSpell)
-                .toList();
-        return new HashSet<>(spellMapper.toDTOs(spells));
     }
 
 
