@@ -2,20 +2,21 @@ package com.example.dndcharactercreatordemo.bll.services.interfaces;
 
 import com.example.dndcharactercreatordemo.bll.dtos.users.UserDTO;
 import jakarta.transaction.Transactional;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface UserService {
-    List<UserDTO> getUsers();
+    ResponseEntity<List<UserDTO>> getUsers();
 
-    void addUser(UserDTO userDTO);
+    ResponseEntity<Void> addUser(UserDTO userDTO);
 
     @Transactional
-    void updateUser(Long id, String username, String password);
+    ResponseEntity<Void> updateUser(Long id, String username, String password);
 
-    void softDeleteUser(Long id);
+    ResponseEntity<Void> softDeleteUser(Long id);
 
-    void hardDeleteUser(Long id);
+    ResponseEntity<Void> hardDeleteUser(Long id);
 
-    UserDTO getUser(Long id);
+    ResponseEntity<UserDTO> getUser(Long id);
 }

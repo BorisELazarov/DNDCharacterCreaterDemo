@@ -1,19 +1,20 @@
 package com.example.dndcharactercreatordemo.bll.services.interfaces;
 
 import com.example.dndcharactercreatordemo.bll.dtos.spells.SpellDTO;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface SpellService {
-    List<SpellDTO> getSpells();
+    ResponseEntity<List<SpellDTO>> getSpells();
 
-    SpellDTO getSpell(Long id);
+    ResponseEntity<SpellDTO> getSpell(Long id);
 
-    void addSpell(SpellDTO spellDTO);
+    ResponseEntity<Void> addSpell(SpellDTO spellDTO);
 
-    void editSpell(SpellDTO spellDTO, Long id);
+    ResponseEntity<Void> editSpell(SpellDTO spellDTO, Long id);
 
-    void softDeleteSpell(Long id);
+    ResponseEntity<Void> softDeleteSpell(Long id);
 
-    void hardDeleteSpell(Long id);
+    ResponseEntity<Void> hardDeleteSpell(Long id);
 }

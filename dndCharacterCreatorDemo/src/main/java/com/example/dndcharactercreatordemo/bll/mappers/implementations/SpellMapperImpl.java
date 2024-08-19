@@ -1,21 +1,21 @@
-package com.example.dndcharactercreatordemo.bll.mappers;
+package com.example.dndcharactercreatordemo.bll.mappers.implementations;
 
 import com.example.dndcharactercreatordemo.bll.dtos.spells.SpellDTO;
+import com.example.dndcharactercreatordemo.bll.mappers.interfaces.SpellMapper;
 import com.example.dndcharactercreatordemo.dal.entities.Spell;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
-public class SpellMapper implements IMapper<SpellDTO, Spell>{
+public class SpellMapperImpl implements SpellMapper {
 
     @Override
     public Spell fromDto(SpellDTO spellDTO) {
         if (spellDTO==null)
             return null;
         Spell spell=new Spell();
-        if (spellDTO.id().isPresent())
-            spell.setId(spellDTO.id().get());
+        spellDTO.id().ifPresent(spell::setId);
         spell.setName(spellDTO.name());
         spell.setDescription(spellDTO.description());
         spell.setLevel(spellDTO.level());

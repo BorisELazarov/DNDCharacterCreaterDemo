@@ -3,10 +3,7 @@ package com.example.dndcharactercreatordemo.dal.entities;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
@@ -15,30 +12,21 @@ import java.util.Objects;
 @Table(name = "spells")
 public class Spell extends BaseEntity{
     @Column(name="name", nullable = false, length = 50)
-    @NotBlank(message = "Name must not be empty")
     private String name;
     @Column(name="level", nullable = false)
-    @Min(value = 0, message = "Level must be at least 0")
-    @Max(value = 9, message = "The maximum level is 9")
     private int level;
     @Column(name="casting_time", nullable = false, length = 50)
-    @NotBlank(message = "Casting time must not be empty")
     private String castingTime;
     @Column(name="casting_range")
-    @Min(value = 0, message = "Casting range must be at least 0 feet")
     private int castingRange;
     @Column(name="target", length = 50)
-    @NotBlank(message = "Target must not be empty")
     private String target;
     @Column(name="components", nullable = false)
-    @NotBlank(message = "The components must not be empty")
-    @Size(max=50, message = "The components must have maximum 50 characters")
     private String components;
+    @Min(0)
     @Column(name="duration", nullable = false)
-    @Min(value = 0, message = "Duration must be at least 0")
     private int duration;
     @Column(name="description", nullable = false, length = 65535)
-    @NotBlank(message = "Description must not be empty")
     private String description;
 
     public String getName() {

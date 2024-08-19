@@ -3,7 +3,6 @@ package com.example.dndcharactercreatordemo.dal.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.io.Serializable;
@@ -14,7 +13,6 @@ import java.util.Objects;
 @Table(name = "characters")
 public class Character extends BaseEntity implements Serializable {
     @Column(name="name", nullable = false, length = 50)
-    @NotBlank(message = "Name is mandatory")
     private String name;
     @ManyToOne
     @JoinColumn(name="user_id", nullable = false)
@@ -23,26 +21,18 @@ public class Character extends BaseEntity implements Serializable {
     @JoinColumn(name="class_id", nullable = false)
     private DNDclass dndClass;
     @Column(name="level", nullable = false)
-    @Min(value = 1, message = "Level must be above 0")
-    @Max(value = 20, message = "The maximum level is 20")
     private byte level;
     @Column(name = "base_str", nullable = false)
-    @Min(value = 0, message = "The strength stat must be at least 0")
     private byte baseStr=10;
     @Column(name = "base_dex", nullable = false)
-    @Min(value = 0, message = "The dexterity stat must be at least 0")
     private byte baseDex=10;
     @Column(name = "base_con", nullable = false)
-    @Min(value = 0, message = "The constitution stat must be at least 0")
     private byte baseCon=10;
     @Column(name = "base_int", nullable = false)
-    @Min(value = 0, message = "The intelligence stat must be at least 0")
     private byte baseInt=10;
     @Column(name = "base_wis", nullable = false)
-    @Min(value = 0, message = "The wisdom stat must be at least 0")
     private byte baseWis=10;
     @Column(name = "base_cha", nullable = false)
-    @Min(value = 0, message = "The charisma stat must be at least 0")
     private byte baseCha=10;
 
     @OneToMany(mappedBy = "id.character", cascade= CascadeType.ALL)

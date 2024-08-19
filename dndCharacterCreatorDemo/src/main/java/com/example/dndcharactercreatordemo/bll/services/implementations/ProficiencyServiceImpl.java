@@ -1,61 +1,62 @@
 package com.example.dndcharactercreatordemo.bll.services.implementations;
 
 import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.ProficiencyDTO;
-import com.example.dndcharactercreatordemo.bll.mappers.IMapper;
+import com.example.dndcharactercreatordemo.bll.mappers.interfaces.ProficiencyMapper;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.ProficiencyService;
 import com.example.dndcharactercreatordemo.dal.entities.Proficiency;
 import com.example.dndcharactercreatordemo.dal.repos.ProficiencyRepo;
-import jakarta.annotation.PostConstruct;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ProficiencyServiceImpl implements ProficiencyService {
     private final ProficiencyRepo proficiencyRepo;
-    private final IMapper<ProficiencyDTO, Proficiency> mapper;
+    private final ProficiencyMapper mapper;
 
-    public ProficiencyServiceImpl(ProficiencyRepo proficiencyRepo, IMapper<ProficiencyDTO, Proficiency> mapper) {
+    public ProficiencyServiceImpl(ProficiencyRepo proficiencyRepo, ProficiencyMapper mapper) {
         this.proficiencyRepo = proficiencyRepo;
         this.mapper = mapper;
     }
 
 
     @Override
-    public List<ProficiencyDTO> getProficiencies() {
-        return mapper.toDTOs(proficiencyRepo.findAll());
+    public ResponseEntity<List<ProficiencyDTO>> getProficiencies() {
+        return new ResponseEntity<>(
+                mapper.toDTOs(proficiencyRepo.findAll()),
+                HttpStatus.OK
+        );
     }
 
     @Override
-    public void addProficiency(ProficiencyDTO proficiencyDTO) {
+    public ResponseEntity<Void> addProficiency(ProficiencyDTO proficiencyDTO) {
         Optional<Proficiency> proficiencyByName=proficiencyRepo.findByName(proficiencyDTO.name());
         if (proficiencyByName.isPresent()) {
-            throw new IllegalArgumentException("Error: there is already proficiency with such name!");
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         proficiencyRepo.save(mapper.fromDto(proficiencyDTO));
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public ProficiencyDTO getProficiency(Long id) {
+    public ResponseEntity<ProficiencyDTO> getProficiency(Long id) {
         Optional<Proficiency> proficiency=proficiencyRepo.findById(id);
-        if (proficiency.isEmpty()) {
-            proficiencyNotFound();
-        }
-        return mapper.toDto(proficiency.get());
-    }
-    
-
-    private void proficiencyNotFound(){
-        throw new IllegalArgumentException("Proficiency not found!");
+        return proficiency.map(value -> new ResponseEntity<>(
+                mapper.toDto(value),
+                HttpStatus.OK
+        )).orElseGet(() -> new ResponseEntity<>(
+                HttpStatus.NOT_FOUND
+        ));
     }
 
     @Override
-    public void updateProficiency(Long id, String name, String type) {
+    public ResponseEntity<Void> updateProficiency(Long id, String name, String type) {
         Optional<Proficiency> proficiency=proficiencyRepo.findById(id);
         if (proficiency.isEmpty()) {
-            proficiencyNotFound();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         Proficiency foundProficiency=proficiency.get();
         if (name!=null &&
@@ -64,7 +65,7 @@ public class ProficiencyServiceImpl implements ProficiencyService {
             Optional<Proficiency> proficiencyByUsername=proficiencyRepo.findByName(name);
             if (proficiencyByUsername.isPresent() && !proficiencyByUsername.get().getIsDeleted())
             {
-                throw new IllegalArgumentException("Error: there is already proficiency with such name");
+                return new ResponseEntity<>(HttpStatus.CONFLICT);
             }
             foundProficiency.setName(name);
         }
@@ -74,33 +75,36 @@ public class ProficiencyServiceImpl implements ProficiencyService {
             foundProficiency.setType(type);
         }
         proficiencyRepo.save(foundProficiency);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public void softDeleteProficiency(Long id) {
+    public ResponseEntity<Void> softDeleteProficiency(Long id) {
         Optional<Proficiency> optionalProficiency=proficiencyRepo.findById(id);
         if (optionalProficiency.isEmpty()){
-            proficiencyNotFound();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         else {
             Proficiency proficiency=optionalProficiency.get();
             proficiency.setIsDeleted(true);
             proficiencyRepo.save(proficiency);
+            return new ResponseEntity<>(HttpStatus.OK);
         }
     }
 
     @Override
-    public void hardDeleteProficiency(Long id) {
+    public ResponseEntity<Void> hardDeleteProficiency(Long id) {
         Optional<Proficiency> optionalProficiency=proficiencyRepo.findById(id);
         if (optionalProficiency.isEmpty()){
-            proficiencyNotFound();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         else {
             Proficiency proficiency=optionalProficiency.get();
             if (proficiency.getIsDeleted()){
                 proficiencyRepo.delete(proficiency);
+                return new ResponseEntity<>(HttpStatus.OK);
             } else {
-                throw new IllegalArgumentException("The proficiency must be soft deleted before being hard deleted");
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
         }
     }
