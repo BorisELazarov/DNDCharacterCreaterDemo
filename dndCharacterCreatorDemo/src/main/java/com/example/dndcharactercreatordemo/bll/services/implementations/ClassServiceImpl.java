@@ -13,14 +13,13 @@ import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ClassServiceImpl implements ClassService {
@@ -38,37 +37,50 @@ public class ClassServiceImpl implements ClassService {
 
     @PostConstruct
     private void seedData(){
+        if (proficiencyRepo.count()>0 || classRepo.count()>0)
+            return;
+
         seedProficiencies();
-        if (classRepo.count()==0){
-            DNDclass dnDclass=new DNDclass();
-            dnDclass.setName("Fighter");
-            dnDclass.setHitDice(HitDiceEnum.D10);
-            dnDclass.setDescription("Likes to fight a lot");
-            Optional<Proficiency> proficiency=proficiencyRepo.findByName("Athletics");
-            if (proficiency.isPresent()) {
-                dnDclass.setProficiencies(Set.of(proficiency.get()));
-            }
-            else {
-                dnDclass.setProficiencies(
-                        Set.of(
-                                getProficiency("Athletics","Skill")
-                        )
-                );
-            }
-        }
+        seedClasses(new HashSet<>(proficiencyRepo.findAll()));
+    }
+
+    private void seedClasses(Set<Proficiency> proficiencies){
+        Set<DNDclass> dnDclasses=new LinkedHashSet<>();
+        dnDclasses.add(getDNDclass("Fighter", "Fights", HitDiceEnum.D10, proficiencies));
+        dnDclasses.add(getDNDclass("Wizard", "Magic", HitDiceEnum.D6, proficiencies));
+        dnDclasses.add(getDNDclass("Rogue", "Sneak", HitDiceEnum.D8, proficiencies));
+        dnDclasses.add(getDNDclass("Barbarian", "Tank", HitDiceEnum.D12, proficiencies));
+        classRepo.saveAll(dnDclasses);
+    }
+
+    private DNDclass getDNDclass(String name, String description, HitDiceEnum hitDiceEnum,
+                                 Set<Proficiency> proficiencies){
+        DNDclass dnDclass = new DNDclass();
+        dnDclass.setName(name);
+        dnDclass.setHitDice(hitDiceEnum);
+        dnDclass.setProficiencies(proficiencies);
+        dnDclass.setDescription(description);
+        return dnDclass;
     }
 
     private void seedProficiencies(){
         if (proficiencyRepo.count()>0)
             return;
-        String language="Language";
+        String type="Language";
         List<Proficiency> proficiencies = new ArrayList<>();
-        proficiencies.add(getProficiency("Common",language));
-        proficiencies.add(getProficiency("Elven",language));
-        proficiencies.add(getProficiency("Dwarvish",language));
-        proficiencies.add(getProficiency("Orcish",language));
-        proficiencies.add(getProficiency("Celestial", language));
-        proficiencies.add(getProficiency("Infernal",language));
+        proficiencies.add(getProficiency("Common",type));
+        proficiencies.add(getProficiency("Elven",type));
+        proficiencies.add(getProficiency("Dwarvish",type));
+        proficiencies.add(getProficiency("Orcish",type));
+        proficiencies.add(getProficiency("Celestial", type));
+        proficiencies.add(getProficiency("Infernal",type));
+        type="Skill";
+        proficiencies.add(getProficiency("Athletics",type));
+        proficiencies.add(getProficiency("Acrobatics",type));
+        proficiencies.add(getProficiency("Arcana",type));
+        proficiencies.add(getProficiency("Sleight of hand",type));
+        proficiencies.add(getProficiency("Religion", type));
+        proficiencies.add(getProficiency("Perception",type));
         proficiencyRepo.saveAll(proficiencies);
     }
 
