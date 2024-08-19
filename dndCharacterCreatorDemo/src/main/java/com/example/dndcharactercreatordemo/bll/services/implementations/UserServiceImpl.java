@@ -8,7 +8,9 @@ import com.example.dndcharactercreatordemo.dal.entities.Role;
 import com.example.dndcharactercreatordemo.dal.entities.User;
 import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
 import com.example.dndcharactercreatordemo.dal.repos.UserRepo;
-import com.example.dndcharactercreatordemo.exceptions.users.UserNotFoundException;
+import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
+import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenException;
+import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,8 @@ import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
+    private static final String NOT_FOUND_MESSAGE="The user is not found!";
+    private static final String USERNAME_TAKEN_MESSAGE="This username is already taken!";
     private final UserRepo userRepo;
     private final UserMapper mapper;
     private final RoleRepo roleRepo;
@@ -91,7 +95,7 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<Void> addUser(UserDTO userDTO) {
         Optional<User> userByUsername = userRepo.findByUsername(userDTO.username());
         if (userByUsername.isPresent()) {
-            throw new IllegalArgumentException("Error: there is already user with such name");
+            throw new NameAlreadyTakenException(USERNAME_TAKEN_MESSAGE);
         }
         Optional<Role> role= roleRepo.findByTitle(userDTO.role());
         User user = mapper.fromDto(userDTO, role);
@@ -104,7 +108,7 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<Void> updateUser(Long id, String username, String password) {
         Optional<User> optionalUser = userRepo.findById(id);
         if (optionalUser.isEmpty()) {
-            throw new UserNotFoundException();
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
         User foundUser = optionalUser.get();
         if (username != null &&
@@ -112,7 +116,7 @@ public class UserServiceImpl implements UserService {
                 !username.equals(foundUser.getUsername())) {
             Optional<User> userByUsername = userRepo.findByUsername(username);
             if (userByUsername.isPresent()) {
-                throw new IllegalArgumentException("Error: there is already user with such name");
+                throw new NameAlreadyTakenException(USERNAME_TAKEN_MESSAGE);
             }
             foundUser.setUsername(username);
         }
@@ -133,7 +137,7 @@ public class UserServiceImpl implements UserService {
             userRepo.save(foundUser);
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
-            throw new UserNotFoundException();
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
 
     }
@@ -148,11 +152,11 @@ public class UserServiceImpl implements UserService {
             if (foundUser.getIsDeleted()) {userRepo.delete(foundUser);
                return new ResponseEntity<>(HttpStatus.OK);
             } else {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+               throw new NotSoftDeletedException("The user must be soft deleted first!");
             }
 
         } else {
-            throw new UserNotFoundException();
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
 
     }
@@ -161,7 +165,7 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<UserDTO> getUser(Long id) {
         Optional<User> optionalUser = userRepo.findById(id);
         if (optionalUser.isEmpty()) {
-            throw new UserNotFoundException();
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
         return new ResponseEntity<>(
                 mapper.toDto(optionalUser.get()),

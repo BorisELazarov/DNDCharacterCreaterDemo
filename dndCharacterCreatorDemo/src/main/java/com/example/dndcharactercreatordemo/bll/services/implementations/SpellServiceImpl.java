@@ -5,6 +5,9 @@ import com.example.dndcharactercreatordemo.bll.mappers.interfaces.SpellMapper;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.SpellService;
 import com.example.dndcharactercreatordemo.dal.entities.Spell;
 import com.example.dndcharactercreatordemo.dal.repos.SpellRepo;
+import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenException;
+import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
+import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -14,6 +17,8 @@ import java.util.Optional;
 
 @Service
 public class SpellServiceImpl implements SpellService {
+    private static final String NOT_FOUND_MESSAGE="The spell is not found!";
+    private static final String NAME_TAKEN_MESSAGE="There is already spell with that name!";
     private final SpellRepo spellRepo;
     private final SpellMapper mapper;
 
@@ -26,7 +31,7 @@ public class SpellServiceImpl implements SpellService {
     public ResponseEntity<List<SpellDTO>> getSpells() {
         return new ResponseEntity<>(
                 mapper.toDTOs(spellRepo.findAll()),
-                HttpStatus.BAD_REQUEST
+                HttpStatus.OK
         );
     }
 
@@ -34,7 +39,7 @@ public class SpellServiceImpl implements SpellService {
     public ResponseEntity<SpellDTO> getSpell(Long id){
         Optional<Spell> spell= spellRepo.findById(id);
         if (spell.isEmpty())
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
         return new ResponseEntity<>(
                 mapper.toDto(spell.get()),
                 HttpStatus.OK
@@ -45,7 +50,7 @@ public class SpellServiceImpl implements SpellService {
     public ResponseEntity<Void> addSpell(SpellDTO spellDTO){
         Optional<Spell> spell= spellRepo.findByName(spellDTO.name());
         if (spell.isPresent()){
-            throw new IllegalArgumentException("Error: there is already spell with such name!");
+            throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
         }
         spellRepo.save(mapper.fromDto(spellDTO));
         return new ResponseEntity<>(HttpStatus.OK);
@@ -57,7 +62,7 @@ public class SpellServiceImpl implements SpellService {
             spellRepo.save(mapper.fromDto(spellDTO));
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        throw new NotFoundException(NOT_FOUND_MESSAGE);
     }
 
     @Override
@@ -69,7 +74,7 @@ public class SpellServiceImpl implements SpellService {
             spellRepo.save(spell);
             return new ResponseEntity<>(HttpStatus.OK);
         }else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
     }
 
@@ -82,8 +87,8 @@ public class SpellServiceImpl implements SpellService {
                 spellRepo.delete(spell);
                 return new ResponseEntity<>(HttpStatus.OK);
             }
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new NotSoftDeletedException("The spell must be soft deleted first!");
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        throw new NotFoundException(NOT_FOUND_MESSAGE);
     }
 }
