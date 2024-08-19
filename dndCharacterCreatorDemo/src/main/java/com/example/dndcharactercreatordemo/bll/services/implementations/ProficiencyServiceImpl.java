@@ -5,6 +5,9 @@ import com.example.dndcharactercreatordemo.bll.mappers.interfaces.ProficiencyMap
 import com.example.dndcharactercreatordemo.bll.services.interfaces.ProficiencyService;
 import com.example.dndcharactercreatordemo.dal.entities.Proficiency;
 import com.example.dndcharactercreatordemo.dal.repos.ProficiencyRepo;
+import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenException;
+import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
+import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -14,6 +17,8 @@ import java.util.Optional;
 
 @Service
 public class ProficiencyServiceImpl implements ProficiencyService {
+    private static final String NOT_FOUND_MESSAGE="The proficiency is not found!";
+    private static final String NAME_TAKEN_MESSAGE="There is already proficiency named like that!";
     private final ProficiencyRepo proficiencyRepo;
     private final ProficiencyMapper mapper;
 
@@ -35,7 +40,7 @@ public class ProficiencyServiceImpl implements ProficiencyService {
     public ResponseEntity<Void> addProficiency(ProficiencyDTO proficiencyDTO) {
         Optional<Proficiency> proficiencyByName=proficiencyRepo.findByName(proficiencyDTO.name());
         if (proficiencyByName.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+            throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
         }
         proficiencyRepo.save(mapper.fromDto(proficiencyDTO));
         return new ResponseEntity<>(HttpStatus.OK);
@@ -44,19 +49,20 @@ public class ProficiencyServiceImpl implements ProficiencyService {
     @Override
     public ResponseEntity<ProficiencyDTO> getProficiency(Long id) {
         Optional<Proficiency> proficiency=proficiencyRepo.findById(id);
-        return proficiency.map(value -> new ResponseEntity<>(
-                mapper.toDto(value),
-                HttpStatus.OK
-        )).orElseGet(() -> new ResponseEntity<>(
-                HttpStatus.NOT_FOUND
-        ));
+        if (proficiency.isPresent()){
+            return new ResponseEntity<>(
+                    mapper.toDto(proficiency.get()),
+                    HttpStatus.OK
+            );
+        }
+        throw new NotFoundException(NOT_FOUND_MESSAGE);
     }
 
     @Override
     public ResponseEntity<Void> updateProficiency(Long id, String name, String type) {
         Optional<Proficiency> proficiency=proficiencyRepo.findById(id);
         if (proficiency.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
         Proficiency foundProficiency=proficiency.get();
         if (name!=null &&
@@ -65,7 +71,7 @@ public class ProficiencyServiceImpl implements ProficiencyService {
             Optional<Proficiency> proficiencyByUsername=proficiencyRepo.findByName(name);
             if (proficiencyByUsername.isPresent() && !proficiencyByUsername.get().getIsDeleted())
             {
-                return new ResponseEntity<>(HttpStatus.CONFLICT);
+                throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
             }
             foundProficiency.setName(name);
         }
@@ -82,7 +88,7 @@ public class ProficiencyServiceImpl implements ProficiencyService {
     public ResponseEntity<Void> softDeleteProficiency(Long id) {
         Optional<Proficiency> optionalProficiency=proficiencyRepo.findById(id);
         if (optionalProficiency.isEmpty()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
         else {
             Proficiency proficiency=optionalProficiency.get();
@@ -96,7 +102,7 @@ public class ProficiencyServiceImpl implements ProficiencyService {
     public ResponseEntity<Void> hardDeleteProficiency(Long id) {
         Optional<Proficiency> optionalProficiency=proficiencyRepo.findById(id);
         if (optionalProficiency.isEmpty()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
         else {
             Proficiency proficiency=optionalProficiency.get();
@@ -104,7 +110,7 @@ public class ProficiencyServiceImpl implements ProficiencyService {
                 proficiencyRepo.delete(proficiency);
                 return new ResponseEntity<>(HttpStatus.OK);
             } else {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                throw new NotSoftDeletedException("The proficiency must be soft deleted first!");
             }
         }
     }
