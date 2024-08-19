@@ -22,8 +22,7 @@ public class ClassMapperImpl implements ClassMapper {
         if(classDTO==null)
             return null;
         DNDclass dndClass=new DNDclass();
-        if (classDTO.id().isPresent())
-            dndClass.setId(classDTO.id().get());
+        classDTO.id().ifPresent(dndClass::setId);
         dndClass.setName(classDTO.name());
         dndClass.setHitDice(classDTO.hitDice());
         dndClass.setDescription(classDTO.description());

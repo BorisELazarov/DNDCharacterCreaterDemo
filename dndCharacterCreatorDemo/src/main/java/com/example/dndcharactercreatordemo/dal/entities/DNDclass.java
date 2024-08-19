@@ -2,7 +2,6 @@ package com.example.dndcharactercreatordemo.dal.entities;
 
 import com.example.dndcharactercreatordemo.enums.HitDiceEnum;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.List;
