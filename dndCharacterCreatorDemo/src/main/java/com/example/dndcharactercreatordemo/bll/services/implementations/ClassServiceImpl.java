@@ -13,13 +13,9 @@ import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class ClassServiceImpl implements ClassService {
@@ -92,26 +88,23 @@ public class ClassServiceImpl implements ClassService {
     }
 
     @Override
-    public ResponseEntity<List<ClassDTO>> getClasses() {
-        return new ResponseEntity<>( mapper.toDTOs(classRepo.findAll()),
-                HttpStatus.OK
-                );
+    public List<ClassDTO> getClasses() {
+        return mapper.toDTOs(classRepo.findAll());
     }
 
     @Override
-    public ResponseEntity<Void> addClass(ClassDTO classDTO) {
+    public void addClass(ClassDTO classDTO) {
         if (classRepo.existsByName(classDTO.name())) {
             throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
         }
         DNDclass dndClass = mapper.fromDto(classDTO);
         proficiencyRepo.saveAll(dndClass.getProficiencies());
         classRepo.save(dndClass);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
     @Transactional
-    public ResponseEntity<Void> updateClass(Long id, String name, String description, HitDiceEnum hitDice) {
+    public void updateClass(Long id, String name, String description, HitDiceEnum hitDice) {
         Optional<DNDclass> dndClass = classRepo.findById(id);
         if (dndClass.isEmpty()) {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
@@ -134,31 +127,28 @@ public class ClassServiceImpl implements ClassService {
             foundDNDClass.setHitDice(hitDice);
         }
         classRepo.save(foundDNDClass);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<Void> softDeleteClass(Long id) {
+    public void softDeleteClass(Long id) {
         Optional<DNDclass> optionalClass = classRepo.findById(id);
         if (optionalClass.isPresent()) {
 
             DNDclass dndClass = optionalClass.get();
             dndClass.setIsDeleted(true);
             classRepo.save(dndClass);
-            return new ResponseEntity<>(HttpStatus.OK);
         } else {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
     }
 
     @Override
-    public ResponseEntity<Void> hardDeleteClass(Long id) {
+    public void hardDeleteClass(Long id) {
         Optional<DNDclass> optionalClass = classRepo.findById(id);
         if (optionalClass.isPresent()) {
             DNDclass foundClass = optionalClass.get();
             if (foundClass.getIsDeleted()) {
                 classRepo.delete(foundClass);
-                return new ResponseEntity<>(HttpStatus.OK);
             } else {
                 throw new NotSoftDeletedException("The class must be soft deleted first!");
             }
@@ -168,14 +158,11 @@ public class ClassServiceImpl implements ClassService {
     }
 
     @Override
-    public ResponseEntity<ClassDTO> getClass(Long id) {
+    public ClassDTO getClass(Long id) {
         Optional<DNDclass> dndClass = classRepo.findById(id);
         if (dndClass.isPresent())
         {
-            return new ResponseEntity<>(
-                    mapper.toDto(dndClass.get()),
-                    HttpStatus.OK
-            );
+            return mapper.toDto(dndClass.get());
         }
         throw new NotFoundException(NOT_FOUND_MESSAGE);
     }

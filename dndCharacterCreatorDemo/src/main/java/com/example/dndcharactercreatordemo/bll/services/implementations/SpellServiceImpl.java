@@ -9,9 +9,6 @@ import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenEx
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashSet;
@@ -41,7 +38,7 @@ public class SpellServiceImpl implements SpellService {
                         false, "Fire",
                         1, "A",
                         20, "asfd",
-                        "V, M", 0,
+                        "V, S, M", 0,
                         "FIreee"
                 )
         );
@@ -57,9 +54,9 @@ public class SpellServiceImpl implements SpellService {
         spells.add(
                 getSpell(
                         false, "Thunder",
-                        1, "A",
+                        2, "BA",
                         20, "asfd",
-                        "V, M", 0,
+                        "V, M", 60,
                         "Thunder"
                 )
         );
@@ -85,64 +82,54 @@ public class SpellServiceImpl implements SpellService {
     }
 
     @Override
-    public ResponseEntity<List<SpellDTO>> getSpells() {
-        return new ResponseEntity<>(
-                mapper.toDTOs(spellRepo.findAll()),
-                HttpStatus.OK
-        );
+    public List<SpellDTO> getSpells() {
+        return mapper.toDTOs(spellRepo.findAll());
     }
 
     @Override
-    public ResponseEntity<SpellDTO> getSpell(Long id){
+    public SpellDTO getSpell(Long id){
         Optional<Spell> spell= spellRepo.findById(id);
         if (spell.isEmpty())
             throw new NotFoundException(NOT_FOUND_MESSAGE);
-        return new ResponseEntity<>(
-                mapper.toDto(spell.get()),
-                HttpStatus.OK
-        );
+        return mapper.toDto(spell.get());
     }
 
     @Override
-    public ResponseEntity<Void> addSpell(SpellDTO spellDTO){
+    public void addSpell(SpellDTO spellDTO){
         Optional<Spell> spell= spellRepo.findByName(spellDTO.name());
         if (spell.isPresent()){
             throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
         }
         spellRepo.save(mapper.fromDto(spellDTO));
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<Void> editSpell(SpellDTO spellDTO, Long id) {
+    public void editSpell(SpellDTO spellDTO, Long id) {
         if (spellRepo.existsById(id)) {
             spellRepo.save(mapper.fromDto(spellDTO));
-            return new ResponseEntity<>(HttpStatus.OK);
         }
         throw new NotFoundException(NOT_FOUND_MESSAGE);
     }
 
     @Override
-    public ResponseEntity<Void> softDeleteSpell(Long id){
+    public void softDeleteSpell(Long id){
         Optional<Spell> optionalSpell= spellRepo.findById(id);
         if (optionalSpell.isPresent()){
             Spell spell=optionalSpell.get();
             spell.setIsDeleted(true);
             spellRepo.save(spell);
-            return new ResponseEntity<>(HttpStatus.OK);
         }else {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
     }
 
     @Override
-    public ResponseEntity<Void> hardDeleteSpell(Long id){
+    public void hardDeleteSpell(Long id){
         Optional<Spell> optionalSpell= spellRepo.findById(id);
         if (optionalSpell.isPresent()){
             Spell spell=optionalSpell.get();
             if (spell.getIsDeleted()){
                 spellRepo.delete(spell);
-                return new ResponseEntity<>(HttpStatus.OK);
             }
             throw new NotSoftDeletedException("The spell must be soft deleted first!");
         }

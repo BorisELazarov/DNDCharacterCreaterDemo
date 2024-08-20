@@ -37,6 +37,6 @@ public class Privilege{
 
     @Override
     public final int hashCode() {
-        return this instanceof HibernateProxy thisProxy ? (thisProxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+        return this instanceof HibernateProxy thisProxy ? (thisProxy.getHibernateLazyInitializer().getPersistentClass().hashCode()) : getClass().hashCode();
     }
 }

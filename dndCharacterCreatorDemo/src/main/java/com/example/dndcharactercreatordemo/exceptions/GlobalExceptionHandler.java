@@ -2,6 +2,7 @@ package com.example.dndcharactercreatordemo.exceptions;
 import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
+import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -32,5 +33,19 @@ public class GlobalExceptionHandler {
     public @ResponseBody ErrorResponse handleException(NameAlreadyTakenException ex){
         logger.error(ex.getMessage());
         return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public @ResponseBody ErrorResponse handleException(BadRequestException ex){
+        logger.error("Invalid data");
+        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Invalid data");
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public @ResponseBody ErrorResponse handleException(Exception ex){
+        logger.error("Something went wrong");
+        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Something went wrong");
     }
 }
