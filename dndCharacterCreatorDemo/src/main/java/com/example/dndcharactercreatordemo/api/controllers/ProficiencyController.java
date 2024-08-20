@@ -2,7 +2,9 @@ package com.example.dndcharactercreatordemo.api.controllers;
 
 import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.ProficiencyDTO;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.ProficiencyService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,17 +23,24 @@ public class ProficiencyController {
     @GetMapping
     public ResponseEntity<List<ProficiencyDTO>> getProficiencies()
     {
-        return proficiencyService.getProficiencies();
+        return new ResponseEntity<>(
+                proficiencyService.getProficiencies(),
+                HttpStatus.OK
+        );
     }
 
     @GetMapping(path="{proficiencyId}")
     public ResponseEntity<ProficiencyDTO> getProficiency(@PathVariable("proficiencyId") Long id){
-        return proficiencyService.getProficiency(id);
+        return new ResponseEntity<>(
+                proficiencyService.getProficiency(id),
+                HttpStatus.OK
+        );
     }
 
     @PostMapping
-    public ResponseEntity<Void> addProficiency(@RequestBody ProficiencyDTO proficiency){
-        return proficiencyService.addProficiency(proficiency);
+    public ResponseEntity<Void> addProficiency(@RequestBody @Valid ProficiencyDTO proficiency){
+        proficiencyService.addProficiency(proficiency);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PutMapping(path="{proficiencyId}")
@@ -39,16 +48,19 @@ public class ProficiencyController {
             @PathVariable("proficiencyId") Long id,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String type){
-        return proficiencyService.updateProficiency(id,name,type);
+        proficiencyService.updateProficiency(id,name,type);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping
     public ResponseEntity<Void> softDeleteProficiency(@RequestParam Long id) {
-         return proficiencyService.softDeleteProficiency(id);
+        proficiencyService.softDeleteProficiency(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping(path = "/confirmedDelete")
     public ResponseEntity<Void> hardDeleteProficiency(@RequestParam Long id){
-        return proficiencyService.hardDeleteProficiency(id);
+        proficiencyService.hardDeleteProficiency(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -13,8 +13,6 @@ import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenEx
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -84,15 +82,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<List<UserDTO>> getUsers() {
-        return new ResponseEntity<>(
-                mapper.toDTOs(userRepo.findAll()),
-                HttpStatus.OK
-        );
+    public List<UserDTO> getUsers() {
+        return mapper.toDTOs(userRepo.findAll());
     }
 
     @Override
-    public ResponseEntity<Void> addUser(UserDTO userDTO) {
+    public void addUser(UserDTO userDTO) {
         Optional<User> userByUsername = userRepo.findByUsername(userDTO.username());
         if (userByUsername.isPresent()) {
             throw new NameAlreadyTakenException(USERNAME_TAKEN_MESSAGE);
@@ -100,12 +95,11 @@ public class UserServiceImpl implements UserService {
         Optional<Role> role= roleRepo.findByTitle(userDTO.role());
         User user = mapper.fromDto(userDTO, role);
         userRepo.save(user);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
     @Transactional
-    public ResponseEntity<Void> updateUser(Long id, String username, String password) {
+    public void updateUser(Long id, String username, String password) {
         Optional<User> optionalUser = userRepo.findById(id);
         if (optionalUser.isEmpty()) {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
@@ -125,17 +119,15 @@ public class UserServiceImpl implements UserService {
                 !password.equals(foundUser.getPassword())) {
             foundUser.setPassword(password);
         }
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<Void> softDeleteUser(Long id) {
+    public void softDeleteUser(Long id) {
         Optional<User> optionalUser = userRepo.findById(id);
         if (optionalUser.isPresent()) {
             User foundUser = optionalUser.get();
             foundUser.setIsDeleted(true);
             userRepo.save(foundUser);
-            return new ResponseEntity<>(HttpStatus.OK);
         } else {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
@@ -143,14 +135,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<Void> hardDeleteUser(Long id) {
+    public void hardDeleteUser(Long id) {
         Optional<User> optionalUser = userRepo.findById(id);
 
         if (optionalUser.isPresent()) {
             User foundUser = optionalUser.get();
 
-            if (foundUser.getIsDeleted()) {userRepo.delete(foundUser);
-               return new ResponseEntity<>(HttpStatus.OK);
+            if (foundUser.getIsDeleted()) {
+                userRepo.delete(foundUser);
             } else {
                throw new NotSoftDeletedException("The user must be soft deleted first!");
             }
@@ -162,14 +154,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<UserDTO> getUser(Long id) {
+    public UserDTO getUser(Long id) {
         Optional<User> optionalUser = userRepo.findById(id);
         if (optionalUser.isEmpty()) {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
-        return new ResponseEntity<>(
-                mapper.toDto(optionalUser.get()),
-                HttpStatus.OK
-        );
+        return mapper.toDto(optionalUser.get());
     }
 }

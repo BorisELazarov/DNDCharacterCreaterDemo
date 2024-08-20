@@ -2,7 +2,9 @@ package com.example.dndcharactercreatordemo.api.controllers;
 
 import com.example.dndcharactercreatordemo.bll.dtos.users.UserDTO;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,17 +23,24 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUsers()
     {
-        return userService.getUsers();
+        return new ResponseEntity<>(
+                userService.getUsers(),
+                HttpStatus.OK
+        );
     }
 
     @GetMapping(path="{userId}")
     public ResponseEntity<UserDTO> getUser(@PathVariable("userId") Long id){
-        return userService.getUser(id);
+        return new ResponseEntity<>(
+                userService.getUser(id),
+                HttpStatus.OK
+        );
     }
 
     @PostMapping
-    public ResponseEntity<Void> registerUser(@RequestBody UserDTO user){
-        return userService.addUser(user);
+    public ResponseEntity<Void> registerUser(@RequestBody @Valid UserDTO user){
+        userService.addUser(user);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PutMapping(path="{userId}")
@@ -39,16 +48,19 @@ public class UserController {
             @PathVariable("userId") Long id,
             @RequestParam(required = false) String username,
             @RequestParam(required = false) String password){
-        return userService.updateUser(id,username,password);
+        userService.updateUser(id,username,password);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping
     public ResponseEntity<Void> deleteUser(@RequestParam Long id) {
-         return userService.softDeleteUser(id);
+         userService.softDeleteUser(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping(path = "/confirmedDelete")
     public ResponseEntity<Void> hardDeleteUser(@RequestParam Long id){
-        return userService.hardDeleteUser(id);
+        userService.hardDeleteUser(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

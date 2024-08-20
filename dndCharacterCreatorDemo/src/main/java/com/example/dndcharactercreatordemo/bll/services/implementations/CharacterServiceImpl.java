@@ -8,9 +8,8 @@ import com.example.dndcharactercreatordemo.dal.repos.CharacterRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,23 +27,20 @@ public class CharacterServiceImpl implements CharacterService {
     }
 
     @Override
-    public ResponseEntity<List<CharacterDTO>> getAll() {
-        return new ResponseEntity<>(
-                mapper.toDTOs(characterRepo.findAll()),
-                HttpStatus.OK
-        );
+    public List<CharacterDTO> getAll() {
+        return mapper.toDTOs(characterRepo.findAll());
     }
 
     @Override
-    public ResponseEntity<Void> addCharacter(CharacterDTO dto) {
+    public void addCharacter(CharacterDTO dto) {
         if (characterRepo.findByName(dto.name()).isPresent())
             throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
         characterRepo.save(mapper.fromDto(dto));
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<Void> editCharacter(CharacterDTO dto) {
+    @Transactional
+    public void editCharacter(CharacterDTO dto) {
         if (dto.id().isEmpty()) {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
 
@@ -58,11 +54,10 @@ public class CharacterServiceImpl implements CharacterService {
         }
 
         characterRepo.save(mapper.fromDto(dto));
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<Void> softDeleteCharacter(Long id) {
+    public void softDeleteCharacter(Long id) {
         Optional<Character> character = characterRepo.findById(id);
 
         if (character.isEmpty()) {
@@ -70,12 +65,11 @@ public class CharacterServiceImpl implements CharacterService {
         } else {
             character.get().setIsDeleted(true);
             characterRepo.save(character.get());
-            return new ResponseEntity<>(HttpStatus.OK);
         }
     }
 
     @Override
-    public ResponseEntity<Void> hardDeleteCharacter(Long id) {
+    public void hardDeleteCharacter(Long id) {
         Optional<Character> character = characterRepo.findById(id);
 
         if (character.isEmpty()) {
@@ -86,7 +80,6 @@ public class CharacterServiceImpl implements CharacterService {
             Character foundCharacter= character.get();
             if (foundCharacter.getIsDeleted()){
                 characterRepo.delete(foundCharacter);
-                return new ResponseEntity<>(HttpStatus.OK);
             }
             else {
                 throw new NotSoftDeletedException("The character must be soft deleted first!");
@@ -95,14 +88,11 @@ public class CharacterServiceImpl implements CharacterService {
     }
 
     @Override
-    public ResponseEntity<CharacterDTO> getCharacterById(Long id) {
+    public CharacterDTO getCharacterById(Long id) {
         Optional<Character> character = characterRepo.findById(id);
 
         if (character.isPresent()){
-            return new ResponseEntity<>(
-                    mapper.toDto(character.get()),
-                    HttpStatus.OK
-            );
+            return mapper.toDto(character.get());
         }
         throw new NotFoundException(NOT_FOUND_MESSAGE);
     }

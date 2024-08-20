@@ -2,7 +2,9 @@ package com.example.dndcharactercreatordemo.api.controllers;
 
 import com.example.dndcharactercreatordemo.bll.dtos.spells.SpellDTO;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.SpellService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,33 +22,42 @@ public class SpellController {
 
     @GetMapping
     public ResponseEntity<List<SpellDTO>> getSpells(){
-        return spellService.getSpells();
+        return new ResponseEntity<>(
+                spellService.getSpells(),
+                HttpStatus.OK
+        );
     }
 
     @GetMapping(path="/{spellId}")
     public ResponseEntity<SpellDTO> getSpell(@PathVariable("spellId") Long id) {
-        return spellService.getSpell(id);
+        return new ResponseEntity<>(
+                spellService.getSpell(id),
+                HttpStatus.OK
+        );
     }
 
     @PostMapping
-    public ResponseEntity<Void> postSpell(@RequestBody SpellDTO spell){
-        return spellService.addSpell(spell);
+    public ResponseEntity<Void> postSpell(@RequestBody @Valid SpellDTO spell){
+        spellService.addSpell(spell);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PutMapping(path = "/{spellId}")
-    public ResponseEntity<Void> putSpell(@RequestBody SpellDTO spell,
+    public ResponseEntity<Void> putSpell(@RequestBody @Valid SpellDTO spell,
                          @PathVariable("spellId") Long id){
-        return spellService.editSpell(spell, id);
+        spellService.editSpell(spell, id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping
     public ResponseEntity<Void> softDeleteSpell(@RequestParam Long id) {
-        return spellService.softDeleteSpell(id);
+        spellService.softDeleteSpell(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping(path = "/confirmedDelete")
     public ResponseEntity<Void> hardDeleteSpell(@RequestParam Long id){
-
-        return spellService.hardDeleteSpell(id);
+        spellService.hardDeleteSpell(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

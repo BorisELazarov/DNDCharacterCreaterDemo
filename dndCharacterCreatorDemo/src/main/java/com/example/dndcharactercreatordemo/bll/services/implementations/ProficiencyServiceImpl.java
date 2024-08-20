@@ -29,37 +29,30 @@ public class ProficiencyServiceImpl implements ProficiencyService {
 
 
     @Override
-    public ResponseEntity<List<ProficiencyDTO>> getProficiencies() {
-        return new ResponseEntity<>(
-                mapper.toDTOs(proficiencyRepo.findAll()),
-                HttpStatus.OK
-        );
+    public List<ProficiencyDTO> getProficiencies() {
+        return mapper.toDTOs(proficiencyRepo.findAll());
     }
 
     @Override
-    public ResponseEntity<Void> addProficiency(ProficiencyDTO proficiencyDTO) {
+    public void addProficiency(ProficiencyDTO proficiencyDTO) {
         Optional<Proficiency> proficiencyByName=proficiencyRepo.findByName(proficiencyDTO.name());
         if (proficiencyByName.isPresent()) {
             throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
         }
         proficiencyRepo.save(mapper.fromDto(proficiencyDTO));
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<ProficiencyDTO> getProficiency(Long id) {
+    public ProficiencyDTO getProficiency(Long id) {
         Optional<Proficiency> proficiency=proficiencyRepo.findById(id);
         if (proficiency.isPresent()){
-            return new ResponseEntity<>(
-                    mapper.toDto(proficiency.get()),
-                    HttpStatus.OK
-            );
+            return mapper.toDto(proficiency.get());
         }
         throw new NotFoundException(NOT_FOUND_MESSAGE);
     }
 
     @Override
-    public ResponseEntity<Void> updateProficiency(Long id, String name, String type) {
+    public void updateProficiency(Long id, String name, String type) {
         Optional<Proficiency> proficiency=proficiencyRepo.findById(id);
         if (proficiency.isEmpty()) {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
@@ -81,11 +74,10 @@ public class ProficiencyServiceImpl implements ProficiencyService {
             foundProficiency.setType(type);
         }
         proficiencyRepo.save(foundProficiency);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<Void> softDeleteProficiency(Long id) {
+    public void softDeleteProficiency(Long id) {
         Optional<Proficiency> optionalProficiency=proficiencyRepo.findById(id);
         if (optionalProficiency.isEmpty()){
             throw new NotFoundException(NOT_FOUND_MESSAGE);
@@ -94,12 +86,11 @@ public class ProficiencyServiceImpl implements ProficiencyService {
             Proficiency proficiency=optionalProficiency.get();
             proficiency.setIsDeleted(true);
             proficiencyRepo.save(proficiency);
-            return new ResponseEntity<>(HttpStatus.OK);
         }
     }
 
     @Override
-    public ResponseEntity<Void> hardDeleteProficiency(Long id) {
+    public void hardDeleteProficiency(Long id) {
         Optional<Proficiency> optionalProficiency=proficiencyRepo.findById(id);
         if (optionalProficiency.isEmpty()){
             throw new NotFoundException(NOT_FOUND_MESSAGE);
@@ -108,7 +99,6 @@ public class ProficiencyServiceImpl implements ProficiencyService {
             Proficiency proficiency=optionalProficiency.get();
             if (proficiency.getIsDeleted()){
                 proficiencyRepo.delete(proficiency);
-                return new ResponseEntity<>(HttpStatus.OK);
             } else {
                 throw new NotSoftDeletedException("The proficiency must be soft deleted first!");
             }

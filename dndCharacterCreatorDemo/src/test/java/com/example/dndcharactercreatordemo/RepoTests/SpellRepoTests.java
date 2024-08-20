@@ -1,7 +1,6 @@
 package com.example.dndcharactercreatordemo.RepoTests;
 
 import com.example.dndcharactercreatordemo.dal.entities.Spell;
-import com.example.dndcharactercreatordemo.dal.repos.CharacterRepo;
 import com.example.dndcharactercreatordemo.dal.repos.SpellRepo;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;

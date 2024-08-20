@@ -12,16 +12,8 @@ public class ErrorResponse {
     }
 
     public ErrorResponse(int statusCode, String message) {
-        statusCode = statusCode;
+        this.statusCode = statusCode;
         this.message = message;
-    }
-
-    public int getStatusCode() {
-        return statusCode;
-    }
-
-    public void setStatusCode(int statusCode) {
-        statusCode = statusCode;
     }
 
     public String getMessage() {
