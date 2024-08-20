@@ -18,7 +18,7 @@ public class ProficiencyCharacter{
         this.id = id;
     }
 
-    public boolean isExpertise() {
+    public boolean getExpertise() {
         return expertise;
     }
 
