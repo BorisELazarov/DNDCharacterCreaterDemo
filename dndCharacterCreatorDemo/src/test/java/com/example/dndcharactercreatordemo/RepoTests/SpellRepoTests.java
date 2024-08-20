@@ -1,7 +1,9 @@
 package com.example.dndcharactercreatordemo.RepoTests;
 
 import com.example.dndcharactercreatordemo.dal.entities.Spell;
+import com.example.dndcharactercreatordemo.dal.repos.CharacterRepo;
 import com.example.dndcharactercreatordemo.dal.repos.SpellRepo;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,5 +86,12 @@ class SpellRepoTests {
         Optional<Spell> foundSpell=spellRepo.findByName(spell.get().getName());
         assertTrue(foundSpell.isPresent());
         assertEquals(spell,foundSpell);
+    }
+
+
+
+    @AfterAll
+    static void rootData(@Autowired SpellRepo rootRepo){
+        rootRepo.deleteAll();
     }
 }

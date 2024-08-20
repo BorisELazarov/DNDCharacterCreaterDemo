@@ -1,7 +1,7 @@
 package com.example.dndcharactercreatordemo.exceptions;
 
 public class ErrorResponse {
-    private int StatusCode;
+    private int statusCode;
     private String message;
 
     public ErrorResponse() {
@@ -12,16 +12,16 @@ public class ErrorResponse {
     }
 
     public ErrorResponse(int statusCode, String message) {
-        StatusCode = statusCode;
+        statusCode = statusCode;
         this.message = message;
     }
 
     public int getStatusCode() {
-        return StatusCode;
+        return statusCode;
     }
 
     public void setStatusCode(int statusCode) {
-        StatusCode = statusCode;
+        statusCode = statusCode;
     }
 
     public String getMessage() {
