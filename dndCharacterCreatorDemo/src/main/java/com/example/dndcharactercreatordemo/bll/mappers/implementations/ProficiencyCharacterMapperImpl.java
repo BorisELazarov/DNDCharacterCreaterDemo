@@ -35,7 +35,7 @@ public class ProficiencyCharacterMapperImpl implements ProficiencyCharacterMappe
     @Override
     public ProficiencyCharacterDTO toDto(ProficiencyCharacter entity) {
         ProficiencyDTO proficiencyDTO=mapper.toDto(entity.getId().getProficiency());
-        return new ProficiencyCharacterDTO(proficiencyDTO, entity.isExpertise());
+        return new ProficiencyCharacterDTO(proficiencyDTO, entity.getExpertise());
     }
 
     @Override

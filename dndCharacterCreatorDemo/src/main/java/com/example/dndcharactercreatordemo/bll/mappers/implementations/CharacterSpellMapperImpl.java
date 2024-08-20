@@ -13,10 +13,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
-public class CharacterSpellImpl implements CharacterSpellMapper {
+public class CharacterSpellMapperImpl implements CharacterSpellMapper {
     private final SpellMapper spellMapper;
 
-    public CharacterSpellImpl(SpellMapper spellMapper) {
+    public CharacterSpellMapperImpl(SpellMapper spellMapper) {
         this.spellMapper = spellMapper;
     }
 

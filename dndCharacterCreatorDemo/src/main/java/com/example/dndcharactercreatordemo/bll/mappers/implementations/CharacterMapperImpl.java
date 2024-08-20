@@ -26,6 +26,8 @@ public class CharacterMapperImpl implements CharacterMapper {
         this.characterSpellMapper = characterSpellMapper;
     }
 
+
+
     @Override
     public Character fromDto(CharacterDTO dto) {
         if (dto.name() == null)
