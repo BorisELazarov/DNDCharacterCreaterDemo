@@ -11,11 +11,17 @@ public interface UserService {
     void addUser(UserDTO userDTO);
 
     @Transactional
-    void updateUser(Long id, String username, String password);
+    void changePassword(Long id, String oldPassword, String newPassword);
 
     void softDeleteUser(Long id);
 
     void hardDeleteUser(Long id);
 
+    void restoreUser(String username, String password);
+
     UserDTO getUser(Long id);
+
+    UserDTO getUser(String username, String password);
+    @Transactional
+    void changeUsername(Long id, String username);
 }

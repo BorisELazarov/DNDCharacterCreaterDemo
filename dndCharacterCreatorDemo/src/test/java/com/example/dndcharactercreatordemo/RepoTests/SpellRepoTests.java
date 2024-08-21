@@ -21,6 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class SpellRepoTests {
     private final SpellRepo spellRepo;
 
+    @Autowired
+    public SpellRepoTests(SpellRepo spellRepo) {
+        this.spellRepo = spellRepo;
+    }
+
     @BeforeAll
     static void seedSpells(@Autowired SpellRepo seedRepo){
         Set<Spell> spells=new LinkedHashSet<>();
@@ -72,10 +77,6 @@ class SpellRepoTests {
         return spell;
     }
 
-    @Autowired
-    public SpellRepoTests(SpellRepo spellRepo) {
-        this.spellRepo = spellRepo;
-    }
 
     @Test
     void findByNameAreEquals(){

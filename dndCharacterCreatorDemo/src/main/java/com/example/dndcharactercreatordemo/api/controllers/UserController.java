@@ -21,7 +21,7 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserDTO>> getAllUsers()
+    public ResponseEntity<List<UserDTO>> getAllUndeletedUsers()
     {
         return new ResponseEntity<>(
                 userService.getUsers(),
@@ -29,7 +29,23 @@ public class UserController {
         );
     }
 
-    @GetMapping(path="{userId}")
+    @GetMapping(path="/login/{username}/{password}")
+    public ResponseEntity<UserDTO> login(@PathVariable("username") String username,
+                                         @PathVariable("password") String password){
+        return new ResponseEntity<>(
+                userService.getUser(username,password),
+                HttpStatus.OK
+        );
+    }
+
+    @PutMapping(path="/restore/{username}/{password}")
+    public ResponseEntity<UserDTO> restoreAccount(@PathVariable("username") String username,
+                                         @PathVariable("password") String password){
+        userService.restoreUser(username,password);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping(path="/{userId}")
     public ResponseEntity<UserDTO> getUser(@PathVariable("userId") Long id){
         return new ResponseEntity<>(
                 userService.getUser(id),
@@ -37,29 +53,37 @@ public class UserController {
         );
     }
 
-    @PostMapping
+    @PostMapping(path = "/register")
     public ResponseEntity<Void> registerUser(@RequestBody @Valid UserDTO user){
         userService.addUser(user);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PutMapping(path="{userId}")
-    public ResponseEntity<Void> updateUser(
+    @PutMapping(path="changeUsername/{userId}/{username}")
+    public ResponseEntity<Void> changeUsername(
             @PathVariable("userId") Long id,
-            @RequestParam(required = false) String username,
-            @RequestParam(required = false) String password){
-        userService.updateUser(id,username,password);
+            @PathVariable("username") String username){
+        userService.changeUsername(id,username);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @DeleteMapping
-    public ResponseEntity<Void> deleteUser(@RequestParam Long id) {
+    @PutMapping(path="changePassword/{userId}/{oldPassword}/{newPassword}")
+    public ResponseEntity<Void> updateUser(
+            @PathVariable("userId") Long id,
+            @PathVariable("oldPassword") String oldPassword,
+            @PathVariable("newPassword") String newPassword){
+        userService.changePassword(id,oldPassword,newPassword);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping(path="/delete/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable("userId") Long id) {
          userService.softDeleteUser(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @DeleteMapping(path = "/confirmedDelete")
-    public ResponseEntity<Void> hardDeleteUser(@RequestParam Long id){
+    @DeleteMapping(path = "/delete/confirmed/{userId}")
+    public ResponseEntity<Void> hardDeleteUser(@PathVariable("userId") Long id){
         userService.hardDeleteUser(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
