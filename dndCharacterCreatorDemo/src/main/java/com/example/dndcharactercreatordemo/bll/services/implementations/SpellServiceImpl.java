@@ -9,6 +9,7 @@ import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenEx
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
 import jakarta.annotation.PostConstruct;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashSet;
@@ -23,7 +24,7 @@ public class SpellServiceImpl implements SpellService {
     private final SpellRepo spellRepo;
     private final SpellMapper mapper;
 
-    public SpellServiceImpl(SpellRepo spellRepo, SpellMapper mapper) {
+    public SpellServiceImpl(@NotNull SpellRepo spellRepo, @NotNull SpellMapper mapper) {
         this.spellRepo = spellRepo;
         this.mapper = mapper;
     }

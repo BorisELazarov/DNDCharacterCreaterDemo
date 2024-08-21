@@ -7,6 +7,7 @@ import com.example.dndcharactercreatordemo.bll.mappers.interfaces.ProficiencyMap
 import com.example.dndcharactercreatordemo.dal.entities.Character;
 import com.example.dndcharactercreatordemo.dal.entities.ProficiencyCharacter;
 import com.example.dndcharactercreatordemo.dal.entities.ProficiencyCharacterPairId;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 public class ProficiencyCharacterMapperImpl implements ProficiencyCharacterMapper {
     private final ProficiencyMapper mapper;
 
-    public ProficiencyCharacterMapperImpl(ProficiencyMapper mapper) {
+    public ProficiencyCharacterMapperImpl(@NotNull ProficiencyMapper mapper) {
         this.mapper = mapper;
     }
 

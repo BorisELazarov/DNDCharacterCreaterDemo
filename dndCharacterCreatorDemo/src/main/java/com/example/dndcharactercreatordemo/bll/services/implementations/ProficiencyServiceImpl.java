@@ -8,6 +8,7 @@ import com.example.dndcharactercreatordemo.dal.repos.ProficiencyRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class ProficiencyServiceImpl implements ProficiencyService {
     private final ProficiencyRepo proficiencyRepo;
     private final ProficiencyMapper mapper;
 
-    public ProficiencyServiceImpl(ProficiencyRepo proficiencyRepo, ProficiencyMapper mapper) {
+    public ProficiencyServiceImpl(@NotNull ProficiencyRepo proficiencyRepo, @NotNull ProficiencyMapper mapper) {
         this.proficiencyRepo = proficiencyRepo;
         this.mapper = mapper;
     }

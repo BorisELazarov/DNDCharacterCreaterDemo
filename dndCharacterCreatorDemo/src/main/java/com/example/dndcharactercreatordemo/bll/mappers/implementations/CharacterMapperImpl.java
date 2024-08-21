@@ -6,6 +6,7 @@ import com.example.dndcharactercreatordemo.bll.dtos.spells.SpellDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.*;
 import com.example.dndcharactercreatordemo.dal.entities.*;
 import com.example.dndcharactercreatordemo.dal.entities.Character;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -17,9 +18,9 @@ public class CharacterMapperImpl implements CharacterMapper {
     private final ProficiencyCharacterMapper charProfMapper;
     private final CharacterSpellMapper characterSpellMapper;
 
-    public CharacterMapperImpl(UserMapper userMapper, ClassMapper classMapper,
-                               ProficiencyCharacterMapper charProfMapper,
-                               CharacterSpellMapper characterSpellMapper) {
+    public CharacterMapperImpl(@NotNull UserMapper userMapper, @NotNull  ClassMapper classMapper,
+                               @NotNull ProficiencyCharacterMapper charProfMapper,
+                               @NotNull CharacterSpellMapper characterSpellMapper) {
         this.userMapper = userMapper;
         this.classMapper = classMapper;
         this.charProfMapper = charProfMapper;
@@ -29,7 +30,7 @@ public class CharacterMapperImpl implements CharacterMapper {
 
 
     @Override
-    public Character fromDto(CharacterDTO dto) {
+    public Character fromDto(CharacterDTO dto, Optional<Role> role) {
         if (dto.name() == null)
             throw new IllegalArgumentException("Character's name must not be null");
         Character character = new Character();
@@ -43,7 +44,7 @@ public class CharacterMapperImpl implements CharacterMapper {
         character.setBaseInt(dto.baseInt());
         character.setBaseWis(dto.baseWis());
         character.setBaseCha(dto.baseCha());
-        character.setUser(userMapper.fromDto(dto.user()));
+        character.setUser(userMapper.fromDto(dto.user(), role));
         character.setDNDclass(classMapper.fromDto(dto.dndClass()));
         character.setProficiencyCharacters(getProficiencyCharacters(dto.proficiencies(), character));
         character.setCharacterSpells(getCharacterSpells(dto.spells(),character));
@@ -83,13 +84,13 @@ public class CharacterMapperImpl implements CharacterMapper {
     }
 
 
-    @Override
-    public List<Character> fromDTOs(List<CharacterDTO> characterDTOS) {
-
-        return characterDTOS.stream()
-                .map(this::fromDto)
-                .toList();
-    }
+//    @Override
+//    public List<Character> fromDTOs(List<CharacterDTO> characterDTOS, Role) {
+//
+//        return characterDTOS.stream()
+//                .map(x->fr)
+//                .toList();
+//    }
 
     @Override
     public List<CharacterDTO> toDTOs(List<Character> characters) {

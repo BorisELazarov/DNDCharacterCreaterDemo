@@ -13,6 +13,7 @@ import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -25,7 +26,8 @@ public class ClassServiceImpl implements ClassService {
     private final ProficiencyRepo proficiencyRepo;
     private final ClassMapper mapper;
 
-    public ClassServiceImpl(ClassRepo classRepo, ProficiencyRepo proficiencyRepo, ClassMapper mapper) {
+    public ClassServiceImpl(@NotNull ClassRepo classRepo, @NotNull ProficiencyRepo proficiencyRepo,
+                            @NotNull ClassMapper mapper) {
         this.classRepo = classRepo;
         this.proficiencyRepo = proficiencyRepo;
         this.mapper = mapper;

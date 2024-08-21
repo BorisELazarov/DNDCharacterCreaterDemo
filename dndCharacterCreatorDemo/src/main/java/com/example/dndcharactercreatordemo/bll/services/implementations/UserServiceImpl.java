@@ -13,6 +13,7 @@ import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenEx
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -25,7 +26,8 @@ public class UserServiceImpl implements UserService {
     private final UserMapper mapper;
     private final RoleRepo roleRepo;
 
-    public UserServiceImpl(UserRepo userRepo, RoleRepo roleRepo, UserMapper mapper) {
+    public UserServiceImpl(@NotNull UserRepo userRepo, @NotNull RoleRepo roleRepo,
+                           @NotNull UserMapper mapper) {
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
         this.mapper = mapper;

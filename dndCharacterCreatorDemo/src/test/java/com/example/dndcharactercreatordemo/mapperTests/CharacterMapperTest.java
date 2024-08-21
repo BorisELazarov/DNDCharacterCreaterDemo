@@ -55,7 +55,9 @@ class CharacterMapperTest {
                 (byte)8,(byte)14,
                 Set.of(),Set.of()
         );
-        Character character=characterMapper.fromDto(dto);
+        Role role=new Role();
+        role.setTitle(userDTO.role());
+        Character character=characterMapper.fromDto(dto,Optional.of(role));
         dto.id().ifPresent(id->assertEquals(id,character.getId()));
         assertEquals(dto.name(),character.getName());
         assertEquals(dto.isDeleted(),character.getIsDeleted());
@@ -84,6 +86,7 @@ class CharacterMapperTest {
         dclass.setName("Wizard");
         dclass.setDescription("Master of SQL");
         dclass.setHitDice(HitDiceEnum.D10);
+        dclass.setProficiencies(Set.of());
         Character character=new Character();
         character.setId(4L);
         character.setName("Vankata");
@@ -96,6 +99,8 @@ class CharacterMapperTest {
         character.setBaseInt((byte) 14);
         character.setBaseWis((byte) 8);
         character.setBaseCha((byte) 14);
+        character.setCharacterSpells(List.of());
+        character.setProficiencyCharacters(List.of());
         CharacterDTO dto=characterMapper.toDto(character);
         dto.id().ifPresent(id->assertEquals(character.getId(),id));
         assertEquals(character.getName(),dto.name());
