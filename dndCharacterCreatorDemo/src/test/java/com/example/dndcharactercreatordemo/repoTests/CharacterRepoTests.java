@@ -1,9 +1,7 @@
 package com.example.dndcharactercreatordemo.repoTests;
 
+import com.example.dndcharactercreatordemo.dal.entities.*;
 import com.example.dndcharactercreatordemo.dal.entities.Character;
-import com.example.dndcharactercreatordemo.dal.entities.DNDclass;
-import com.example.dndcharactercreatordemo.dal.entities.Role;
-import com.example.dndcharactercreatordemo.dal.entities.User;
 import com.example.dndcharactercreatordemo.dal.repos.CharacterRepo;
 import com.example.dndcharactercreatordemo.dal.repos.ClassRepo;
 import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
@@ -109,6 +107,22 @@ class CharacterRepoTests {
         Optional<Character> foundCharacter= characterRepo.findByName(character.get().getName());
         assertTrue(foundCharacter.isPresent());
         character.ifPresent(x->assertEquals(x.getName(),foundCharacter.get().getName()));
+    }
+
+    @Test
+    void findAllDeletedEquals(){
+        List<Character> characters=characterRepo.findAll()
+                .stream().filter(x->!x.getIsDeleted()).toList();
+        List<Character> deletedCharacters=characterRepo.findAll(false);
+        assertEquals(characters,deletedCharacters);
+    }
+
+    @Test
+    void findAllUndeletedEquals(){
+        List<Character> characters=characterRepo.findAll()
+                .stream().filter(BaseEntity::getIsDeleted).toList();
+        List<Character> deletedCharacters=characterRepo.findAll(true);
+        assertEquals(characters,deletedCharacters);
     }
 
     @AfterAll

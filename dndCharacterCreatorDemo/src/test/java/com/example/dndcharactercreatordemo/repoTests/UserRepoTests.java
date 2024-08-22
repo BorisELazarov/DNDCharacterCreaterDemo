@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.Set;
 import java.util.Optional;
@@ -78,8 +79,27 @@ class UserRepoTests {
         List<User> users = userRepo.findAllSoftDeleted();
         long countAll = users.size();
         assertNotEquals(0, countAll);
-        long countUndeleted = users.stream().filter(BaseEntity::getIsDeleted).count();
+        long countUndeleted = users.stream().filter(User::getIsDeleted).count();
         assertEquals(countAll, countUndeleted);
+    }
+
+    @Test
+    void findDeletedByUsernameAndPasswordAreEquals(){
+        Optional<User> user=userRepo.findAll()
+                .stream().filter(User::getIsDeleted)
+                .findFirst();
+        assertTrue(user.isPresent());
+        user.ifPresent(x->{
+            Optional<User> foundUser=userRepo
+                    .findDeletedByUsernameAndPassword(x.getUsername(),x.getPassword());
+            assertTrue(foundUser.isPresent());
+            foundUser.ifPresent(y->{
+                assertTrue(y.getIsDeleted());
+                assertEquals(x,y);
+                assertEquals(x.getUsername(),y.getUsername());
+                assertEquals(x.getPassword(),y.getPassword());
+            });
+        });
     }
 
     @AfterAll

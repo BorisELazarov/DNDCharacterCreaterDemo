@@ -1,5 +1,6 @@
 package com.example.dndcharactercreatordemo.repoTests;
 
+import com.example.dndcharactercreatordemo.dal.entities.BaseEntity;
 import com.example.dndcharactercreatordemo.dal.entities.Spell;
 import com.example.dndcharactercreatordemo.dal.repos.SpellRepo;
 import org.junit.jupiter.api.AfterAll;
@@ -10,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -88,7 +90,21 @@ class SpellRepoTests {
         assertEquals(spell,foundSpell);
     }
 
+    @Test
+    void findAllDeletedEquals(){
+        List<Spell> spells=spellRepo.findAll()
+                .stream().filter(x->!x.getIsDeleted()).toList();
+        List<Spell> deletedSpells=spellRepo.findAll(false);
+        assertEquals(spells,deletedSpells);
+    }
 
+    @Test
+    void findAllUndeletedEquals(){
+        List<Spell> spells=spellRepo.findAll()
+                .stream().filter(Spell::getIsDeleted).toList();
+        List<Spell> deletedSpells=spellRepo.findAll(true);
+        assertEquals(spells,deletedSpells);
+    }
 
     @AfterAll
     static void rootData(@Autowired SpellRepo rootRepo){
