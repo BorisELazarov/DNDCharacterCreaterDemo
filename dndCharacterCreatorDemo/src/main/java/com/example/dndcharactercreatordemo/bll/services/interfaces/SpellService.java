@@ -5,7 +5,7 @@ import com.example.dndcharactercreatordemo.bll.dtos.spells.SpellDTO;
 import java.util.List;
 
 public interface SpellService {
-    List<SpellDTO> getSpells();
+    List<SpellDTO> getSpells(boolean isDeleted);
 
     SpellDTO getSpell(Long id);
 
@@ -16,4 +16,6 @@ public interface SpellService {
     void softDeleteSpell(Long id);
 
     void hardDeleteSpell(Long id);
+
+    void restoreSpell(Long id);
 }

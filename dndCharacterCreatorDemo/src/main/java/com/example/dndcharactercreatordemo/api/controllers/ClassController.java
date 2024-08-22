@@ -2,7 +2,6 @@ package com.example.dndcharactercreatordemo.api.controllers;
 
 import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.ClassDTO;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.ClassService;
-import com.example.dndcharactercreatordemo.enums.HitDiceEnum;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,8 +24,17 @@ public class ClassController {
     public ResponseEntity<List<ClassDTO>> getClasses()
     {
         return new ResponseEntity<>(
-            classService.getClasses(),
+            classService.getClasses(false),
             HttpStatus.OK
+        );
+    }
+
+    @GetMapping(path = "/deleted")
+    public ResponseEntity<List<ClassDTO>> getDeletedClasses()
+    {
+        return new ResponseEntity<>(
+                classService.getClasses(true),
+                HttpStatus.OK
         );
     }
 
@@ -45,13 +53,17 @@ public class ClassController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PutMapping(path="{classId}")
+    @PutMapping
     public ResponseEntity<Void> updateClass(
-            @PathVariable("classId") Long id,
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String description,
-            @RequestParam(required = false) HitDiceEnum hitDice){
-        classService.updateClass(id,name,description,hitDice);
+            @RequestBody ClassDTO classDTO){
+        classService.updateClass(classDTO);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping(path="{classId}")
+    public ResponseEntity<Void> restoreClass(
+            @PathVariable("classId") Long id){
+        classService.restoreClass(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

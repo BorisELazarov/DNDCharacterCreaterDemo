@@ -19,10 +19,18 @@ public class CharacterController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CharacterDTO>> getAll(){
+    public ResponseEntity<List<CharacterDTO>> getCharacters(){
         return new ResponseEntity<>(
-                service.getAll(),
+                service.getCharacters(false),
             HttpStatus.OK
+        );
+    }
+
+    @GetMapping(path = "/deleted")
+    public ResponseEntity<List<CharacterDTO>> getDeletedCharacters(){
+        return new ResponseEntity<>(
+                service.getCharacters(true),
+                HttpStatus.OK
         );
     }
 
@@ -35,6 +43,12 @@ public class CharacterController {
     @PutMapping
     public ResponseEntity<Void> editCharacter(@RequestBody @Valid CharacterDTO saveCharacterDTO){
         service.editCharacter(saveCharacterDTO);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping(path = "/restore/{characterId}")
+    public ResponseEntity<Void> restoreCharacter(@PathVariable("characterId") Long id){
+        service.restoreCharacter(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

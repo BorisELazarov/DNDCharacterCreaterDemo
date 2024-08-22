@@ -1,4 +1,4 @@
-package com.example.dndcharactercreatordemo.RepoTests;
+package com.example.dndcharactercreatordemo.repoTests;
 
 import com.example.dndcharactercreatordemo.dal.entities.BaseEntity;
 import com.example.dndcharactercreatordemo.dal.entities.Role;

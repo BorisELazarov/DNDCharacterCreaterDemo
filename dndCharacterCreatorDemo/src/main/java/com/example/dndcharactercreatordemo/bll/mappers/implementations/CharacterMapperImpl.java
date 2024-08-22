@@ -31,7 +31,7 @@ public class CharacterMapperImpl implements CharacterMapper {
 
     @Override
     public Character fromDto(CharacterDTO dto, Optional<Role> role) {
-        if (dto.name() == null)
+        if (dto.name().isEmpty())
             throw new IllegalArgumentException("Character's name must not be null");
         Character character = new Character();
         dto.id().ifPresent(character::setId);

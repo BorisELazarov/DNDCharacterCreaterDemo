@@ -23,7 +23,15 @@ public class SpellController {
     @GetMapping
     public ResponseEntity<List<SpellDTO>> getSpells(){
         return new ResponseEntity<>(
-                spellService.getSpells(),
+                spellService.getSpells(false),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping(path = "/deleted")
+    public ResponseEntity<List<SpellDTO>> getDeletedSpells(){
+        return new ResponseEntity<>(
+                spellService.getSpells(true),
                 HttpStatus.OK
         );
     }
@@ -46,6 +54,12 @@ public class SpellController {
     public ResponseEntity<Void> putSpell(@RequestBody @Valid SpellDTO spell,
                          @PathVariable("spellId") Long id){
         spellService.editSpell(spell, id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping(path = "/restore/{spellId}")
+    public ResponseEntity<Void> restoreSpell(@PathVariable("spellId") Long id){
+        spellService.restoreSpell(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

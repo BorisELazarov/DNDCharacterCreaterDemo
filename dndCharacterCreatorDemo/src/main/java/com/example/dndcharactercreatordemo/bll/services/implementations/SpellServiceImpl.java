@@ -83,8 +83,8 @@ public class SpellServiceImpl implements SpellService {
     }
 
     @Override
-    public List<SpellDTO> getSpells() {
-        return mapper.toDTOs(spellRepo.findAll());
+    public List<SpellDTO> getSpells(boolean isDeleted) {
+        return mapper.toDTOs(spellRepo.findAll(isDeleted));
     }
 
     @Override
@@ -110,6 +110,21 @@ public class SpellServiceImpl implements SpellService {
             spellRepo.save(mapper.fromDto(spellDTO));
         }
         throw new NotFoundException(NOT_FOUND_MESSAGE);
+    }
+
+    @Override
+    public void restoreSpell(Long id) {
+        Optional<Spell> optionalSpell=spellRepo.findById(id);
+        if (optionalSpell.isPresent()){
+            Spell spell= optionalSpell.get();
+            spellRepo.findByName(spell.getName())
+                    .ifPresent(x->{ throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);});
+            spell.setIsDeleted(false);
+            spellRepo.save(spell);
+        }
+        else {
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        }
     }
 
     @Override

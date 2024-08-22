@@ -5,8 +5,9 @@ import com.example.dndcharactercreatordemo.bll.dtos.characters.CharacterDTO;
 import java.util.List;
 
 public interface CharacterService {
-    List<CharacterDTO> getAll();
+    List<CharacterDTO> getCharacters(boolean isDeleted);
     void addCharacter(CharacterDTO dto);
+    void restoreCharacter(Long id);
     void editCharacter(CharacterDTO dto);
     void softDeleteCharacter(Long id);
     CharacterDTO getCharacterById(Long id);

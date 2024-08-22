@@ -39,7 +39,7 @@ public class UserController {
     }
 
     @PutMapping(path="/restore/{username}/{password}")
-    public ResponseEntity<UserDTO> restoreAccount(@PathVariable("username") String username,
+    public ResponseEntity<Void> restoreAccount(@PathVariable("username") String username,
                                          @PathVariable("password") String password){
         userService.restoreUser(username,password);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -68,7 +68,7 @@ public class UserController {
     }
 
     @PutMapping(path="changePassword/{userId}/{oldPassword}/{newPassword}")
-    public ResponseEntity<Void> updateUser(
+    public ResponseEntity<Void> changePassword(
             @PathVariable("userId") Long id,
             @PathVariable("oldPassword") String oldPassword,
             @PathVariable("newPassword") String newPassword){

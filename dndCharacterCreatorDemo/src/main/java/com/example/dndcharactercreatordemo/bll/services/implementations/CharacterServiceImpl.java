@@ -33,8 +33,8 @@ public class CharacterServiceImpl implements CharacterService {
     }
 
     @Override
-    public List<CharacterDTO> getAll() {
-        return mapper.toDTOs(characterRepo.findAll());
+    public List<CharacterDTO> getCharacters(boolean isDeleted) {
+        return mapper.toDTOs(characterRepo.findAll(isDeleted));
     }
 
     @Override
@@ -60,6 +60,21 @@ public class CharacterServiceImpl implements CharacterService {
         }
 
         characterRepo.save(mapper.fromDto(dto,roleRepo.findByTitle(dto.user().role())));
+    }
+
+    @Override
+    public void restoreCharacter(Long id) {
+        Optional<Character> optionalCharacter=characterRepo.findById(id);
+        if (optionalCharacter.isPresent()){
+            Character character= optionalCharacter.get();
+            characterRepo.findByName(character.getName())
+                    .ifPresent(x->{ throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);});
+            character.setIsDeleted(false);
+            characterRepo.save(character);
+        }
+        else {
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        }
     }
 
     @Override
