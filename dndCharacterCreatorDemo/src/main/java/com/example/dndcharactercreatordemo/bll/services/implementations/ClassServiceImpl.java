@@ -13,6 +13,7 @@ import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -25,7 +26,8 @@ public class ClassServiceImpl implements ClassService {
     private final ProficiencyRepo proficiencyRepo;
     private final ClassMapper mapper;
 
-    public ClassServiceImpl(ClassRepo classRepo, ProficiencyRepo proficiencyRepo, ClassMapper mapper) {
+    public ClassServiceImpl(@NotNull ClassRepo classRepo, @NotNull ProficiencyRepo proficiencyRepo,
+                            @NotNull ClassMapper mapper) {
         this.classRepo = classRepo;
         this.proficiencyRepo = proficiencyRepo;
         this.mapper = mapper;
@@ -88,8 +90,8 @@ public class ClassServiceImpl implements ClassService {
     }
 
     @Override
-    public List<ClassDTO> getClasses() {
-        return mapper.toDTOs(classRepo.findAll());
+    public List<ClassDTO> getClasses(boolean isDeleted) {
+        return mapper.toDTOs(classRepo.findAll(isDeleted));
     }
 
     @Override
@@ -104,29 +106,37 @@ public class ClassServiceImpl implements ClassService {
 
     @Override
     @Transactional
-    public void updateClass(Long id, String name, String description, HitDiceEnum hitDice) {
-        Optional<DNDclass> dndClass = classRepo.findById(id);
-        if (dndClass.isEmpty()) {
+    public void updateClass(ClassDTO classDTO) {
+        classDTO.id().ifPresent(
+                id->{
+                    Optional<DNDclass> dndClass = classRepo.findById(id);
+                    if (dndClass.isEmpty()) {
+                        throw new NotFoundException(NOT_FOUND_MESSAGE);
+                    }
+
+                    if (classRepo.existsByName(classDTO.name())){
+                        throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
+                    }
+                    classRepo.save(mapper.fromDto(classDTO));
+                });
+        if (classDTO.id().isEmpty()){
+        throw new NotFoundException(NOT_FOUND_MESSAGE);
+        }
+    }
+
+    @Override
+    public void restoreClass(Long id) {
+        Optional<DNDclass> optionalDNDclass=classRepo.findById(id);
+        if (optionalDNDclass.isPresent()){
+            DNDclass dnDclass= optionalDNDclass.get();
+            proficiencyRepo.findByName(dnDclass.getName())
+                    .ifPresent(x->{ throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);});
+            dnDclass.setIsDeleted(false);
+            classRepo.save(dnDclass);
+        }
+        else {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
-        DNDclass foundDNDClass = dndClass.get();
-        if (name != null &&
-                name.length() > 0 &&
-                !name.equals(foundDNDClass.getName())){
-            if (classRepo.existsByName(name)) {
-                throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
-            }
-            foundDNDClass.setName(name);
-        }
-        if (description != null &&
-                description.length() > 0 &&
-                !description.equals(foundDNDClass.getDescription())) {
-            foundDNDClass.setDescription(description);
-        }
-        if (hitDice != null && !hitDice.equals(foundDNDClass.getHitDice())) {
-            foundDNDClass.setHitDice(hitDice);
-        }
-        classRepo.save(foundDNDClass);
     }
 
     @Override

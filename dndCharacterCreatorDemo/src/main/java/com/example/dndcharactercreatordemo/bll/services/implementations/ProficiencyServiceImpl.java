@@ -8,8 +8,7 @@ import com.example.dndcharactercreatordemo.dal.repos.ProficiencyRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,15 +21,15 @@ public class ProficiencyServiceImpl implements ProficiencyService {
     private final ProficiencyRepo proficiencyRepo;
     private final ProficiencyMapper mapper;
 
-    public ProficiencyServiceImpl(ProficiencyRepo proficiencyRepo, ProficiencyMapper mapper) {
+    public ProficiencyServiceImpl(@NotNull ProficiencyRepo proficiencyRepo, @NotNull ProficiencyMapper mapper) {
         this.proficiencyRepo = proficiencyRepo;
         this.mapper = mapper;
     }
 
 
     @Override
-    public List<ProficiencyDTO> getProficiencies() {
-        return mapper.toDTOs(proficiencyRepo.findAll());
+    public List<ProficiencyDTO> getProficiencies(boolean isDeleted) {
+        return mapper.toDTOs(proficiencyRepo.findAll(isDeleted));
     }
 
     @Override
@@ -74,6 +73,21 @@ public class ProficiencyServiceImpl implements ProficiencyService {
             foundProficiency.setType(type);
         }
         proficiencyRepo.save(foundProficiency);
+    }
+
+    @Override
+    public void restoreProficiency(Long id) {
+        Optional<Proficiency> optionalProficiency=proficiencyRepo.findById(id);
+        if (optionalProficiency.isPresent()){
+            Proficiency proficiency= optionalProficiency.get();
+            proficiencyRepo.findByName(proficiency.getName())
+                    .ifPresent(x->{ throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);});
+            proficiency.setIsDeleted(false);
+            proficiencyRepo.save(proficiency);
+        }
+        else {
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        }
     }
 
     @Override

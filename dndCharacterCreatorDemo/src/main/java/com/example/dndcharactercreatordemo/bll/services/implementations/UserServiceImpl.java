@@ -11,8 +11,10 @@ import com.example.dndcharactercreatordemo.dal.repos.UserRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
+import com.example.dndcharactercreatordemo.exceptions.customs.WrongPasswordException;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -25,7 +27,8 @@ public class UserServiceImpl implements UserService {
     private final UserMapper mapper;
     private final RoleRepo roleRepo;
 
-    public UserServiceImpl(UserRepo userRepo, RoleRepo roleRepo, UserMapper mapper) {
+    public UserServiceImpl(@NotNull UserRepo userRepo, @NotNull RoleRepo roleRepo,
+                           @NotNull UserMapper mapper) {
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
         this.mapper = mapper;
@@ -37,7 +40,6 @@ public class UserServiceImpl implements UserService {
         seedUser();
     }
 
-    //to be optimised
     private void seedRoles() {
         if (roleRepo.count()>0)
             return;
@@ -99,7 +101,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateUser(Long id, String username, String password) {
+    public void changeUsername(Long id, String username) {
         Optional<User> optionalUser = userRepo.findById(id);
         if (optionalUser.isEmpty()) {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
@@ -114,10 +116,24 @@ public class UserServiceImpl implements UserService {
             }
             foundUser.setUsername(username);
         }
-        if (password != null &&
-                password.length() > 0 &&
-                !password.equals(foundUser.getPassword())) {
-            foundUser.setPassword(password);
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(Long id, String oldPassword, String newPassword) {
+        Optional<User> optionalUser = userRepo.findById(id);
+        if (optionalUser.isEmpty()) {
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        }
+        User foundUser = optionalUser.get();
+
+        if (foundUser.getPassword().equals(oldPassword))
+            throw new WrongPasswordException("Wrong password");
+
+        if (newPassword != null &&
+                newPassword.length() > 0 &&
+                !newPassword.equals(oldPassword)) {
+            foundUser.setPassword(newPassword);
         }
     }
 
@@ -154,11 +170,37 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void restoreUser(String username, String password) {
+        Optional<User> deletedUser=userRepo.findDeletedByUsernameAndPassword(username, password);
+        if (deletedUser.isEmpty()){
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        }
+        if (userRepo.findByUsername(username).isPresent()){
+            throw new NameAlreadyTakenException("There is already user with such username.");
+        }
+        User user= deletedUser.get();
+        user.setIsDeleted(false);
+        userRepo.save(user);
+    }
+
+    @Override
     public UserDTO getUser(Long id) {
         Optional<User> optionalUser = userRepo.findById(id);
         if (optionalUser.isEmpty()) {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
+        return mapper.toDto(optionalUser.get());
+    }
+
+    @Override
+    public UserDTO getUser(String username, String password) {
+        Optional<User> optionalUser = userRepo.findByUsername(password);
+        if (optionalUser.isEmpty()) {
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        }
+        User user= optionalUser.get();
+        if (!user.getPassword().equals(password))
+            throw new WrongPasswordException("Wrong password!");
         return mapper.toDto(optionalUser.get());
     }
 }

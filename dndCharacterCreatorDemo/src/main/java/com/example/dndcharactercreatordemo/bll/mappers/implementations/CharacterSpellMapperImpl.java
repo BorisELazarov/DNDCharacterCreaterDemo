@@ -6,6 +6,7 @@ import com.example.dndcharactercreatordemo.bll.mappers.interfaces.SpellMapper;
 import com.example.dndcharactercreatordemo.dal.entities.Character;
 import com.example.dndcharactercreatordemo.dal.entities.CharacterSpell;
 import com.example.dndcharactercreatordemo.dal.entities.CharacterSpellPairId;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 public class CharacterSpellMapperImpl implements CharacterSpellMapper {
     private final SpellMapper spellMapper;
 
-    public CharacterSpellMapperImpl(SpellMapper spellMapper) {
+    public CharacterSpellMapperImpl(@NotNull SpellMapper spellMapper) {
         this.spellMapper = spellMapper;
     }
 

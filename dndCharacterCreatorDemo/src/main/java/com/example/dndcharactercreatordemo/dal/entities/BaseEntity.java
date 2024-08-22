@@ -30,10 +30,7 @@ public abstract class BaseEntity {
     }
 
     public void setIsDeleted(Boolean deleted) {
-        if (deleted==null)
-            isDeleted=false;
-        else
-            isDeleted = deleted;
+        isDeleted = Objects.requireNonNullElse(deleted, false);
     }
 
     @Override

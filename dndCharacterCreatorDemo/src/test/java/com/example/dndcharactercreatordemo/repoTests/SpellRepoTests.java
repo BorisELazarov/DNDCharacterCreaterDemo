@@ -1,4 +1,4 @@
-package com.example.dndcharactercreatordemo.RepoTests;
+package com.example.dndcharactercreatordemo.repoTests;
 
 import com.example.dndcharactercreatordemo.dal.entities.Spell;
 import com.example.dndcharactercreatordemo.dal.repos.SpellRepo;
@@ -20,6 +20,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class SpellRepoTests {
     private final SpellRepo spellRepo;
+
+    @Autowired
+    public SpellRepoTests(SpellRepo spellRepo) {
+        this.spellRepo = spellRepo;
+    }
 
     @BeforeAll
     static void seedSpells(@Autowired SpellRepo seedRepo){
@@ -72,10 +77,6 @@ class SpellRepoTests {
         return spell;
     }
 
-    @Autowired
-    public SpellRepoTests(SpellRepo spellRepo) {
-        this.spellRepo = spellRepo;
-    }
 
     @Test
     void findByNameAreEquals(){

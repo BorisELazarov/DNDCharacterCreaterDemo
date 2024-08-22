@@ -4,6 +4,7 @@ import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.ClassDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.ClassMapper;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.ProficiencyMapper;
 import com.example.dndcharactercreatordemo.dal.entities.DNDclass;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashSet;
@@ -13,7 +14,7 @@ import java.util.List;
 public class ClassMapperImpl implements ClassMapper {
     private final ProficiencyMapper proficiencyMapper;
 
-    public ClassMapperImpl(ProficiencyMapper proficiencyMapper) {
+    public ClassMapperImpl(@NotNull ProficiencyMapper proficiencyMapper) {
         this.proficiencyMapper = proficiencyMapper;
     }
 
@@ -42,9 +43,11 @@ public class ClassMapperImpl implements ClassMapper {
                 dndClass.getName(),
                 dndClass.getDescription(),
                 dndClass.getHitDice(),
-                proficiencyMapper.toDTOs(
+                List.copyOf(
+                        proficiencyMapper.toDTOs(
                         dndClass.getProficiencies()
                                 .stream().toList()
+                        )
                 )
         );
     }

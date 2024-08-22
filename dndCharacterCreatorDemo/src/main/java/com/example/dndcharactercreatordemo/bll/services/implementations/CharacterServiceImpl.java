@@ -5,9 +5,11 @@ import com.example.dndcharactercreatordemo.bll.mappers.interfaces.CharacterMappe
 import com.example.dndcharactercreatordemo.bll.services.interfaces.CharacterService;
 import com.example.dndcharactercreatordemo.dal.entities.Character;
 import com.example.dndcharactercreatordemo.dal.repos.CharacterRepo;
+import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,24 +20,28 @@ import java.util.Optional;
 public class CharacterServiceImpl implements CharacterService {
     private static final String NOT_FOUND_MESSAGE="The character is not found!";
     private static final String NAME_TAKEN_MESSAGE="There is already character named like that!";
+    private final RoleRepo roleRepo;
     private final CharacterRepo characterRepo;
     private final CharacterMapper mapper;
 
-    public CharacterServiceImpl(CharacterRepo characterRepo, CharacterMapper mapper) {
+    public CharacterServiceImpl(@NotNull CharacterRepo characterRepo,
+                                @NotNull CharacterMapper mapper,
+                                @NotNull RoleRepo roleRepo) {
+        this.roleRepo=roleRepo;
         this.characterRepo = characterRepo;
         this.mapper = mapper;
     }
 
     @Override
-    public List<CharacterDTO> getAll() {
-        return mapper.toDTOs(characterRepo.findAll());
+    public List<CharacterDTO> getCharacters(boolean isDeleted) {
+        return mapper.toDTOs(characterRepo.findAll(isDeleted));
     }
 
     @Override
     public void addCharacter(CharacterDTO dto) {
         if (characterRepo.findByName(dto.name()).isPresent())
             throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
-        characterRepo.save(mapper.fromDto(dto));
+        characterRepo.save(mapper.fromDto(dto,roleRepo.findByTitle(dto.user().role())));
     }
 
     @Override
@@ -53,7 +59,22 @@ public class CharacterServiceImpl implements CharacterService {
             throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
         }
 
-        characterRepo.save(mapper.fromDto(dto));
+        characterRepo.save(mapper.fromDto(dto,roleRepo.findByTitle(dto.user().role())));
+    }
+
+    @Override
+    public void restoreCharacter(Long id) {
+        Optional<Character> optionalCharacter=characterRepo.findById(id);
+        if (optionalCharacter.isPresent()){
+            Character character= optionalCharacter.get();
+            characterRepo.findByName(character.getName())
+                    .ifPresent(x->{ throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);});
+            character.setIsDeleted(false);
+            characterRepo.save(character);
+        }
+        else {
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        }
     }
 
     @Override

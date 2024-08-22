@@ -1,8 +1,7 @@
-package com.example.dndcharactercreatordemo.RepoTests;
+package com.example.dndcharactercreatordemo.repoTests;
 
 import com.example.dndcharactercreatordemo.dal.entities.Proficiency;
 import com.example.dndcharactercreatordemo.dal.repos.ProficiencyRepo;
-import org.aspectj.lang.annotation.After;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

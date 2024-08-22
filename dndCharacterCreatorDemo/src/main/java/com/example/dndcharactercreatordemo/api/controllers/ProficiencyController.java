@@ -24,7 +24,16 @@ public class ProficiencyController {
     public ResponseEntity<List<ProficiencyDTO>> getProficiencies()
     {
         return new ResponseEntity<>(
-                proficiencyService.getProficiencies(),
+                proficiencyService.getProficiencies(false),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping(path = "/deleted")
+    public ResponseEntity<List<ProficiencyDTO>> getDeletedProficiencies()
+    {
+        return new ResponseEntity<>(
+                proficiencyService.getProficiencies(true),
                 HttpStatus.OK
         );
     }
@@ -49,6 +58,13 @@ public class ProficiencyController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String type){
         proficiencyService.updateProficiency(id,name,type);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping(path="/restore/{proficiencyId}")
+    public ResponseEntity<Void> restoreProficiency(
+            @PathVariable("proficiencyId") Long id){
+        proficiencyService.restoreProficiency(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

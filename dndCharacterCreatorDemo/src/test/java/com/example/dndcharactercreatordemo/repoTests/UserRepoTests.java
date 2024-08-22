@@ -1,4 +1,4 @@
-package com.example.dndcharactercreatordemo.RepoTests;
+package com.example.dndcharactercreatordemo.repoTests;
 
 import com.example.dndcharactercreatordemo.dal.entities.BaseEntity;
 import com.example.dndcharactercreatordemo.dal.entities.Role;
@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.Optional;
 import java.util.List;
@@ -32,11 +31,12 @@ class UserRepoTests {
 
     @BeforeAll
     static void seedUsers(@Autowired UserRepo seedRepo, @Autowired RoleRepo roleRepo) {
-        Set<User> users=new LinkedHashSet();
-        users.add(getUser("Boris","BPass"));
-        users.add(getUser("Ivan","IPass"));
-        users.add(getUser("Georgi","GPass"));
-        users.add(getUser("Peter","PPass"));
+        Set<User> users=Set.of(
+                getUser("Boris","BPass"),
+                getUser("Ivan","IPass"),
+                getUser("Georgi","GPass"),
+                getUser("Peter","PPass")
+        );
         users.stream().findFirst().get().setIsDeleted(true);
         roleRepo.saveAll(users.stream().map(User::getRole).toList());
         seedRepo.saveAll(users);
