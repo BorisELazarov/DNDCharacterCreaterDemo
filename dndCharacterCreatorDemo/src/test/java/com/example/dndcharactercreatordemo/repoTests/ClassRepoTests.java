@@ -1,6 +1,8 @@
 package com.example.dndcharactercreatordemo.repoTests;
 
+import com.example.dndcharactercreatordemo.dal.entities.BaseEntity;
 import com.example.dndcharactercreatordemo.dal.entities.DNDclass;
+import com.example.dndcharactercreatordemo.dal.entities.Proficiency;
 import com.example.dndcharactercreatordemo.dal.repos.ClassRepo;
 import com.example.dndcharactercreatordemo.enums.HitDiceEnum;
 import org.junit.jupiter.api.AfterAll;
@@ -11,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -60,6 +63,22 @@ class ClassRepoTests {
         Optional<DNDclass> foundCLass=classRepo.findByName(dnDclass.get().getName());
         assertTrue(foundCLass.isPresent());
         assertEquals(dnDclass,foundCLass);
+    }
+
+    @Test
+    void findAllDeletedEquals(){
+        List<DNDclass> dnDclasses=classRepo.findAll()
+                .stream().filter(x->!x.getIsDeleted()).toList();
+        List<DNDclass> deletedClasses=classRepo.findAll(false);
+        assertEquals(dnDclasses,deletedClasses);
+    }
+
+    @Test
+    void findAllUndeletedEquals(){
+        List<DNDclass> dnDclasses=classRepo.findAll()
+                .stream().filter(BaseEntity::getIsDeleted).toList();
+        List<DNDclass> deletedClasses=classRepo.findAll(true);
+        assertEquals(dnDclasses,deletedClasses);
     }
 
     @AfterAll

@@ -1,6 +1,8 @@
 package com.example.dndcharactercreatordemo.repoTests;
 
+import com.example.dndcharactercreatordemo.dal.entities.BaseEntity;
 import com.example.dndcharactercreatordemo.dal.entities.Proficiency;
+import com.example.dndcharactercreatordemo.dal.entities.Spell;
 import com.example.dndcharactercreatordemo.dal.repos.ProficiencyRepo;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ProficiencyRepoTests {
+    @Autowired
     private final ProficiencyRepo proficiencyRepo;
 
 
@@ -57,6 +60,22 @@ class ProficiencyRepoTests {
         Optional<Proficiency> proficiencyByName=proficiencyRepo.findByName(proficiency.get().getName());
         assertTrue(proficiencyByName.isPresent());
         assertEquals(proficiency,proficiencyByName);
+    }
+
+    @Test
+    void findAllDeletedEquals(){
+        List<Proficiency> proficiencies=proficiencyRepo.findAll()
+                .stream().filter(x->!x.getIsDeleted()).toList();
+        List<Proficiency> deletedProficiencies=proficiencyRepo.findAll(false);
+        assertEquals(proficiencies,deletedProficiencies);
+    }
+
+    @Test
+    void findAllUndeletedEquals(){
+        List<Proficiency> proficiencies=proficiencyRepo.findAll()
+                .stream().filter(BaseEntity::getIsDeleted).toList();
+        List<Proficiency> deletedProficiencies=proficiencyRepo.findAll(true);
+        assertEquals(proficiencies,deletedProficiencies);
     }
 
     @AfterAll
