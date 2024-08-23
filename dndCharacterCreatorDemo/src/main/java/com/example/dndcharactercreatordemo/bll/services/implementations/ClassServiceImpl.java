@@ -168,7 +168,7 @@ public class ClassServiceImpl implements ClassService {
     }
 
     @Override
-    public ClassDTO getClass(Long id) {
+    public ClassDTO getClassById(Long id) {
         Optional<DNDclass> dndClass = classRepo.findById(id);
         if (dndClass.isPresent())
         {

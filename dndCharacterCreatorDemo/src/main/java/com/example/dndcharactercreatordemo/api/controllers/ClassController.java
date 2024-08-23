@@ -42,7 +42,7 @@ public class ClassController {
     public ResponseEntity<ClassDTO> getClass(@PathVariable("classId") Long id){
 
         return new ResponseEntity<>(
-                classService.getClass(id),
+                classService.getClassById(id),
                 HttpStatus.OK
         );
     }
