@@ -29,6 +29,8 @@ class ProficiencyServiceTests {
 
     private Proficiency proficiency;
     private ProficiencyDTO proficiencyDTO;
+    private Proficiency createProficiency;
+    private ProficiencyDTO createProficiencyDTO;
     private List<Proficiency> proficiencies;
     private List<ProficiencyDTO> proficiencyDTOS;
 
@@ -51,6 +53,13 @@ class ProficiencyServiceTests {
                 "Heavy",
                 "Armor"
         );
+        createProficiency = getProficiency(null,"Heavy","Armor",false);
+        createProficiencyDTO=new ProficiencyDTO(
+                Optional.empty(),
+                false,
+                "Heavy",
+                "Armor"
+        );
         proficiencies=List.of(
                 proficiency,
                 getProficiency(2L,"Light","Armor",false),
@@ -67,7 +76,6 @@ class ProficiencyServiceTests {
         );
         Mockito.when(mapper.toDto(proficiency)).thenReturn(proficiencyDTO);
         Mockito.when(mapper.fromDto(proficiencyDTO)).thenReturn(proficiency);
-        Mockito.when(mapper.toDTOs(proficiencies)).thenReturn(proficiencyDTOS);
     }
 
     @Test
@@ -75,7 +83,6 @@ class ProficiencyServiceTests {
         Mockito.when(repo.findById(1L)).thenReturn(
                 Optional.of(proficiency)
         );
-        Mockito.when(service.getProficiency(1L)).thenReturn(proficiencyDTO);
         ProficiencyDTO dto=service.getProficiency(1L);
         assertNotNull(dto);
     }
@@ -85,7 +92,11 @@ class ProficiencyServiceTests {
         Mockito.when(repo.findAll(true)).thenReturn(
                 proficiencies.stream().filter(BaseEntity::getIsDeleted).toList()
         );
-        Mockito.when(service.getProficiencies(true)).thenReturn(proficiencyDTOS);
+        Mockito.when(
+                mapper.toDTOs(proficiencies.stream().filter(BaseEntity::getIsDeleted).toList())
+        ).thenReturn(
+                proficiencyDTOS.stream().filter(ProficiencyDTO::isDeleted).toList()
+        );
         List<ProficiencyDTO> dtos=service.getProficiencies(true);
         assertFalse(dtos.isEmpty());
     }
@@ -95,8 +106,30 @@ class ProficiencyServiceTests {
         Mockito.when(repo.findAll(false)).thenReturn(
                 proficiencies.stream().filter(x->!x.getIsDeleted()).toList()
         );
-        Mockito.when(service.getProficiencies(false)).thenReturn(proficiencyDTOS);
+        Mockito.when(
+                mapper.toDTOs(proficiencies.stream().filter(x->!x.getIsDeleted()).toList())
+        ).thenReturn(
+                proficiencyDTOS.stream().filter(x->!x.isDeleted()).toList()
+        );
         List<ProficiencyDTO> dtos=service.getProficiencies(false);
         assertFalse(dtos.isEmpty());
+    }
+
+    @Test
+    void addProficiencyReturnAreEqual(){
+        Mockito.when(repo.findByName(createProficiencyDTO.name())).thenReturn(Optional.empty());
+        Mockito.when(repo.save(createProficiency)).thenReturn(proficiency);
+        Mockito.when(mapper.fromDto(createProficiencyDTO)).thenReturn(createProficiency);
+        ProficiencyDTO dto=service.addProficiency(createProficiencyDTO);
+        assertEquals(dto,proficiencyDTO);
+    }
+
+    @Test
+    void editProficiencyReturnAreEqual(){
+        Mockito.when(repo.findById(1L)).thenReturn(Optional.of(proficiency));
+        Mockito.when(repo.findByName(createProficiencyDTO.name())).thenReturn(Optional.empty());
+        Mockito.when(repo.save(mapper.fromDto(proficiencyDTO))).thenReturn(proficiency);
+        assertNotNull(repo.save(mapper.fromDto(proficiencyDTO)));
+        assertEquals(service.updateProficiency(proficiencyDTO),proficiencyDTO);
     }
 }

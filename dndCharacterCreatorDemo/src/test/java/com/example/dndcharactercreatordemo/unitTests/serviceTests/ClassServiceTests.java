@@ -1,11 +1,13 @@
 package com.example.dndcharactercreatordemo.unitTests.serviceTests;
 
 import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.ClassDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.ProficiencyDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.ClassMapper;
 import com.example.dndcharactercreatordemo.bll.services.implementations.ClassServiceImpl;
 import com.example.dndcharactercreatordemo.dal.entities.BaseEntity;
 import com.example.dndcharactercreatordemo.dal.entities.DNDclass;
 import com.example.dndcharactercreatordemo.dal.repos.ClassRepo;
+import com.example.dndcharactercreatordemo.dal.repos.ProficiencyRepo;
 import com.example.dndcharactercreatordemo.enums.HitDiceEnum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,20 +19,24 @@ import org.mockito.MockitoAnnotations;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ClassServiceTests {
     @Mock
     private ClassMapper mapper;
     @Mock
     private ClassRepo repo;
+    @Mock
+    private ProficiencyRepo proficiencyRepo;
 
     @InjectMocks
     private ClassServiceImpl service;
 
     private DNDclass dnDclass;
     private ClassDTO classDTO;
+    private DNDclass createDnDclass;
+    private ClassDTO createClassDTO;
     private List<DNDclass> dnDclasses;
     private List<ClassDTO> classDTOS;
 
@@ -49,6 +55,10 @@ public class ClassServiceTests {
         dnDclass = getDnDclass(1L, false, "Fighter",
                 "Fights", HitDiceEnum.D10);
         classDTO = new ClassDTO(Optional.of(1L), false, "Fighter",
+                "Fights", HitDiceEnum.D10, List.of());
+        createDnDclass = getDnDclass(null, false, "Fighter",
+                "Fights", HitDiceEnum.D10);
+        createClassDTO = new ClassDTO(Optional.empty(), false, "Fighter",
                 "Fights", HitDiceEnum.D10, List.of());
         dnDclasses =List.of(
                 dnDclass,
@@ -70,7 +80,6 @@ public class ClassServiceTests {
         );
         Mockito.when(mapper.toDto(dnDclass)).thenReturn(classDTO);
         Mockito.when(mapper.fromDto(classDTO)).thenReturn(dnDclass);
-        Mockito.when(mapper.toDTOs(dnDclasses)).thenReturn(classDTOS);
     }
 
     @Test
@@ -78,7 +87,6 @@ public class ClassServiceTests {
         Mockito.when(repo.findById(1L)).thenReturn(
                 Optional.of(dnDclass)
         );
-        Mockito.when(service.getClassById(1L)).thenReturn(classDTO);
         ClassDTO dto=service.getClassById(1L);
         assertNotNull(dto);
     }
@@ -88,7 +96,11 @@ public class ClassServiceTests {
         Mockito.when(repo.findAll(true)).thenReturn(
                 dnDclasses.stream().filter(BaseEntity::getIsDeleted).toList()
         );
-        Mockito.when(service.getClasses(true)).thenReturn(classDTOS);
+        Mockito.when(
+                mapper.toDTOs(dnDclasses.stream().filter(BaseEntity::getIsDeleted).toList())
+        ).thenReturn(
+                classDTOS.stream().filter(ClassDTO::isDeleted).toList()
+        );
         List<ClassDTO> dtos=service.getClasses(true);
         assertFalse(dtos.isEmpty());
     }
@@ -98,8 +110,30 @@ public class ClassServiceTests {
         Mockito.when(repo.findAll(false)).thenReturn(
                 dnDclasses.stream().filter(x->!x.getIsDeleted()).toList()
         );
-        Mockito.when(service.getClasses(false)).thenReturn(classDTOS);
+        Mockito.when(
+                mapper.toDTOs(dnDclasses.stream().filter(x->!x.getIsDeleted()).toList())
+        ).thenReturn(
+                classDTOS.stream().filter(x->!x.isDeleted()).toList()
+        );
         List<ClassDTO> dtos=service.getClasses(false);
         assertFalse(dtos.isEmpty());
+    }
+
+    @Test
+    void addClassReturnAreEqual(){
+        Mockito.when(repo.findByName(createClassDTO.name())).thenReturn(Optional.empty());
+        Mockito.when(repo.save(createDnDclass)).thenReturn(dnDclass);
+        Mockito.when(mapper.fromDto(createClassDTO)).thenReturn(createDnDclass);
+        ClassDTO dto=service.addClass(createClassDTO);
+        assertEquals(dto,classDTO);
+    }
+
+    @Test
+    void editClassProficiencyReturnAreEqual(){
+        Mockito.when(repo.findById(1L)).thenReturn(Optional.of(dnDclass));
+        Mockito.when(repo.findByName(classDTO.name())).thenReturn(Optional.empty());
+        Mockito.when(repo.save(mapper.fromDto(classDTO))).thenReturn(dnDclass);
+        assertNotNull(repo.save(mapper.fromDto(classDTO)));
+        assertEquals(service.updateClass(classDTO),classDTO);
     }
 }
