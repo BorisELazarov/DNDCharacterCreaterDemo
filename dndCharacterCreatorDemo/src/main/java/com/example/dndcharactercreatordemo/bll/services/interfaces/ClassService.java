@@ -16,7 +16,7 @@ public interface ClassService {
 
     void hardDeleteClass(Long id);
 
-    ClassDTO getClass(Long id);
+    ClassDTO getClassById(Long id);
 
     void restoreClass(Long id);
 }
