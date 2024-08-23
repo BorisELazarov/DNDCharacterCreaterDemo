@@ -35,15 +35,19 @@ public class CharacterController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> addCharacter(@RequestBody @Valid CharacterDTO createCharacterDTO){
-        service.addCharacter(createCharacterDTO);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<CharacterDTO> addCharacter(@RequestBody @Valid CharacterDTO characterDTO){
+        return new ResponseEntity<>(
+                service.addCharacter(characterDTO),
+                HttpStatus.CREATED
+        );
     }
 
     @PutMapping
-    public ResponseEntity<Void> editCharacter(@RequestBody @Valid CharacterDTO saveCharacterDTO){
-        service.editCharacter(saveCharacterDTO);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<CharacterDTO> editCharacter(@RequestBody @Valid CharacterDTO characterDTO){
+        return new ResponseEntity<>(
+                service.editCharacter(characterDTO),
+                HttpStatus.OK
+        );
     }
 
     @PutMapping(path = "/restore/{characterId}")

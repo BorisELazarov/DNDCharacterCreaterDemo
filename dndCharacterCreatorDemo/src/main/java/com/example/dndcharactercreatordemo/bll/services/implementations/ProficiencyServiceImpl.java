@@ -33,12 +33,12 @@ public class ProficiencyServiceImpl implements ProficiencyService {
     }
 
     @Override
-    public void addProficiency(ProficiencyDTO proficiencyDTO) {
+    public ProficiencyDTO addProficiency(ProficiencyDTO proficiencyDTO) {
         Optional<Proficiency> proficiencyByName=proficiencyRepo.findByName(proficiencyDTO.name());
         if (proficiencyByName.isPresent()) {
             throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
         }
-        proficiencyRepo.save(mapper.fromDto(proficiencyDTO));
+        return mapper.toDto(proficiencyRepo.save(mapper.fromDto(proficiencyDTO)));
     }
 
     @Override
@@ -51,28 +51,26 @@ public class ProficiencyServiceImpl implements ProficiencyService {
     }
 
     @Override
-    public void updateProficiency(Long id, String name, String type) {
-        Optional<Proficiency> proficiency=proficiencyRepo.findById(id);
-        if (proficiency.isEmpty()) {
+    public ProficiencyDTO updateProficiency(ProficiencyDTO proficiencyDTO) {
+        if (proficiencyDTO.id().isEmpty()) {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
-        Proficiency foundProficiency=proficiency.get();
-        if (name!=null &&
-                name.length()>0 &&
-                !name.equals(foundProficiency.getName())) {
-            Optional<Proficiency> proficiencyByUsername=proficiencyRepo.findByName(name);
-            if (proficiencyByUsername.isPresent() && !proficiencyByUsername.get().getIsDeleted())
-            {
-                throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
+        proficiencyDTO.id().ifPresent(id->{
+            Optional<Proficiency> proficiency=proficiencyRepo.findById(id);
+            if (proficiency.isPresent()){
+                proficiencyRepo.findByName(proficiencyDTO.name()).ifPresent(
+                        x->{
+                            if (!x.getId().equals(id)){
+                                throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
+                            }
+                        }
+                );
+                proficiencyRepo.save(proficiency.get());
+            }   else {
+                throw new NotFoundException(NOT_FOUND_MESSAGE);
             }
-            foundProficiency.setName(name);
-        }
-        if (type!=null &&
-                type.length()>0 &&
-                !type.equals(foundProficiency.getType())) {
-            foundProficiency.setType(type);
-        }
-        proficiencyRepo.save(foundProficiency);
+        });
+        return proficiencyDTO;
     }
 
     @Override

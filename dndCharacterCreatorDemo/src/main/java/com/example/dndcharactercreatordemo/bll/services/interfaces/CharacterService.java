@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface CharacterService {
     List<CharacterDTO> getCharacters(boolean isDeleted);
-    void addCharacter(CharacterDTO dto);
+    CharacterDTO addCharacter(CharacterDTO dto);
     void restoreCharacter(Long id);
-    void editCharacter(CharacterDTO dto);
+    CharacterDTO editCharacter(CharacterDTO dto);
     void softDeleteCharacter(Long id);
     CharacterDTO getCharacterById(Long id);
 

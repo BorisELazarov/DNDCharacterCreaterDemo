@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface ProficiencyService {
     List<ProficiencyDTO> getProficiencies(boolean isDeleted);
-    void addProficiency(ProficiencyDTO proficiencyDTO);
+    ProficiencyDTO addProficiency(ProficiencyDTO proficiencyDTO);
     ProficiencyDTO getProficiency(Long id);
-    void updateProficiency(Long id, String name, String type);
+    ProficiencyDTO updateProficiency(ProficiencyDTO proficiencyDTO);
     void softDeleteProficiency(Long id);
     void hardDeleteProficiency(Long id);
     void restoreProficiency(Long id);

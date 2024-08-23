@@ -54,9 +54,11 @@ public class UserController {
     }
 
     @PostMapping(path = "/register")
-    public ResponseEntity<Void> registerUser(@RequestBody @Valid UserDTO user){
-        userService.addUser(user);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<UserDTO> registerUser(@RequestBody @Valid UserDTO user){
+        return new ResponseEntity<>(
+                userService.addUser(user),
+                HttpStatus.CREATED
+        );
     }
 
     @PutMapping(path="changeUsername/{userId}/{username}")

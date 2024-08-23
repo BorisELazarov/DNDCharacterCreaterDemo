@@ -7,10 +7,10 @@ import java.util.List;
 public interface ClassService {
     List<ClassDTO> getClasses(boolean isDeleted);
 
-    void addClass(ClassDTO classDTO);
+    ClassDTO addClass(ClassDTO classDTO);
 
     @Transactional
-    void updateClass(ClassDTO classDTO);
+    ClassDTO updateClass(ClassDTO classDTO);
 
     void softDeleteClass(Long id);
 

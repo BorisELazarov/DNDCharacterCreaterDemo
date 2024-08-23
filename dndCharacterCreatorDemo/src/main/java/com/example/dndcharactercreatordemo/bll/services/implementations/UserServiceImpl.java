@@ -89,14 +89,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void addUser(UserDTO userDTO) {
+    public UserDTO addUser(UserDTO userDTO) {
         Optional<User> userByUsername = userRepo.findByUsername(userDTO.username());
         if (userByUsername.isPresent()) {
             throw new NameAlreadyTakenException(USERNAME_TAKEN_MESSAGE);
         }
         Optional<Role> role= roleRepo.findByTitle(userDTO.role());
         User user = mapper.fromDto(userDTO, role);
-        userRepo.save(user);
+        return mapper.toDto(userRepo.save(user));
     }
 
     @Override
