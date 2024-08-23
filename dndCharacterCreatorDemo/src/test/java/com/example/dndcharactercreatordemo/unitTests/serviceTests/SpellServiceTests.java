@@ -17,10 +17,9 @@ import org.mockito.MockitoAnnotations;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class SpellServiceTests {
+class SpellServiceTests {
     @Mock
     private SpellMapper mapper;
     @Mock
@@ -31,6 +30,8 @@ public class SpellServiceTests {
 
     private Spell spell;
     private SpellDTO spellDTO;
+    private Spell createSpell;
+    private SpellDTO createSpellDTO;
     private List<Spell> spells;
     private List<SpellDTO> spellDTOS;
 
@@ -66,6 +67,17 @@ public class SpellServiceTests {
                 "V, M", 0,
                 "Thunder"
         );
+        createSpell = getSpell(null, false, "Thunder",
+                1, "A",
+                20, "asfd",
+                "V, M", 0,
+                "Thunder");
+        createSpellDTO = new SpellDTO(Optional.empty(), false, "Thunder",
+                1, "A",
+                20, "asfd",
+                "V, M", 0,
+                "Thunder"
+        );
         spells =List.of(
                 spell,
                 getSpell(2L, false, "Thunder",
@@ -73,12 +85,12 @@ public class SpellServiceTests {
                         20, "asfd",
                         "V, M", 0,
                         "Fire"),
-                getSpell(3L, false, "Thunder",
+                getSpell(3L, true, "Thunder",
                 3, "A",
                 20, "asfd",
                 "V, M", 0,
                 "Frost"),
-                getSpell(3L, false, "Thunder",
+                getSpell(3L, true, "Thunder",
                 3, "A",
                 20, "asfd",
                 "V, M", 0,
@@ -91,12 +103,12 @@ public class SpellServiceTests {
                         20, "asfd",
                         "V, M", 0,
                         "Fire"),
-                new SpellDTO(Optional.of(3L), false, "Thunder",
+                new SpellDTO(Optional.of(3L), true, "Thunder",
                         3, "A",
                         20, "asfd",
                         "V, M", 0,
                         "Frost"),
-                new SpellDTO(Optional.of(4L), false, "Thunder",
+                new SpellDTO(Optional.of(4L), true, "Thunder",
                         4, "A",
                         20, "asfd",
                         "V, M", 0,
@@ -104,7 +116,6 @@ public class SpellServiceTests {
         );
         Mockito.when(mapper.toDto(spell)).thenReturn(spellDTO);
         Mockito.when(mapper.fromDto(spellDTO)).thenReturn(spell);
-        Mockito.when(mapper.toDTOs(spells)).thenReturn(spellDTOS);
     }
 
     @Test
@@ -112,7 +123,6 @@ public class SpellServiceTests {
         Mockito.when(repo.findById(1L)).thenReturn(
                 Optional.of(spell)
         );
-        Mockito.when(service.getSpell(1L)).thenReturn(spellDTO);
         SpellDTO dto=service.getSpell(1L);
         assertNotNull(dto);
     }
@@ -122,7 +132,11 @@ public class SpellServiceTests {
         Mockito.when(repo.findAll(true)).thenReturn(
                 spells.stream().filter(BaseEntity::getIsDeleted).toList()
         );
-        Mockito.when(service.getSpells(true)).thenReturn(spellDTOS);
+        Mockito.when(
+                mapper.toDTOs(spells.stream().filter(BaseEntity::getIsDeleted).toList())
+        ).thenReturn(
+                spellDTOS.stream().filter(SpellDTO::isDeleted).toList()
+        );
         List<SpellDTO> dtos=service.getSpells(true);
         assertFalse(dtos.isEmpty());
     }
@@ -132,8 +146,28 @@ public class SpellServiceTests {
         Mockito.when(repo.findAll(false)).thenReturn(
                 spells.stream().filter(x->!x.getIsDeleted()).toList()
         );
-        Mockito.when(service.getSpells(false)).thenReturn(spellDTOS);
+        Mockito.when(
+                mapper.toDTOs(spells.stream().filter(x->!x.getIsDeleted()).toList())
+        ).thenReturn(
+                spellDTOS.stream().filter(x->!x.isDeleted()).toList()
+        );
         List<SpellDTO> dtos=service.getSpells(false);
         assertFalse(dtos.isEmpty());
+    }
+
+    @Test
+    void addSpellReturnAreEqual(){
+        Mockito.when(repo.save(createSpell)).thenReturn(spell);
+        Mockito.when(mapper.fromDto(createSpellDTO)).thenReturn(createSpell);
+        SpellDTO mockDTO=service.addSpell(createSpellDTO);
+        assertEquals(mockDTO,spellDTO);
+    }
+
+    @Test
+    void editSpellReturnAreEqual(){
+        spellDTO.id().ifPresent(id->Mockito.when(repo.existsById(id)).thenReturn(true));
+        Mockito.when(repo.save(mapper.fromDto(spellDTO))).thenReturn(spell);
+        assertNotNull(repo.save(mapper.fromDto(spellDTO)));
+        assertEquals(service.editSpell(spellDTO),spellDTO);
     }
 }

@@ -8,6 +8,7 @@ import com.example.dndcharactercreatordemo.bll.services.implementations.Characte
 import com.example.dndcharactercreatordemo.dal.entities.*;
 import com.example.dndcharactercreatordemo.dal.entities.Character;
 import com.example.dndcharactercreatordemo.dal.repos.CharacterRepo;
+import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -26,12 +27,17 @@ class CharacterServiceTests {
     private CharacterMapper mapper;
     @Mock
     private CharacterRepo repo;
+    @Mock
+    private RoleRepo roleRepo;
 
     @InjectMocks
     private CharacterServiceImpl service;
 
+    private Role role;
     private Character character;
     private CharacterDTO characterDTO;
+    private Character createCharacter;
+    private CharacterDTO createCharacterDTO;
     private List<Character> characters;
     private List<CharacterDTO> characterDTOS;
 
@@ -59,13 +65,21 @@ class CharacterServiceTests {
     @BeforeEach
     void setUp(){
         MockitoAnnotations.openMocks(this);
-        Role role=Mockito.mock(Role.class);
+        role=Mockito.mock(Role.class);
         UserDTO userDTO=Mockito.mock(UserDTO.class);
         ClassDTO classDTO=Mockito.mock(ClassDTO.class);
         character = getCharacter(1L,true, "Norman", (byte)20,
                 (byte)20, (byte)20, (byte) 20,
                 (byte) 20, (byte) 20, (byte) 20);
         characterDTO = new CharacterDTO(Optional.of(1L),true, "Norman",
+                userDTO, classDTO, (byte)20,
+                (byte)20, (byte)20, (byte) 20,
+                (byte) 20, (byte) 20, (byte) 20,
+                Set.of(), Set.of());
+        createCharacter = getCharacter(null,true, "Norman", (byte)20,
+                (byte)20, (byte)20, (byte) 20,
+                (byte) 20, (byte) 20, (byte) 20);
+        createCharacterDTO = new CharacterDTO(Optional.empty(),true, "Norman",
                 userDTO, classDTO, (byte)20,
                 (byte)20, (byte)20, (byte) 20,
                 (byte) 20, (byte) 20, (byte) 20,
@@ -102,7 +116,6 @@ class CharacterServiceTests {
         );
         Mockito.when(mapper.toDto(character)).thenReturn(characterDTO);
         Mockito.when(mapper.fromDto(characterDTO,Optional.of(role))).thenReturn(character);
-        Mockito.when(mapper.toDTOs(characters)).thenReturn(characterDTOS);
     }
 
     @Test
@@ -120,7 +133,11 @@ class CharacterServiceTests {
         Mockito.when(repo.findAll(true)).thenReturn(
                 characters.stream().filter(BaseEntity::getIsDeleted).toList()
         );
-        Mockito.when(service.getCharacters(true)).thenReturn(characterDTOS);
+        Mockito.when(
+                mapper.toDTOs(characters.stream().filter(BaseEntity::getIsDeleted).toList())
+        ).thenReturn(
+                characterDTOS.stream().filter(CharacterDTO::isDeleted).toList()
+        );
         List<CharacterDTO> dtos=service.getCharacters(true);
         assertFalse(dtos.isEmpty());
     }
@@ -130,8 +147,37 @@ class CharacterServiceTests {
         Mockito.when(repo.findAll(false)).thenReturn(
                 characters.stream().filter(x->!x.getIsDeleted()).toList()
         );
-        Mockito.when(service.getCharacters(false)).thenReturn(characterDTOS);
+        Mockito.when(
+                mapper.toDTOs(characters.stream().filter(x->!x.getIsDeleted()).toList())
+        ).thenReturn(
+                characterDTOS.stream().filter(x->!x.isDeleted()).toList()
+        );
         List<CharacterDTO> dtos=service.getCharacters(false);
         assertFalse(dtos.isEmpty());
+    }
+
+    @Test
+    void addCharacterReturnAreEqual(){
+        Mockito.when(repo.findByName(createCharacterDTO.name())).thenReturn(Optional.empty());
+        Mockito.when(
+                repo.save(
+                        mapper.fromDto(
+                                characterDTO,
+                                roleRepo.findByTitle(characterDTO.user().role())
+                        )
+                )
+        ).thenReturn(character);
+        Mockito.when(mapper.fromDto(createCharacterDTO, Optional.of(role))).thenReturn(createCharacter);
+        CharacterDTO dto=service.addCharacter(createCharacterDTO);
+        assertEquals(dto,characterDTO);
+    }
+
+    @Test
+    void editCharacterReturnAreEqual(){
+        Mockito.when(repo.findById(1L)).thenReturn(Optional.of(character));
+        Mockito.when(repo.findByName(characterDTO.name())).thenReturn(Optional.empty());
+        Mockito.when(repo.save(mapper.fromDto(characterDTO, Optional.of(role)))).thenReturn(character);
+        assertNotNull(repo.save(mapper.fromDto(characterDTO, Optional.of(role))));
+        assertEquals(service.editCharacter(characterDTO),characterDTO);
     }
 }

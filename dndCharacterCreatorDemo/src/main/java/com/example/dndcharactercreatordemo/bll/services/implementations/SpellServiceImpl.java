@@ -120,7 +120,8 @@ public class SpellServiceImpl implements SpellService {
                     throw new NotFoundException(NOT_FOUND_MESSAGE);
                 }
             });
-            spellRepo.save(mapper.fromDto(spellDTO));
+            Spell spell = spellRepo.save(mapper.fromDto(spellDTO));
+            return mapper.toDto(spell);
         }
         throw new NotFoundException(NOT_FOUND_MESSAGE);
     }
