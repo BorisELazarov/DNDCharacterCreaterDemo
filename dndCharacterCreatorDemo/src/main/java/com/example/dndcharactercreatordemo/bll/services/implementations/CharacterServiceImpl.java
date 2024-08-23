@@ -38,28 +38,38 @@ public class CharacterServiceImpl implements CharacterService {
     }
 
     @Override
-    public void addCharacter(CharacterDTO dto) {
-        if (characterRepo.findByName(dto.name()).isPresent())
+    public CharacterDTO addCharacter(CharacterDTO dcharacterDTO) {
+        if (characterRepo.findByName(dcharacterDTO.name()).isPresent())
             throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
-        characterRepo.save(mapper.fromDto(dto,roleRepo.findByTitle(dto.user().role())));
+        Character character= characterRepo.save(mapper.fromDto(
+                dcharacterDTO,
+                roleRepo.findByTitle(dcharacterDTO.user().role())
+        ));
+        return mapper.toDto(character);
     }
 
     @Override
     @Transactional
-    public void editCharacter(CharacterDTO dto) {
-        if (dto.id().isEmpty()) {
+    public CharacterDTO editCharacter(CharacterDTO characterDTO) {
+        if (characterDTO.id().isEmpty()) {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
-
         }
-
-        Optional<Character> foundCharacter = characterRepo.findByName(dto.name());
-
-        if (foundCharacter.isPresent()
-                && !foundCharacter.get().getId().equals(dto.id().orElse(null))) {
-            throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
-        }
-
-        characterRepo.save(mapper.fromDto(dto,roleRepo.findByTitle(dto.user().role())));
+        characterDTO.id().ifPresent(id->{
+            Optional<Character> character=characterRepo.findById(id);
+            if (character.isPresent()){
+                characterRepo.findByName(characterDTO.name()).ifPresent(
+                        x->{
+                            if (!x.getId().equals(id)){
+                                throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
+                            }
+                        }
+                );
+                characterRepo.save(character.get());
+            }   else {
+                throw new NotFoundException(NOT_FOUND_MESSAGE);
+            }
+        });
+        return characterDTO;
     }
 
     @Override

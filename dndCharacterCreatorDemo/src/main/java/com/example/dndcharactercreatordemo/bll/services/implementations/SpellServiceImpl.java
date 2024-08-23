@@ -96,17 +96,30 @@ public class SpellServiceImpl implements SpellService {
     }
 
     @Override
-    public void addSpell(SpellDTO spellDTO){
+    public SpellDTO addSpell(SpellDTO spellDTO){
         Optional<Spell> spell= spellRepo.findByName(spellDTO.name());
         if (spell.isPresent()){
             throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
         }
-        spellRepo.save(mapper.fromDto(spellDTO));
+        return mapper.toDto(spellRepo.save(mapper.fromDto(spellDTO)));
     }
 
     @Override
-    public void editSpell(SpellDTO spellDTO, Long id) {
-        if (spellRepo.existsById(id)) {
+    public SpellDTO editSpell(SpellDTO spellDTO) {
+        if (spellDTO.id().isPresent()){
+            spellDTO.id().ifPresent(id->{
+                if (spellRepo.existsById(id)){
+                    spellRepo.findByName(spellDTO.name()).ifPresent(
+                            x->{
+                                if (!x.getId().equals(id)){
+                                    throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
+                                }
+                            }
+                    );
+                } else {
+                    throw new NotFoundException(NOT_FOUND_MESSAGE);
+                }
+            });
             spellRepo.save(mapper.fromDto(spellDTO));
         }
         throw new NotFoundException(NOT_FOUND_MESSAGE);
