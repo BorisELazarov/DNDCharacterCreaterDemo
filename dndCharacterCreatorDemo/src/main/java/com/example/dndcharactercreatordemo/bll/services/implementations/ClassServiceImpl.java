@@ -95,33 +95,37 @@ public class ClassServiceImpl implements ClassService {
     }
 
     @Override
-    public void addClass(ClassDTO classDTO) {
+    public ClassDTO addClass(ClassDTO classDTO) {
         if (classRepo.existsByName(classDTO.name())) {
             throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
         }
         DNDclass dndClass = mapper.fromDto(classDTO);
         proficiencyRepo.saveAll(dndClass.getProficiencies());
-        classRepo.save(dndClass);
+        return mapper.toDto(classRepo.save(dndClass));
     }
 
     @Override
     @Transactional
-    public void updateClass(ClassDTO classDTO) {
-        classDTO.id().ifPresent(
-                id->{
-                    Optional<DNDclass> dndClass = classRepo.findById(id);
-                    if (dndClass.isEmpty()) {
-                        throw new NotFoundException(NOT_FOUND_MESSAGE);
-                    }
-
-                    if (classRepo.existsByName(classDTO.name())){
-                        throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
-                    }
-                    classRepo.save(mapper.fromDto(classDTO));
-                });
-        if (classDTO.id().isEmpty()){
-        throw new NotFoundException(NOT_FOUND_MESSAGE);
+    public ClassDTO updateClass(ClassDTO classDTO) {
+        if (classDTO.id().isEmpty()) {
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
+        classDTO.id().ifPresent(id->{
+            Optional<DNDclass> dnDclass=classRepo.findById(id);
+            if (dnDclass.isPresent()){
+                classRepo.findByName(classDTO.name()).ifPresent(
+                        x->{
+                            if (!x.getId().equals(id)){
+                                throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
+                            }
+                        }
+                );
+                classRepo.save(dnDclass.get());
+            }   else {
+                throw new NotFoundException(NOT_FOUND_MESSAGE);
+            }
+        });
+        return classDTO;
     }
 
     @Override

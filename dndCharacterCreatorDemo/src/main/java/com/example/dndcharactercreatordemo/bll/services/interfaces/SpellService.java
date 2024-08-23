@@ -9,9 +9,9 @@ public interface SpellService {
 
     SpellDTO getSpell(Long id);
 
-    void addSpell(SpellDTO spellDTO);
+    SpellDTO addSpell(SpellDTO spellDTO);
 
-    void editSpell(SpellDTO spellDTO, Long id);
+    SpellDTO editSpell(SpellDTO spellDTO);
 
     void softDeleteSpell(Long id);
 

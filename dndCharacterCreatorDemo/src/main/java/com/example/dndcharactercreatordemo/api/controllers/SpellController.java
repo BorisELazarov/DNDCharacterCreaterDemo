@@ -45,16 +45,20 @@ public class SpellController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> postSpell(@RequestBody @Valid SpellDTO spell){
-        spellService.addSpell(spell);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<SpellDTO> postSpell(@RequestBody @Valid SpellDTO spell){
+        return new ResponseEntity<>(
+                spellService.addSpell(spell),
+                HttpStatus.CREATED
+        );
     }
 
     @PutMapping(path = "/{spellId}")
-    public ResponseEntity<Void> putSpell(@RequestBody @Valid SpellDTO spell,
+    public ResponseEntity<SpellDTO> putSpell(@RequestBody @Valid SpellDTO spell,
                          @PathVariable("spellId") Long id){
-        spellService.editSpell(spell, id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(
+                spellService.editSpell(spell),
+                HttpStatus.OK
+        );
     }
 
     @PutMapping(path = "/restore/{spellId}")

@@ -8,7 +8,7 @@ import java.util.List;
 public interface UserService {
     List<UserDTO> getUsers();
 
-    void addUser(UserDTO userDTO);
+    UserDTO addUser(UserDTO userDTO);
 
     @Transactional
     void changePassword(Long id, String oldPassword, String newPassword);

@@ -47,18 +47,19 @@ public class ProficiencyController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> addProficiency(@RequestBody @Valid ProficiencyDTO proficiency){
-        proficiencyService.addProficiency(proficiency);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<ProficiencyDTO> addProficiency(@RequestBody @Valid ProficiencyDTO proficiencyDTO){
+        return new ResponseEntity<>(
+                proficiencyService.addProficiency(proficiencyDTO),
+                HttpStatus.CREATED
+        );
     }
 
-    @PutMapping(path="{proficiencyId}")
-    public ResponseEntity<Void> updateProficiency(
-            @PathVariable("proficiencyId") Long id,
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String type){
-        proficiencyService.updateProficiency(id,name,type);
-        return new ResponseEntity<>(HttpStatus.OK);
+    @PutMapping
+    public ResponseEntity<ProficiencyDTO> updateProficiency(@Valid @RequestBody ProficiencyDTO proficiencyDTO){
+        return new ResponseEntity<>(
+                proficiencyService.updateProficiency(proficiencyDTO),
+                HttpStatus.OK
+        );
     }
 
     @PutMapping(path="/restore/{proficiencyId}")

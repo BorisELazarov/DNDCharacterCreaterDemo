@@ -48,16 +48,18 @@ public class ClassController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> addClass(@RequestBody @Valid ClassDTO dndClass){
-        classService.addClass(dndClass);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<ClassDTO> addClass(@Valid @RequestBody ClassDTO classDTO){
+        return new ResponseEntity<>(
+                classService.addClass(classDTO),
+                HttpStatus.CREATED);
     }
 
     @PutMapping
-    public ResponseEntity<Void> updateClass(
+    public ResponseEntity<ClassDTO> updateClass(
             @RequestBody ClassDTO classDTO){
-        classService.updateClass(classDTO);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(
+                classService.updateClass(classDTO),
+                HttpStatus.OK);
     }
 
     @PutMapping(path="{classId}")
