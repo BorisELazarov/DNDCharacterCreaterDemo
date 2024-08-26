@@ -10,6 +10,5 @@ import java.util.Optional;
 public interface CharacterMapper {
     Character fromDto(CharacterDTO characterDTO, Optional<Role> role);
     CharacterDTO toDto(Character character);
-//    List<Character> fromDTOs(List<CharacterDTO> characterDTOS);
     List<CharacterDTO> toDTOs(List<Character> characters);
 }

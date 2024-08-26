@@ -18,42 +18,42 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public @ResponseBody ErrorResponse handleException(NotFoundException ex){
-        logger.error(ex.getMessage());
+        logger.error(ex.getMessage(),ex);
         return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public @ResponseBody ErrorResponse handleException(NotSoftDeletedException ex){
-        logger.error(ex.getMessage());
+        logger.error(ex.getMessage(),ex);
         return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public @ResponseBody ErrorResponse handleException(NameAlreadyTakenException ex){
-        logger.warn(ex.getMessage());
+        logger.warn(ex.getMessage(),ex);
         return new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public @ResponseBody ErrorResponse handleException(WrongPasswordException ex){
-        logger.warn(ex.getMessage());
+        logger.warn(ex.getMessage(), ex);
         return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public @ResponseBody ErrorResponse handleException(MethodArgumentNotValidException ex){
-        logger.warn("Invalid data");
-        return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Invalid data");
+        logger.warn(ex.getMessage(), ex);
+        return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "The arguments are invalid");
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public @ResponseBody ErrorResponse handleException(Exception ex){
-        logger.error("Something went wrong");
-        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Something went wrong");
+        logger.error(ex.getMessage(),ex);
+        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
     }
 }

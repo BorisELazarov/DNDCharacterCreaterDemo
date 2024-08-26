@@ -19,8 +19,8 @@ import java.util.Set;
 
 @Service
 public class SpellServiceImpl implements SpellService {
-    private static final String NOT_FOUND_MESSAGE="The spell is not found!";
-    private static final String NAME_TAKEN_MESSAGE="There is already spell with that name!";
+    private static final String NOT_FOUND_MESSAGE = "The spell is not found!";
+    private static final String NAME_TAKEN_MESSAGE = "There is already spell with that name!";
     private final SpellRepo spellRepo;
     private final SpellMapper mapper;
 
@@ -30,10 +30,10 @@ public class SpellServiceImpl implements SpellService {
     }
 
     @PostConstruct
-    private void seedSpells(){
-        if(spellRepo.count()>0)
+    private void seedSpells() {
+        if (spellRepo.count() > 0)
             return;
-        Set<Spell> spells=new LinkedHashSet<>();
+        Set<Spell> spells = new LinkedHashSet<>();
         spells.add(
                 getSpell(
                         false, "Fire",
@@ -65,11 +65,11 @@ public class SpellServiceImpl implements SpellService {
     }
 
     private Spell getSpell(Boolean isDeleted,
-                          String name, int level,
-                          String castingTime, int castingRange,
-                          String target, String components,
-                          int duration, String description){
-        Spell spell=new Spell();
+                           String name, int level,
+                           String castingTime, int castingRange,
+                           String target, String components,
+                           int duration, String description) {
+        Spell spell = new Spell();
         spell.setIsDeleted(isDeleted);
         spell.setName(name);
         spell.setDescription(description);
@@ -88,17 +88,17 @@ public class SpellServiceImpl implements SpellService {
     }
 
     @Override
-    public SpellDTO getSpell(Long id){
-        Optional<Spell> spell= spellRepo.findById(id);
+    public SpellDTO getSpell(Long id) {
+        Optional<Spell> spell = spellRepo.findById(id);
         if (spell.isEmpty())
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         return mapper.toDto(spell.get());
     }
 
     @Override
-    public SpellDTO addSpell(SpellDTO spellDTO){
-        Optional<Spell> spell= spellRepo.findByName(spellDTO.name());
-        if (spell.isPresent()){
+    public SpellDTO addSpell(SpellDTO spellDTO) {
+        Optional<Spell> spell = spellRepo.findByName(spellDTO.name());
+        if (spell.isPresent()) {
             throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
         }
         return mapper.toDto(spellRepo.save(mapper.fromDto(spellDTO)));
@@ -106,59 +106,60 @@ public class SpellServiceImpl implements SpellService {
 
     @Override
     public SpellDTO editSpell(SpellDTO spellDTO) {
-        if (spellDTO.id().isPresent()){
-            spellDTO.id().ifPresent(id->{
-                if (spellRepo.existsById(id)){
-                    spellRepo.findByName(spellDTO.name()).ifPresent(
-                            x->{
-                                if (!x.getId().equals(id)){
-                                    throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
-                                }
-                            }
-                    );
-                } else {
-                    throw new NotFoundException(NOT_FOUND_MESSAGE);
-                }
-            });
-            Spell spell = spellRepo.save(mapper.fromDto(spellDTO));
-            return mapper.toDto(spell);
+        Optional<Long> optionalId = spellDTO.id();
+        if (optionalId.isEmpty()) {
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
-        throw new NotFoundException(NOT_FOUND_MESSAGE);
+        Long id = optionalId.get();
+        if (spellRepo.existsById(id)) {
+            spellRepo.findByName(spellDTO.name()).ifPresent(
+                    x -> {
+                        if (!x.getId().equals(id)) {
+                            throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
+                        }
+                    }
+            );
+        } else {
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        }
+        Spell spell = spellRepo.save(mapper.fromDto(spellDTO));
+        return mapper.toDto(spell);
     }
 
     @Override
     public void restoreSpell(Long id) {
-        Optional<Spell> optionalSpell=spellRepo.findById(id);
-        if (optionalSpell.isPresent()){
-            Spell spell= optionalSpell.get();
+        Optional<Spell> optionalSpell = spellRepo.findById(id);
+        if (optionalSpell.isPresent()) {
+            Spell spell = optionalSpell.get();
             spellRepo.findByName(spell.getName())
-                    .ifPresent(x->{ throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);});
+                    .ifPresent(x -> {
+                        throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
+                    });
             spell.setIsDeleted(false);
             spellRepo.save(spell);
-        }
-        else {
+        } else {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
     }
 
     @Override
-    public void softDeleteSpell(Long id){
-        Optional<Spell> optionalSpell= spellRepo.findById(id);
-        if (optionalSpell.isPresent()){
-            Spell spell=optionalSpell.get();
+    public void softDeleteSpell(Long id) {
+        Optional<Spell> optionalSpell = spellRepo.findById(id);
+        if (optionalSpell.isPresent()) {
+            Spell spell = optionalSpell.get();
             spell.setIsDeleted(true);
             spellRepo.save(spell);
-        }else {
+        } else {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
     }
 
     @Override
-    public void hardDeleteSpell(Long id){
-        Optional<Spell> optionalSpell= spellRepo.findById(id);
-        if (optionalSpell.isPresent()){
-            Spell spell=optionalSpell.get();
-            if (spell.getIsDeleted()){
+    public void hardDeleteSpell(Long id) {
+        Optional<Spell> optionalSpell = spellRepo.findById(id);
+        if (optionalSpell.isPresent()) {
+            Spell spell = optionalSpell.get();
+            if (spell.getIsDeleted()) {
                 spellRepo.delete(spell);
             }
             throw new NotSoftDeletedException("The spell must be soft deleted first!");
