@@ -1,7 +1,6 @@
 package com.example.dndcharactercreatordemo.unitTests.serviceTests;
 
 import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.ClassDTO;
-import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.ProficiencyDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.ClassMapper;
 import com.example.dndcharactercreatordemo.bll.services.implementations.ClassServiceImpl;
 import com.example.dndcharactercreatordemo.dal.entities.BaseEntity;
@@ -21,8 +20,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-public class ClassServiceTests {
+class ClassServiceTests {
     @Mock
     private ClassMapper mapper;
     @Mock
@@ -42,6 +40,7 @@ public class ClassServiceTests {
 
     private DNDclass getDnDclass(Long id, boolean isDeleted, String name, String description, HitDiceEnum hitDiceEnum){
         DNDclass dnDclass = new DNDclass();
+        dnDclass.setId(id);
         dnDclass.setName(name);
         dnDclass.setHitDice(hitDiceEnum);
         dnDclass.setIsDeleted(isDeleted);

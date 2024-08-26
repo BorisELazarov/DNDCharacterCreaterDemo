@@ -74,7 +74,6 @@ public class ProficiencyController {
         proficiencyService.softDeleteProficiency(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
     @DeleteMapping(path = "/confirmedDelete")
     public ResponseEntity<Void> hardDeleteProficiency(@RequestParam Long id){
         proficiencyService.hardDeleteProficiency(id);

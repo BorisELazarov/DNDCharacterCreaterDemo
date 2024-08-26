@@ -83,15 +83,6 @@ public class CharacterMapperImpl implements CharacterMapper {
         );
     }
 
-
-//    @Override
-//    public List<Character> fromDTOs(List<CharacterDTO> characterDTOS, Role) {
-//
-//        return characterDTOS.stream()
-//                .map(x->fr)
-//                .toList();
-//    }
-
     @Override
     public List<CharacterDTO> toDTOs(List<Character> characters) {
 
