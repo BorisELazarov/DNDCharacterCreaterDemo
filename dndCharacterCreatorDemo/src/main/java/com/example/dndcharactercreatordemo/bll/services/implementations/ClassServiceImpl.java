@@ -20,8 +20,8 @@ import java.util.*;
 
 @Service
 public class ClassServiceImpl implements ClassService {
-    private static final String NOT_FOUND_MESSAGE="The class is not found!";
-    private static final String NAME_TAKEN_MESSAGE="There is already class named like that!";
+    private static final String NOT_FOUND_MESSAGE = "The class is not found!";
+    private static final String NAME_TAKEN_MESSAGE = "There is already class named like that!";
     private final ClassRepo classRepo;
     private final ProficiencyRepo proficiencyRepo;
     private final ClassMapper mapper;
@@ -34,16 +34,16 @@ public class ClassServiceImpl implements ClassService {
     }
 
     @PostConstruct
-    private void seedData(){
-        if (proficiencyRepo.count()>0 || classRepo.count()>0)
+    private void seedData() {
+        if (proficiencyRepo.count() > 0 || classRepo.count() > 0)
             return;
 
         seedProficiencies();
         seedClasses(new HashSet<>(proficiencyRepo.findAll()));
     }
 
-    private void seedClasses(Set<Proficiency> proficiencies){
-        Set<DNDclass> dnDclasses=new LinkedHashSet<>();
+    private void seedClasses(Set<Proficiency> proficiencies) {
+        Set<DNDclass> dnDclasses = new LinkedHashSet<>();
         dnDclasses.add(getDNDclass("Fighter", "Fights", HitDiceEnum.D10, proficiencies));
         dnDclasses.add(getDNDclass("Wizard", "Magic", HitDiceEnum.D6, proficiencies));
         dnDclasses.add(getDNDclass("Rogue", "Sneak", HitDiceEnum.D8, proficiencies));
@@ -52,7 +52,7 @@ public class ClassServiceImpl implements ClassService {
     }
 
     private DNDclass getDNDclass(String name, String description, HitDiceEnum hitDiceEnum,
-                                 Set<Proficiency> proficiencies){
+                                 Set<Proficiency> proficiencies) {
         DNDclass dnDclass = new DNDclass();
         dnDclass.setName(name);
         dnDclass.setHitDice(hitDiceEnum);
@@ -61,29 +61,29 @@ public class ClassServiceImpl implements ClassService {
         return dnDclass;
     }
 
-    private void seedProficiencies(){
-        if (proficiencyRepo.count()>0)
+    private void seedProficiencies() {
+        if (proficiencyRepo.count() > 0)
             return;
-        String type="Language";
+        String type = "Language";
         List<Proficiency> proficiencies = new ArrayList<>();
-        proficiencies.add(getProficiency("Common",type));
-        proficiencies.add(getProficiency("Elven",type));
-        proficiencies.add(getProficiency("Dwarvish",type));
-        proficiencies.add(getProficiency("Orcish",type));
+        proficiencies.add(getProficiency("Common", type));
+        proficiencies.add(getProficiency("Elven", type));
+        proficiencies.add(getProficiency("Dwarvish", type));
+        proficiencies.add(getProficiency("Orcish", type));
         proficiencies.add(getProficiency("Celestial", type));
-        proficiencies.add(getProficiency("Infernal",type));
-        type="Skill";
-        proficiencies.add(getProficiency("Athletics",type));
-        proficiencies.add(getProficiency("Acrobatics",type));
-        proficiencies.add(getProficiency("Arcana",type));
-        proficiencies.add(getProficiency("Sleight of hand",type));
+        proficiencies.add(getProficiency("Infernal", type));
+        type = "Skill";
+        proficiencies.add(getProficiency("Athletics", type));
+        proficiencies.add(getProficiency("Acrobatics", type));
+        proficiencies.add(getProficiency("Arcana", type));
+        proficiencies.add(getProficiency("Sleight of hand", type));
         proficiencies.add(getProficiency("Religion", type));
-        proficiencies.add(getProficiency("Perception",type));
+        proficiencies.add(getProficiency("Perception", type));
         proficiencyRepo.saveAll(proficiencies);
     }
 
-    private Proficiency getProficiency(String name, String type){
-        Proficiency proficiency=new Proficiency();
+    private Proficiency getProficiency(String name, String type) {
+        Proficiency proficiency = new Proficiency();
         proficiency.setName(name);
         proficiency.setType(type);
         return proficiency;
@@ -107,38 +107,41 @@ public class ClassServiceImpl implements ClassService {
     @Override
     @Transactional
     public ClassDTO updateClass(ClassDTO classDTO) {
-        if (classDTO.id().isEmpty()) {
+        Optional<Long> optionalId = classDTO.id();
+        if (optionalId.isEmpty()) {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
-        classDTO.id().ifPresent(id->{
-            Optional<DNDclass> dnDclass=classRepo.findById(id);
-            if (dnDclass.isPresent()){
-                classRepo.findByName(classDTO.name()).ifPresent(
-                        x->{
-                            if (!x.getId().equals(id)){
-                                throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
-                            }
+        Long id = optionalId.get();
+        Optional<DNDclass> dnDclass = classRepo.findById(id);
+
+        if (dnDclass.isPresent()) {
+            classRepo.findByName(classDTO.name()).ifPresent(
+                    x -> {
+                        if (!x.getId().equals(id)) {
+                            throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
                         }
-                );
-                classRepo.save(dnDclass.get());
-            }   else {
-                throw new NotFoundException(NOT_FOUND_MESSAGE);
-            }
-        });
+                    }
+            );
+            classRepo.save(dnDclass.get());
+        } else {
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        }
+
         return classDTO;
     }
 
     @Override
     public void restoreClass(Long id) {
-        Optional<DNDclass> optionalDNDclass=classRepo.findById(id);
-        if (optionalDNDclass.isPresent()){
-            DNDclass dnDclass= optionalDNDclass.get();
+        Optional<DNDclass> optionalDNDclass = classRepo.findById(id);
+        if (optionalDNDclass.isPresent()) {
+            DNDclass dnDclass = optionalDNDclass.get();
             proficiencyRepo.findByName(dnDclass.getName())
-                    .ifPresent(x->{ throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);});
+                    .ifPresent(x -> {
+                        throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
+                    });
             dnDclass.setIsDeleted(false);
             classRepo.save(dnDclass);
-        }
-        else {
+        } else {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
     }
@@ -174,8 +177,7 @@ public class ClassServiceImpl implements ClassService {
     @Override
     public ClassDTO getClassById(Long id) {
         Optional<DNDclass> dndClass = classRepo.findById(id);
-        if (dndClass.isPresent())
-        {
+        if (dndClass.isPresent()) {
             return mapper.toDto(dndClass.get());
         }
         throw new NotFoundException(NOT_FOUND_MESSAGE);

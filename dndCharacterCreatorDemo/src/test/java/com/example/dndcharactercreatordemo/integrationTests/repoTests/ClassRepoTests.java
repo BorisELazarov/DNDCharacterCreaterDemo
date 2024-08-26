@@ -2,7 +2,6 @@ package com.example.dndcharactercreatordemo.integrationTests.repoTests;
 
 import com.example.dndcharactercreatordemo.dal.entities.BaseEntity;
 import com.example.dndcharactercreatordemo.dal.entities.DNDclass;
-import com.example.dndcharactercreatordemo.dal.entities.Proficiency;
 import com.example.dndcharactercreatordemo.dal.repos.ClassRepo;
 import com.example.dndcharactercreatordemo.enums.HitDiceEnum;
 import org.junit.jupiter.api.AfterAll;

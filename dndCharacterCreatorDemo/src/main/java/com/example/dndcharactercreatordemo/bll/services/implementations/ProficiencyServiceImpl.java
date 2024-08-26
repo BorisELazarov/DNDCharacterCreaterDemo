@@ -52,24 +52,24 @@ public class ProficiencyServiceImpl implements ProficiencyService {
 
     @Override
     public ProficiencyDTO updateProficiency(ProficiencyDTO proficiencyDTO) {
-        if (proficiencyDTO.id().isEmpty()) {
+        Optional<Long> optionalId=proficiencyDTO.id();
+        if (optionalId.isEmpty()) {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
-        proficiencyDTO.id().ifPresent(id->{
-            Optional<Proficiency> proficiency=proficiencyRepo.findById(id);
-            if (proficiency.isPresent()){
-                proficiencyRepo.findByName(proficiencyDTO.name()).ifPresent(
-                        x->{
-                            if (!x.getId().equals(id)){
-                                throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
-                            }
+        Long id= optionalId.get();
+        Optional<Proficiency> proficiency = proficiencyRepo.findById(id);
+        if (proficiency.isPresent()) {
+            proficiencyRepo.findByName(proficiencyDTO.name()).ifPresent(
+                    x -> {
+                        if (!x.getId().equals(id)) {
+                            throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
                         }
-                );
-                proficiencyRepo.save(proficiency.get());
-            }   else {
-                throw new NotFoundException(NOT_FOUND_MESSAGE);
-            }
-        });
+                    }
+            );
+            proficiencyRepo.save(proficiency.get());
+        } else {
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        }
         return proficiencyDTO;
     }
 

@@ -18,8 +18,8 @@ import java.util.Optional;
 
 @Service
 public class CharacterServiceImpl implements CharacterService {
-    private static final String NOT_FOUND_MESSAGE="The character is not found!";
-    private static final String NAME_TAKEN_MESSAGE="There is already character named like that!";
+    private static final String NOT_FOUND_MESSAGE = "The character is not found!";
+    private static final String NAME_TAKEN_MESSAGE = "There is already character named like that!";
     private final RoleRepo roleRepo;
     private final CharacterRepo characterRepo;
     private final CharacterMapper mapper;
@@ -27,7 +27,7 @@ public class CharacterServiceImpl implements CharacterService {
     public CharacterServiceImpl(@NotNull CharacterRepo characterRepo,
                                 @NotNull CharacterMapper mapper,
                                 @NotNull RoleRepo roleRepo) {
-        this.roleRepo=roleRepo;
+        this.roleRepo = roleRepo;
         this.characterRepo = characterRepo;
         this.mapper = mapper;
     }
@@ -41,7 +41,7 @@ public class CharacterServiceImpl implements CharacterService {
     public CharacterDTO addCharacter(CharacterDTO dcharacterDTO) {
         if (characterRepo.findByName(dcharacterDTO.name()).isPresent())
             throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
-        Character character= characterRepo.save(mapper.fromDto(
+        Character character = characterRepo.save(mapper.fromDto(
                 dcharacterDTO,
                 roleRepo.findByTitle(dcharacterDTO.user().role())
         ));
@@ -51,38 +51,39 @@ public class CharacterServiceImpl implements CharacterService {
     @Override
     @Transactional
     public CharacterDTO editCharacter(CharacterDTO characterDTO) {
-        if (characterDTO.id().isEmpty()) {
+        Optional<Long> optionalId = characterDTO.id();
+        if (optionalId.isEmpty()) {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
-        characterDTO.id().ifPresent(id->{
-            Optional<Character> character=characterRepo.findById(id);
-            if (character.isPresent()){
-                characterRepo.findByName(characterDTO.name()).ifPresent(
-                        x->{
-                            if (!x.getId().equals(id)){
-                                throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
-                            }
+        Long id = optionalId.get();
+        Optional<Character> character = characterRepo.findById(id);
+        if (character.isPresent()) {
+            characterRepo.findByName(characterDTO.name()).ifPresent(
+                    x -> {
+                        if (!x.getId().equals(id)) {
+                            throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
                         }
-                );
-                characterRepo.save(character.get());
-            }   else {
-                throw new NotFoundException(NOT_FOUND_MESSAGE);
-            }
-        });
+                    }
+            );
+            characterRepo.save(character.get());
+        } else {
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        }
         return characterDTO;
     }
 
     @Override
     public void restoreCharacter(Long id) {
-        Optional<Character> optionalCharacter=characterRepo.findById(id);
-        if (optionalCharacter.isPresent()){
-            Character character= optionalCharacter.get();
+        Optional<Character> optionalCharacter = characterRepo.findById(id);
+        if (optionalCharacter.isPresent()) {
+            Character character = optionalCharacter.get();
             characterRepo.findByName(character.getName())
-                    .ifPresent(x->{ throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);});
+                    .ifPresent(x -> {
+                        throw new NameAlreadyTakenException(NAME_TAKEN_MESSAGE);
+                    });
             character.setIsDeleted(false);
             characterRepo.save(character);
-        }
-        else {
+        } else {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
     }
@@ -106,13 +107,11 @@ public class CharacterServiceImpl implements CharacterService {
         if (character.isEmpty()) {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
 
-        }
-        else {
-            Character foundCharacter= character.get();
-            if (foundCharacter.getIsDeleted()){
+        } else {
+            Character foundCharacter = character.get();
+            if (foundCharacter.getIsDeleted()) {
                 characterRepo.delete(foundCharacter);
-            }
-            else {
+            } else {
                 throw new NotSoftDeletedException("The character must be soft deleted first!");
             }
         }
@@ -122,7 +121,7 @@ public class CharacterServiceImpl implements CharacterService {
     public CharacterDTO getCharacterById(Long id) {
         Optional<Character> character = characterRepo.findById(id);
 
-        if (character.isPresent()){
+        if (character.isPresent()) {
             return mapper.toDto(character.get());
         }
         throw new NotFoundException(NOT_FOUND_MESSAGE);
