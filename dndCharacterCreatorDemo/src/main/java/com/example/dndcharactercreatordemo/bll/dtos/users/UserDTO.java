@@ -10,7 +10,7 @@ public record UserDTO(Optional<Long> id, Boolean isDeleted,
                       @Size(min=3, max = 50)
                       String username,
                       @NotNull(message = "Password must not be null")
-                      @Size(min=8, max = 50)
+                      @Size(min=8, max = 64)
                       String password,
                       @NotNull(message = "Password must not be null")
                       @Size(min=4, max = 20)

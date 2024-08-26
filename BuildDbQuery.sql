@@ -6,7 +6,7 @@ use dnddb;
 
 create table roles(
 id int primary key auto_increment,
-title nvarchar(20) not null default 'user'-- ,
+title nvarchar(20) not null default 'USER'-- ,
 -- is_deleted bit not null default 0
 );
 
@@ -29,7 +29,7 @@ create table role_privileges(
 create table users(
 id bigint primary key auto_increment,
 username nvarchar(50) not null,
-password nvarchar(50) not null,
+password nvarchar(64) not null,
 is_deleted bit not null default 0,
 role_id int null,
 foreign key(role_id)
