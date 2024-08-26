@@ -9,6 +9,8 @@ import com.example.dndcharactercreatordemo.dal.entities.*;
 import com.example.dndcharactercreatordemo.dal.entities.Character;
 import com.example.dndcharactercreatordemo.dal.repos.CharacterRepo;
 import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
+import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
+import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -179,5 +181,23 @@ class CharacterServiceTests {
         Mockito.when(repo.save(mapper.fromDto(characterDTO, Optional.of(role)))).thenReturn(character);
         assertNotNull(repo.save(mapper.fromDto(characterDTO, Optional.of(role))));
         assertEquals(service.editCharacter(characterDTO),characterDTO);
+    }
+
+    @Test
+    void softDeleteClassThrowNotFoundException(){
+        Mockito.doThrow(new NotFoundException("")).when(repo).findById(0L);
+        Mockito.when(repo.findById(1L)).thenReturn(Optional.of(character));
+        assertThrows(NotFoundException.class,
+                ()->service.softDeleteCharacter(0L));
+        assertDoesNotThrow(()->service.softDeleteCharacter(1L));
+    }
+
+    @Test
+    void hardDeleteClassThrowNotFoundException(){
+        Mockito.doThrow(new NotFoundException("")).when(repo).findById(0L);
+        Mockito.when(repo.findById(1L)).thenReturn(Optional.of(character));
+        assertThrows(NotFoundException.class,
+                ()->service.hardDeleteCharacter(0L));
+        assertDoesNotThrow(()->service.hardDeleteCharacter(1L));
     }
 }

@@ -1,12 +1,13 @@
 package com.example.dndcharactercreatordemo.unitTests.serviceTests;
 
-import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.ProficiencyDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.spells.SpellDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.SpellMapper;
 import com.example.dndcharactercreatordemo.bll.services.implementations.SpellServiceImpl;
 import com.example.dndcharactercreatordemo.dal.entities.BaseEntity;
 import com.example.dndcharactercreatordemo.dal.entities.Spell;
 import com.example.dndcharactercreatordemo.dal.repos.SpellRepo;
+import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
+import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -169,5 +170,23 @@ class SpellServiceTests {
         Mockito.when(repo.save(mapper.fromDto(spellDTO))).thenReturn(spell);
         assertNotNull(repo.save(mapper.fromDto(spellDTO)));
         assertEquals(service.editSpell(spellDTO),spellDTO);
+    }
+
+    @Test
+    void softDeleteSpellThrowNotFoundException(){
+        Mockito.doThrow(new NotFoundException("")).when(repo).findById(0L);
+        Mockito.when(repo.findById(1L)).thenReturn(Optional.of(spell));
+        assertThrows(NotFoundException.class,
+                ()->service.softDeleteSpell(0L));
+        assertDoesNotThrow(()->service.softDeleteSpell(1L));
+    }
+
+    @Test
+    void hardDeleteSpellThrowNotFoundException(){
+        Mockito.doThrow(new NotFoundException("")).when(repo).findById(0L);
+        Mockito.when(repo.findById(1L)).thenReturn(Optional.of(spell));
+        assertThrows(NotFoundException.class,
+                ()->service.hardDeleteSpell(0L));
+        assertThrows(NotSoftDeletedException.class,()->service.hardDeleteSpell(1L));
     }
 }
