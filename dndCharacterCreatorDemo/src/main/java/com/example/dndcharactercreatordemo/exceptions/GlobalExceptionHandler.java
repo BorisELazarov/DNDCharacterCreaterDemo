@@ -1,8 +1,5 @@
 package com.example.dndcharactercreatordemo.exceptions;
-import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenException;
-import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
-import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
-import com.example.dndcharactercreatordemo.exceptions.customs.WrongPasswordException;
+import com.example.dndcharactercreatordemo.exceptions.customs.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -32,6 +29,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public @ResponseBody ErrorResponse handleException(NameAlreadyTakenException ex){
+        logger.warn(ex.getMessage(),ex);
+        return new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public @ResponseBody ErrorResponse handleException(EmailAlreadyTakenException ex){
         logger.warn(ex.getMessage(),ex);
         return new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage());
     }

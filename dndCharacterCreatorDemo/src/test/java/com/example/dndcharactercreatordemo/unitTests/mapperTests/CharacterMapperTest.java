@@ -39,7 +39,7 @@ class CharacterMapperTest {
         UserDTO userDTO=new UserDTO(
                 Optional.of(2L),false,
                 "Ganyo","ot 8 do 8",
-                "user"
+                "email@abv.bg", "user"
         );
         ClassDTO classDTO=new ClassDTO(Optional.of(7L),
                 false, "fighter",
@@ -80,6 +80,7 @@ class CharacterMapperTest {
         user.setId(1L);
         user.setUsername("username");
         user.setPassword("password");
+        user.setEmail("email@abv.bg");
         user.setRole(role);
         DNDclass dclass=new DNDclass();
         dclass.setId(5L);

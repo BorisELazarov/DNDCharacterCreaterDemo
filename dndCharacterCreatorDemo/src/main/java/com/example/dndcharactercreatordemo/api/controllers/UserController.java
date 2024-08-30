@@ -66,7 +66,7 @@ public class UserController {
             @PathVariable("userId") Long id,
             @PathVariable("username") String username){
         userService.changeUsername(id,username);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PutMapping(path="changePassword/{userId}/{oldPassword}/{newPassword}")
@@ -75,18 +75,36 @@ public class UserController {
             @PathVariable("oldPassword") String oldPassword,
             @PathVariable("newPassword") String newPassword){
         userService.changePassword(id,oldPassword,newPassword);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping(path = "changeEmail/{userid}/{email}")
+    public ResponseEntity<Void> changeEmail(
+            @PathVariable("userId") Long id,
+            @PathVariable("email") String email
+    ){
+        userService.changeEmail(id,email);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping(path = "changeRole/{userid}/{role}")
+    public ResponseEntity<Void> changeRole(
+            @PathVariable("userId") Long id,
+            @PathVariable("role") String role
+    ){
+        userService.changeRole(id,role);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping(path="/delete/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable("userId") Long id) {
          userService.softDeleteUser(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping(path = "/delete/confirmed/{userId}")
     public ResponseEntity<Void> hardDeleteUser(@PathVariable("userId") Long id){
         userService.hardDeleteUser(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
