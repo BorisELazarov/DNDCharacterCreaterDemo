@@ -10,8 +10,13 @@ public interface UserService {
 
     UserDTO addUser(UserDTO userDTO);
 
-    @Transactional
+    void changeUsername(Long id, String username);
+
     void changePassword(Long id, String oldPassword, String newPassword);
+
+    void changeEmail(Long id, String email);
+
+    void changeRole(Long id, String role);
 
     void softDeleteUser(Long id);
 
@@ -22,6 +27,4 @@ public interface UserService {
     UserDTO getUser(Long id);
 
     UserDTO getUser(String username, String password);
-    @Transactional
-    void changeUsername(Long id, String username);
 }

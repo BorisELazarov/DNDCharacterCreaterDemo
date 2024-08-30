@@ -8,10 +8,7 @@ import com.example.dndcharactercreatordemo.dal.entities.Role;
 import com.example.dndcharactercreatordemo.dal.entities.User;
 import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
 import com.example.dndcharactercreatordemo.dal.repos.UserRepo;
-import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
-import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenException;
-import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
-import com.example.dndcharactercreatordemo.exceptions.customs.WrongPasswordException;
+import com.example.dndcharactercreatordemo.exceptions.customs.*;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
@@ -77,6 +74,7 @@ public class UserServiceImpl implements UserService {
             User user = new User();
             user.setUsername("Boris");
             user.setPassword("BPass");
+            user.setEmail("email@abv.bg");
             Optional<Role> role = roleRepo.findByTitle("admin");
             role.ifPresent(user::setRole);
             userRepo.save(user);
@@ -90,9 +88,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO addUser(UserDTO userDTO) {
-        Optional<User> userByUsername = userRepo.findByUsername(userDTO.username());
-        if (userByUsername.isPresent()) {
+        if (userRepo.findByUsername(userDTO.username()).isPresent()) {
             throw new NameAlreadyTakenException(USERNAME_TAKEN_MESSAGE);
+        }
+        if (userRepo.findByEmail(userDTO.email()).isPresent()){
+            throw new EmailAlreadyTakenException("This email is already taken!");
         }
         Optional<Role> role= roleRepo.findByTitle(userDTO.role());
         User user = mapper.fromDto(userDTO, role);
@@ -100,7 +100,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
     public void changeUsername(Long id, String username) {
         Optional<User> optionalUser = userRepo.findById(id);
         if (optionalUser.isEmpty()) {
@@ -119,7 +118,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
     public void changePassword(Long id, String oldPassword, String newPassword) {
         Optional<User> optionalUser = userRepo.findById(id);
         if (optionalUser.isEmpty()) {
@@ -135,6 +133,35 @@ public class UserServiceImpl implements UserService {
                 !newPassword.equals(oldPassword)) {
             foundUser.setPassword(newPassword);
         }
+    }
+
+    @Override
+    public void changeEmail(Long id, String email) {
+        Optional<User> optionalUser = userRepo.findById(id);
+        if (optionalUser.isEmpty()) {
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        }
+        User foundUser = optionalUser.get();
+        if (userRepo.findByEmail(email).isPresent()){
+            throw new EmailAlreadyTakenException("");
+        }
+        foundUser.setEmail(email);
+        userRepo.save(foundUser);
+    }
+
+    @Override
+    public void changeRole(Long id, String role) {
+        Optional<User> optionalUser = userRepo.findById(id);
+        if (optionalUser.isEmpty()) {
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        }
+        User foundUser = optionalUser.get();
+        Optional<Role> foundRole=roleRepo.findByTitle(role);
+        if (foundRole.isEmpty()){
+            throw new NotFoundException("There is no such role!");
+        }
+        foundUser.setRole(foundRole.get());
+        userRepo.save(foundUser);
     }
 
     @Override
