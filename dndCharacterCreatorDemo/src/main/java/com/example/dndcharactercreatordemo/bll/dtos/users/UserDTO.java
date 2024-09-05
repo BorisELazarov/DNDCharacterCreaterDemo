@@ -14,7 +14,7 @@ public record UserDTO(Optional<Long> id, Boolean isDeleted,
                       @Size(min=8, max = 50)
                       String password,
                       @NotNull(message = "Email must not be null")
-                      @Size(min = 6, max=10)
+                      @Size(min = 6, max=320)
                       @Email
                       String email,
                       @NotNull(message = "Role title must not be null")
