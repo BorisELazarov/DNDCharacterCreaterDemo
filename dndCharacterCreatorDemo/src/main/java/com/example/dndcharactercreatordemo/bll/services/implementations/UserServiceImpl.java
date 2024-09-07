@@ -10,7 +10,6 @@ import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
 import com.example.dndcharactercreatordemo.dal.repos.UserRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.*;
 import jakarta.annotation.PostConstruct;
-import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 
@@ -73,7 +72,7 @@ public class UserServiceImpl implements UserService {
         if (userRepo.findByUsername("Boris").isEmpty()) {
             User user = new User();
             user.setUsername("Boris");
-            user.setPassword("BPass");
+            user.setPassword(String.valueOf("BPass".hashCode()));
             user.setEmail("email@abv.bg");
             Optional<Role> role = roleRepo.findByTitle("admin");
             role.ifPresent(user::setRole);
@@ -96,6 +95,7 @@ public class UserServiceImpl implements UserService {
         }
         Optional<Role> role= roleRepo.findByTitle(userDTO.role());
         User user = mapper.fromDto(userDTO, role);
+        user.setPassword(String.valueOf(user.getPassword().hashCode()));
         return mapper.toDto(userRepo.save(user));
     }
 
@@ -114,6 +114,7 @@ public class UserServiceImpl implements UserService {
                 throw new NameAlreadyTakenException(USERNAME_TAKEN_MESSAGE);
             }
             foundUser.setUsername(username);
+            userRepo.save(foundUser);
         }
     }
 
@@ -124,14 +125,14 @@ public class UserServiceImpl implements UserService {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
         User foundUser = optionalUser.get();
+        oldPassword=String.valueOf(oldPassword.hashCode());
 
-        if (foundUser.getPassword().equals(oldPassword))
+        if (!foundUser.getPassword().equals(oldPassword))
             throw new WrongPasswordException("Wrong password");
-
         if (newPassword != null &&
-                newPassword.length() > 0 &&
-                !newPassword.equals(oldPassword)) {
-            foundUser.setPassword(newPassword);
+                newPassword.length() > 0) {
+            foundUser.setPassword(String.valueOf(newPassword.hashCode()));
+            userRepo.save(foundUser);
         }
     }
 
@@ -221,12 +222,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO getUser(String username, String password) {
-        Optional<User> optionalUser = userRepo.findByUsername(password);
+        Optional<User> optionalUser = userRepo.findByUsername(username);
         if (optionalUser.isEmpty()) {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
         User user= optionalUser.get();
-        if (!user.getPassword().equals(password))
+        if (!user.getPassword().equals(String.valueOf(password.hashCode())))
             throw new WrongPasswordException("Wrong password!");
         return mapper.toDto(optionalUser.get());
     }
