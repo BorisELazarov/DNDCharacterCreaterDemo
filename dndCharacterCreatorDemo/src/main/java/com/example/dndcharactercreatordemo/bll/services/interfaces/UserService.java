@@ -26,5 +26,5 @@ public interface UserService {
 
     UserDTO getUser(Long id);
 
-    UserDTO getUser(String username, String password);
+    UserDTO getUser(String email, String password);
 }

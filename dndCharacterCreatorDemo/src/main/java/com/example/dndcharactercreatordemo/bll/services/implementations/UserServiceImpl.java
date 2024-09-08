@@ -221,10 +221,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO getUser(String username, String password) {
-        Optional<User> optionalUser = userRepo.findByUsername(username);
+    public UserDTO getUser(String email, String password) {
+        Optional<User> optionalUser = userRepo.findByEmail(email);
         if (optionalUser.isEmpty()) {
-            throw new NotFoundException(NOT_FOUND_MESSAGE);
+            throw new NotFoundException("There is no user with such email!");
         }
         User user= optionalUser.get();
         if (!user.getPassword().equals(String.valueOf(password.hashCode())))

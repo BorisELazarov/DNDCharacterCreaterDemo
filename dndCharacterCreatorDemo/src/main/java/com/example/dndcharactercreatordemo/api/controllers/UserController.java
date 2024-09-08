@@ -30,11 +30,11 @@ public class UserController {
         );
     }
 
-    @GetMapping(path="/login/{username}/{password}")
-    public ResponseEntity<UserDTO> login(@PathVariable("username") String username,
+    @GetMapping(path="/login/{email}/{password}")
+    public ResponseEntity<UserDTO> login(@PathVariable("email") String email,
                                          @PathVariable("password") String password){
         return new ResponseEntity<>(
-                userService.getUser(username,password),
+                userService.getUser(email,password),
                 HttpStatus.OK
         );
     }
