@@ -140,7 +140,8 @@ class CharacterServiceTests {
         ).thenReturn(
                 characterDTOS.stream().filter(CharacterDTO::isDeleted).toList()
         );
-        List<CharacterDTO> dtos=service.getCharacters(true);
+        List<CharacterDTO> dtos=service.getCharacters(true,Optional.empty(),Optional.empty(),
+                Optional.empty(),Optional.empty(),true);
         assertFalse(dtos.isEmpty());
     }
 
@@ -154,7 +155,8 @@ class CharacterServiceTests {
         ).thenReturn(
                 characterDTOS.stream().filter(x->!x.isDeleted()).toList()
         );
-        List<CharacterDTO> dtos=service.getCharacters(false);
+        List<CharacterDTO> dtos=service.getCharacters(false,Optional.empty(),Optional.empty(),
+                Optional.empty(),Optional.empty(),true);
         assertFalse(dtos.isEmpty());
     }
 

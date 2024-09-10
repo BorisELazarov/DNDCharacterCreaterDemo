@@ -3,12 +3,19 @@ package com.example.dndcharactercreatordemo.bll.services.implementations;
 import com.example.dndcharactercreatordemo.bll.dtos.spells.SpellDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.SpellMapper;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.SpellService;
+import com.example.dndcharactercreatordemo.dal.entities.Proficiency;
 import com.example.dndcharactercreatordemo.dal.entities.Spell;
 import com.example.dndcharactercreatordemo.dal.repos.SpellRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +30,8 @@ public class SpellServiceImpl implements SpellService {
     private static final String NAME_TAKEN_MESSAGE = "There is already spell with that name!";
     private final SpellRepo spellRepo;
     private final SpellMapper mapper;
+    @PersistenceContext
+    private EntityManager em;
 
     public SpellServiceImpl(@NotNull SpellRepo spellRepo, @NotNull SpellMapper mapper) {
         this.spellRepo = spellRepo;
@@ -64,8 +73,7 @@ public class SpellServiceImpl implements SpellService {
         spellRepo.saveAll(spells);
     }
 
-    private Spell getSpell(Boolean isDeleted,
-                           String name, int level,
+    private Spell getSpell(Boolean isDeleted, String name, int level,
                            String castingTime, int castingRange,
                            String target, String components,
                            int duration, String description) {
@@ -83,8 +91,45 @@ public class SpellServiceImpl implements SpellService {
     }
 
     @Override
-    public List<SpellDTO> getSpells(boolean isDeleted) {
-        return mapper.toDTOs(spellRepo.findAll(isDeleted));
+    public List<SpellDTO> getSpells(boolean isDeleted, Optional<String> name,
+                                    Optional<Byte> level, Optional<String> castingTime,
+                                    Optional<Integer> range, Optional<String> sortBy,
+                                    boolean ascending) {
+        CriteriaBuilder cb= em.getCriteriaBuilder();
+        CriteriaQuery<Spell> criteriaQuery= cb.createQuery(Spell.class);
+        Root<Spell> root= criteriaQuery.from(Spell.class);
+        String nameParam= name.orElse("");
+        byte levelParam= level.orElse((byte) -1);
+        String castingTimeParam= castingTime.orElse("");
+        int rangeParam= range.orElse(-1);
+        criteriaQuery.select(root)
+                .where(cb.and(
+                        cb.and(
+                                cb.and(
+                                        cb.equal(root.get("isDeleted"),isDeleted),
+                                        cb.like(root.get("name"),"%"+nameParam+"%")
+                                ),
+                                cb.like(root.get("castingTime"),"%"+castingTimeParam+"%")
+                        ),
+                        cb.and(
+                                cb.or(
+                                        cb.isTrue(cb.literal(levelParam<0||levelParam>10)),
+                                        cb.equal(root.get("level"),levelParam)
+                                ),
+                                cb.or(
+                                        cb.isTrue(cb.literal(rangeParam<0)),
+                                        cb.equal(root.get("castingRange"),rangeParam)
+                                )
+                        )
+                ));
+        if (ascending){
+            criteriaQuery.orderBy(cb.asc(root.get(sortBy.orElse("id"))));
+        }else {
+            criteriaQuery.orderBy(cb.desc(root.get(sortBy.orElse("id"))));
+        }
+        Query query = em.createQuery(criteriaQuery);
+        List<Spell> spells=query.getResultList();
+        return mapper.toDTOs(spells);
     }
 
     @Override

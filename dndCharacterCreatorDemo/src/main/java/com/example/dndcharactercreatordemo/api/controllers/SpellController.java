@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -22,17 +23,29 @@ public class SpellController {
     }
 
     @GetMapping
-    public ResponseEntity<List<SpellDTO>> getSpells(){
+    public ResponseEntity<List<SpellDTO>> getSpells(@RequestParam Optional<String> name,
+                                                    @RequestParam Optional<Byte> level,
+                                                    @RequestParam Optional<String> castingTime,
+                                                    @RequestParam Optional<Integer> range,
+                                                    @RequestParam Optional<String> sortBy,
+                                                    @RequestParam(defaultValue = "true") boolean ascending){
         return new ResponseEntity<>(
-                spellService.getSpells(false),
+                spellService.getSpells(false, name, level, castingTime,
+                        range, sortBy, ascending),
                 HttpStatus.OK
         );
     }
 
     @GetMapping(path = "/deleted")
-    public ResponseEntity<List<SpellDTO>> getDeletedSpells(){
+    public ResponseEntity<List<SpellDTO>> getDeletedSpells(@RequestParam Optional<String> name,
+                                                           @RequestParam Optional<Byte> level,
+                                                           @RequestParam Optional<String> castingTime,
+                                                           @RequestParam Optional<Integer> range,
+                                                           @RequestParam Optional<String> sortBy,
+                                                           @RequestParam(defaultValue = "true") boolean ascending){
         return new ResponseEntity<>(
-                spellService.getSpells(true),
+                spellService.getSpells(true, name, level, castingTime,
+                        range, sortBy, ascending),
                 HttpStatus.OK
         );
     }
