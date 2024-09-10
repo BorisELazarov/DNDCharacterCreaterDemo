@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Optional;
@@ -99,7 +100,8 @@ class ProficiencyServiceTests {
         ).thenReturn(
                 proficiencyDTOS.stream().filter(ProficiencyDTO::isDeleted).toList()
         );
-        List<ProficiencyDTO> dtos=service.getProficiencies(true);
+        List<ProficiencyDTO> dtos=service.getProficiencies(true, Optional.empty(),
+                Optional.empty(), Optional.empty(), true);
         assertFalse(dtos.isEmpty());
     }
 
@@ -113,7 +115,8 @@ class ProficiencyServiceTests {
         ).thenReturn(
                 proficiencyDTOS.stream().filter(x->!x.isDeleted()).toList()
         );
-        List<ProficiencyDTO> dtos=service.getProficiencies(false);
+        List<ProficiencyDTO> dtos=service.getProficiencies(false, Optional.empty(),
+                Optional.empty(), Optional.empty(), true);
         assertFalse(dtos.isEmpty());
     }
 
