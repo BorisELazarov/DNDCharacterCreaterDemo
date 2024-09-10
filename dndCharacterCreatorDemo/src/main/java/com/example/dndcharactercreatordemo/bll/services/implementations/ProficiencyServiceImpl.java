@@ -8,6 +8,12 @@ import com.example.dndcharactercreatordemo.dal.repos.ProficiencyRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 
@@ -20,16 +26,39 @@ public class ProficiencyServiceImpl implements ProficiencyService {
     private static final String NAME_TAKEN_MESSAGE="There is already proficiency named like that!";
     private final ProficiencyRepo proficiencyRepo;
     private final ProficiencyMapper mapper;
-
+    @PersistenceContext
+    private EntityManager em;
     public ProficiencyServiceImpl(@NotNull ProficiencyRepo proficiencyRepo, @NotNull ProficiencyMapper mapper) {
         this.proficiencyRepo = proficiencyRepo;
         this.mapper = mapper;
     }
 
-
     @Override
-    public List<ProficiencyDTO> getProficiencies(boolean isDeleted) {
-        return mapper.toDTOs(proficiencyRepo.findAll(isDeleted));
+    public List<ProficiencyDTO> getProficiencies(boolean isDeleted,
+                                                 Optional<String> name,
+                                                 Optional<String> type,
+                                                 Optional<String> sortBy,
+                                                 boolean ascending) {
+        CriteriaBuilder cb= em.getCriteriaBuilder();
+        CriteriaQuery<Proficiency> criteriaQuery= cb.createQuery(Proficiency.class);
+        Root<Proficiency> root= criteriaQuery.from(Proficiency.class);
+        String nameParam= name.orElse("");
+        String typeParam= type.orElse("");
+        criteriaQuery.select(root)
+                .where(cb.and(cb.and(
+                        cb.equal(root.get("isDeleted"),isDeleted),
+                        cb.like(root.get("name"),"%"+nameParam+"%")),
+                        cb.like(root.get("type"),"%"+typeParam+"%")
+                ));
+        if (ascending){
+            criteriaQuery.orderBy(cb.asc(root.get(sortBy.orElse("id"))));
+        }else {
+            criteriaQuery.orderBy(cb.desc(root.get(sortBy.orElse("id"))));
+        }
+        Query query = em.createQuery(criteriaQuery);
+        List<Proficiency> proficiencies=query.getResultList();
+
+        return mapper.toDTOs(proficiencies);
     }
 
     @Override

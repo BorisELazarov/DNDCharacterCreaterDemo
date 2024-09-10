@@ -4,11 +4,16 @@ import com.example.dndcharactercreatordemo.bll.dtos.characters.CharacterDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.CharacterMapper;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.CharacterService;
 import com.example.dndcharactercreatordemo.dal.entities.Character;
+import com.example.dndcharactercreatordemo.dal.entities.DNDclass;
 import com.example.dndcharactercreatordemo.dal.repos.CharacterRepo;
 import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
+import jakarta.persistence.criteria.*;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +28,8 @@ public class CharacterServiceImpl implements CharacterService {
     private final RoleRepo roleRepo;
     private final CharacterRepo characterRepo;
     private final CharacterMapper mapper;
+    @PersistenceContext
+    private EntityManager em;
 
     public CharacterServiceImpl(@NotNull CharacterRepo characterRepo,
                                 @NotNull CharacterMapper mapper,
@@ -33,8 +40,38 @@ public class CharacterServiceImpl implements CharacterService {
     }
 
     @Override
-    public List<CharacterDTO> getCharacters(boolean isDeleted) {
-        return mapper.toDTOs(characterRepo.findAll(isDeleted));
+    public List<CharacterDTO> getCharacters(boolean isDeleted,
+                                            Optional<String> name,
+                                            Optional<Byte> level,
+                                            Optional<String> className,
+                                            Optional<String> sortBy,
+                                            boolean ascending) {
+        CriteriaBuilder cb= em.getCriteriaBuilder();
+        CriteriaQuery<Character> criteriaQuery= cb.createQuery(Character.class);
+        Root<Character> root= criteriaQuery.from(Character.class);
+        String nameParam= name.orElse("");
+        String classNameParam= className.orElse("");
+        Byte levelParam= level.orElse((byte)0);
+        Join<Character, DNDclass> joinClasses= root.join("dndClass", JoinType.INNER);
+        criteriaQuery.select(root)
+                .where(cb.and(
+                        cb.and(
+                        cb.like(root.get("name"),"%"+nameParam+"%"),
+                        cb.like(joinClasses.get("name"),"%"+classNameParam+"%")
+                        ),
+                        cb.or(
+                                cb.isTrue(cb.literal(levelParam==0)),
+                                cb.equal(root.get("level"),levelParam)
+                        )
+                ));
+        if (ascending){
+            criteriaQuery.orderBy(cb.asc(root.get(sortBy.orElse("id"))));
+        }else {
+            criteriaQuery.orderBy(cb.desc(root.get(sortBy.orElse("id"))));
+        }
+        Query query = em.createQuery(criteriaQuery);
+        List<Character> characters=query.getResultList();
+        return mapper.toDTOs(characters);
     }
 
     @Override

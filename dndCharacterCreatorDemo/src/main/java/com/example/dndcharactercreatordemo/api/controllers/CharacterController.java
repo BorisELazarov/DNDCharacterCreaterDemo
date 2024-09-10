@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -20,17 +21,29 @@ public class CharacterController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CharacterDTO>> getCharacters(){
+    public ResponseEntity<List<CharacterDTO>> getCharacters(
+            @RequestParam Optional<String> name,
+            @RequestParam Optional<Byte> level,
+            @RequestParam Optional<String> className,
+            @RequestParam Optional<String> sortBy,
+            @RequestParam(defaultValue = "true") boolean ascending){
         return new ResponseEntity<>(
-                service.getCharacters(false),
+                service.getCharacters(false, name,
+                        level, className, sortBy, ascending),
             HttpStatus.OK
         );
     }
 
     @GetMapping(path = "/deleted")
-    public ResponseEntity<List<CharacterDTO>> getDeletedCharacters(){
+    public ResponseEntity<List<CharacterDTO>> getDeletedCharacters(
+            @RequestParam Optional<String> name,
+            @RequestParam Optional<Byte> level,
+            @RequestParam Optional<String> className,
+            @RequestParam Optional<String> sortBy,
+            @RequestParam(defaultValue = "true") boolean ascending){
         return new ResponseEntity<>(
-                service.getCharacters(true),
+                service.getCharacters(true, name,
+                        level, className, sortBy, ascending),
                 HttpStatus.OK
         );
     }

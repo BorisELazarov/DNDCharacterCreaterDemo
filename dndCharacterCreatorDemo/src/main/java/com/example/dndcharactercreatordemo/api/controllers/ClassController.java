@@ -2,6 +2,7 @@ package com.example.dndcharactercreatordemo.api.controllers;
 
 import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.ClassDTO;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.ClassService;
+import com.example.dndcharactercreatordemo.enums.HitDiceEnum;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -22,19 +24,29 @@ public class ClassController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ClassDTO>> getClasses()
+    public ResponseEntity<List<ClassDTO>> getClasses(
+            @RequestParam Optional<String> name,
+            @RequestParam Optional<HitDiceEnum> hitDice,
+            @RequestParam Optional<String> sortBy,
+            @RequestParam(defaultValue = "true") Boolean ascending
+            )
     {
         return new ResponseEntity<>(
-            classService.getClasses(false),
+            classService.getClasses(false, name, hitDice, sortBy, ascending),
             HttpStatus.OK
         );
     }
 
     @GetMapping(path = "/deleted")
-    public ResponseEntity<List<ClassDTO>> getDeletedClasses()
+    public ResponseEntity<List<ClassDTO>> getDeletedClasses(
+            @RequestParam Optional<String> name,
+            @RequestParam Optional<HitDiceEnum> hitDice,
+            @RequestParam Optional<String> sortBy,
+            @RequestParam(defaultValue = "true") boolean ascending
+    )
     {
         return new ResponseEntity<>(
-                classService.getClasses(true),
+                classService.getClasses(true, name, hitDice, sortBy, ascending),
                 HttpStatus.OK
         );
     }

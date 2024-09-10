@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -22,19 +23,29 @@ public class ProficiencyController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProficiencyDTO>> getProficiencies()
+    public ResponseEntity<List<ProficiencyDTO>> getProficiencies(
+            @RequestParam Optional<String> name,
+            @RequestParam Optional<String> type,
+            @RequestParam Optional<String> sortBy,
+            @RequestParam(defaultValue = "true") boolean ascending
+            )
     {
         return new ResponseEntity<>(
-                proficiencyService.getProficiencies(false),
+                proficiencyService.getProficiencies(false, name, type, sortBy, ascending),
                 HttpStatus.OK
         );
     }
 
     @GetMapping(path = "/deleted")
-    public ResponseEntity<List<ProficiencyDTO>> getDeletedProficiencies()
+    public ResponseEntity<List<ProficiencyDTO>> getDeletedProficiencies(
+            @RequestParam Optional<String> name,
+            @RequestParam Optional<String> type,
+            @RequestParam Optional<String> sortBy,
+            @RequestParam(defaultValue = "true") Boolean ascending
+    )
     {
         return new ResponseEntity<>(
-                proficiencyService.getProficiencies(true),
+                proficiencyService.getProficiencies(true, name, type, sortBy, ascending),
                 HttpStatus.OK
         );
     }

@@ -10,6 +10,10 @@ import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
 import com.example.dndcharactercreatordemo.dal.repos.UserRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.*;
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
+import jakarta.persistence.criteria.*;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +26,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepo userRepo;
     private final UserMapper mapper;
     private final RoleRepo roleRepo;
-
+    @PersistenceContext
+    private EntityManager em;
     public UserServiceImpl(@NotNull UserRepo userRepo, @NotNull RoleRepo roleRepo,
                            @NotNull UserMapper mapper) {
         this.userRepo = userRepo;
@@ -81,8 +86,34 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDTO> getUsers() {
-        return mapper.toDTOs(userRepo.findAll());
+    public List<UserDTO> getUsers(Optional<String> username,
+                                  Optional<String> email,
+                                  Optional<String> roleTitle,
+                                  Optional<String> sortBy,
+                                  boolean ascending) {
+        CriteriaBuilder cb= em.getCriteriaBuilder();
+        CriteriaQuery<User> criteriaQuery= cb.createQuery(User.class);
+        Root<User> root= criteriaQuery.from(User.class);
+        String usernameParam= username.orElse("");
+        String roleTitleParam= roleTitle.orElse("");
+        String emailParam= email.orElse("");
+        Join<User,Role> joinRoles= root.join("role",JoinType.INNER);
+        criteriaQuery.select(root)
+                .where(cb.and(
+                        cb.and(
+                                cb.like(root.get("username"),"%"+usernameParam+"%"),
+                        cb.like(joinRoles.get("title"),"%"+roleTitleParam+"%")
+                        ),
+                        cb.like(root.get("email"),"%"+emailParam+"%")
+                ));
+        if (ascending){
+            criteriaQuery.orderBy(cb.asc(root.get(sortBy.orElse("id"))));
+        }else {
+            criteriaQuery.orderBy(cb.desc(root.get(sortBy.orElse("id"))));
+        }
+        Query query = em.createQuery(criteriaQuery);
+        List<User> users=query.getResultList();
+        return mapper.toDTOs(users);
     }
 
     @Override

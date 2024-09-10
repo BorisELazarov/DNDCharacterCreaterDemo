@@ -138,7 +138,8 @@ class SpellServiceTests {
         ).thenReturn(
                 spellDTOS.stream().filter(SpellDTO::isDeleted).toList()
         );
-        List<SpellDTO> dtos=service.getSpells(true);
+        List<SpellDTO> dtos=service.getSpells(true, Optional.empty(), Optional.empty(),
+                Optional.empty(), Optional.empty(), Optional.empty(), true);
         assertFalse(dtos.isEmpty());
     }
 
@@ -152,7 +153,8 @@ class SpellServiceTests {
         ).thenReturn(
                 spellDTOS.stream().filter(x->!x.isDeleted()).toList()
         );
-        List<SpellDTO> dtos=service.getSpells(false);
+        List<SpellDTO> dtos=service.getSpells(false, Optional.empty(), Optional.empty(),
+                Optional.empty(), Optional.empty(), Optional.empty(), true);
         assertFalse(dtos.isEmpty());
     }
 

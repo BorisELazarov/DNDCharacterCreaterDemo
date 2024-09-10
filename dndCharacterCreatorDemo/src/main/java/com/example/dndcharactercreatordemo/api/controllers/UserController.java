@@ -2,6 +2,7 @@ package com.example.dndcharactercreatordemo.api.controllers;
 
 import com.example.dndcharactercreatordemo.bll.dtos.users.UserDTO;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.UserService;
+import com.example.dndcharactercreatordemo.enums.HitDiceEnum;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -22,10 +24,16 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserDTO>> getAllUndeletedUsers()
+    public ResponseEntity<List<UserDTO>> getAllUsers(
+            @RequestParam Optional<String> name,
+            @RequestParam Optional<String> email,
+            @RequestParam Optional<String> roleTitle,
+            @RequestParam Optional<String> sortBy,
+            @RequestParam(defaultValue = "true") boolean ascending
+    )
     {
         return new ResponseEntity<>(
-                userService.getUsers(),
+                userService.getUsers(name,email,roleTitle,sortBy,ascending),
                 HttpStatus.OK
         );
     }
@@ -79,18 +87,18 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping(path = "changeEmail/{userid}/{email}")
+    @PutMapping(path = "changeEmail/{id}/{email}")
     public ResponseEntity<Void> changeEmail(
-            @PathVariable("userId") Long id,
+            @PathVariable("id") Long id,
             @PathVariable("email") String email
     ){
         userService.changeEmail(id,email);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping(path = "changeRole/{userid}/{role}")
+    @PutMapping(path = "changeRole/{id}/{role}")
     public ResponseEntity<Void> changeRole(
-            @PathVariable("userId") Long id,
+            @PathVariable("id") Long id,
             @PathVariable("role") String role
     ){
         userService.changeRole(id,role);

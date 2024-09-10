@@ -12,6 +12,12 @@ import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenEx
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
@@ -25,6 +31,8 @@ public class ClassServiceImpl implements ClassService {
     private final ClassRepo classRepo;
     private final ProficiencyRepo proficiencyRepo;
     private final ClassMapper mapper;
+    @PersistenceContext
+    private EntityManager em;
 
     public ClassServiceImpl(@NotNull ClassRepo classRepo, @NotNull ProficiencyRepo proficiencyRepo,
                             @NotNull ClassMapper mapper) {
@@ -90,8 +98,33 @@ public class ClassServiceImpl implements ClassService {
     }
 
     @Override
-    public List<ClassDTO> getClasses(boolean isDeleted) {
-        return mapper.toDTOs(classRepo.findAll(isDeleted));
+    public List<ClassDTO> getClasses(boolean isDeleted,
+                                     Optional<String> name,
+                                     Optional<HitDiceEnum> hitDice,
+                                     Optional<String> sortBy,
+                                     boolean ascending) {
+        CriteriaBuilder cb= em.getCriteriaBuilder();
+        CriteriaQuery<DNDclass> criteriaQuery= cb.createQuery(DNDclass.class);
+        Root<DNDclass> root= criteriaQuery.from(DNDclass.class);
+        String nameParam= name.orElse("");
+        String hitDiceParam="";
+        if (hitDice.isPresent()){
+            hitDiceParam=hitDice.get().toString();
+        }
+        criteriaQuery.select(root)
+                .where(cb.and(cb.and(
+                                cb.equal(root.get("isDeleted"),isDeleted),
+                                cb.like(root.get("name"),"%"+nameParam+"%")),
+                        cb.like(root.get("hitDice"),"%"+hitDiceParam+"%")
+                ));
+        if (ascending){
+            criteriaQuery.orderBy(cb.asc(root.get(sortBy.orElse("id"))));
+        }else {
+            criteriaQuery.orderBy(cb.desc(root.get(sortBy.orElse("id"))));
+        }
+        Query query = em.createQuery(criteriaQuery);
+        List<DNDclass> dnDclasses=query.getResultList();
+        return mapper.toDTOs(dnDclasses);
     }
 
     @Override
