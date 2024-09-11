@@ -117,10 +117,14 @@ public class ClassServiceImpl implements ClassService {
                                 cb.like(root.get("name"),"%"+nameParam+"%")),
                         cb.like(root.get("hitDice"),"%"+hitDiceParam+"%")
                 ));
+        String sortByParam= sortBy.orElse("id");
+        if (sortByParam.isEmpty()){
+            sortByParam="id";
+        }
         if (ascending){
-            criteriaQuery.orderBy(cb.asc(root.get(sortBy.orElse("id"))));
+            criteriaQuery.orderBy(cb.asc(root.get(sortByParam)));
         }else {
-            criteriaQuery.orderBy(cb.desc(root.get(sortBy.orElse("id"))));
+            criteriaQuery.orderBy(cb.desc(root.get(sortByParam)));
         }
         Query query = em.createQuery(criteriaQuery);
         List<DNDclass> dnDclasses=query.getResultList();

@@ -2,10 +2,6 @@ package com.example.dndcharactercreatordemo.api.controllers;
 
 import com.example.dndcharactercreatordemo.bll.dtos.characters.CharacterDTO;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.CharacterService;
-import com.example.dndcharactercreatordemo.dal.entities.Character;
-import com.example.dndcharactercreatordemo.dal.entities.DNDclass;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +20,7 @@ public class CharacterController {
         this.service = service;
     }
 
-    @GetMapping(path="/{userId}")
+    @GetMapping(path="/getForUser/{userId}")
     public ResponseEntity<List<CharacterDTO>> getCharacters(
             @PathVariable Long userId,
             @RequestParam Optional<String> name,
