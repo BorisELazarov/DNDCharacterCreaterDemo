@@ -99,7 +99,7 @@ public class ProficiencyServiceImpl implements ProficiencyService {
                         }
                     }
             );
-            proficiencyRepo.save(proficiency.get());
+            proficiencyRepo.save(mapper.fromDto(proficiencyDTO));
         } else {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }

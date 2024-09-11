@@ -159,7 +159,7 @@ public class ClassServiceImpl implements ClassService {
                         }
                     }
             );
-            classRepo.save(dnDclass.get());
+            classRepo.save(mapper.fromDto(classDTO));
         } else {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }

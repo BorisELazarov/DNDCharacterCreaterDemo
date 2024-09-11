@@ -112,7 +112,10 @@ public class CharacterServiceImpl implements CharacterService {
                         }
                     }
             );
-            characterRepo.save(character.get());
+            characterRepo.save(
+                    mapper.fromDto(characterDTO,
+                            Optional.of(character.get().getUser().getRole())
+                    ));
         } else {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
