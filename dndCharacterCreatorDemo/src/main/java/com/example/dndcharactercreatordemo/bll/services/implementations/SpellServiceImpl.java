@@ -122,10 +122,14 @@ public class SpellServiceImpl implements SpellService {
                                 )
                         )
                 ));
+        String sortByParam= sortBy.orElse("id");
+        if (sortByParam.isEmpty()){
+            sortByParam="id";
+        }
         if (ascending){
-            criteriaQuery.orderBy(cb.asc(root.get(sortBy.orElse("id"))));
+            criteriaQuery.orderBy(cb.asc(root.get(sortByParam)));
         }else {
-            criteriaQuery.orderBy(cb.desc(root.get(sortBy.orElse("id"))));
+            criteriaQuery.orderBy(cb.desc(root.get(sortByParam)));
         }
         Query query = em.createQuery(criteriaQuery);
         List<Spell> spells=query.getResultList();
