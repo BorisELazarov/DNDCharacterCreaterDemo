@@ -3,7 +3,6 @@ package com.example.dndcharactercreatordemo.bll.services.implementations;
 import com.example.dndcharactercreatordemo.bll.dtos.spells.SpellDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.SpellMapper;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.SpellService;
-import com.example.dndcharactercreatordemo.dal.entities.Proficiency;
 import com.example.dndcharactercreatordemo.dal.entities.Spell;
 import com.example.dndcharactercreatordemo.dal.repos.SpellRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenException;
