@@ -5,6 +5,7 @@ import com.example.dndcharactercreatordemo.bll.mappers.interfaces.CharacterMappe
 import com.example.dndcharactercreatordemo.bll.services.interfaces.CharacterService;
 import com.example.dndcharactercreatordemo.dal.entities.Character;
 import com.example.dndcharactercreatordemo.dal.entities.DNDclass;
+import com.example.dndcharactercreatordemo.dal.entities.User;
 import com.example.dndcharactercreatordemo.dal.repos.CharacterRepo;
 import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenException;
@@ -40,7 +41,8 @@ public class CharacterServiceImpl implements CharacterService {
     }
 
     @Override
-    public List<CharacterDTO> getCharacters(boolean isDeleted,
+    public List<CharacterDTO> getCharacters(Long userId,
+                                            boolean isDeleted,
                                             Optional<String> name,
                                             Optional<Byte> level,
                                             Optional<String> className,
@@ -53,15 +55,19 @@ public class CharacterServiceImpl implements CharacterService {
         String classNameParam= className.orElse("");
         Byte levelParam= level.orElse((byte)0);
         Join<Character, DNDclass> joinClasses= root.join("dndClass", JoinType.INNER);
+        Join<Character, User> joinUsers= root.join("user", JoinType.INNER);
         criteriaQuery.select(root)
                 .where(cb.and(
                         cb.and(
                         cb.like(root.get("name"),"%"+nameParam+"%"),
                         cb.like(joinClasses.get("name"),"%"+classNameParam+"%")
                         ),
-                        cb.or(
-                                cb.isTrue(cb.literal(levelParam==0)),
-                                cb.equal(root.get("level"),levelParam)
+                        cb.and(
+                                cb.or(
+                                        cb.isTrue(cb.literal(levelParam==0)),
+                                        cb.equal(root.get("level"),levelParam)
+                                ),
+                                cb.equal(joinUsers.get("id"),userId)
                         )
                 ));
         if (ascending){
