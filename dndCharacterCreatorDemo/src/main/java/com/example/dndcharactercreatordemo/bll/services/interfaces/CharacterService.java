@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CharacterService {
-    List<CharacterDTO> getCharacters(boolean isDeleted, Optional<String> username,
+    List<CharacterDTO> getCharacters(Long userId, boolean isDeleted,
+                                     Optional<String> username,
                                      Optional<Byte> level, Optional<String> roleTitle,
                                      Optional<String> sortBy, boolean ascending);
     CharacterDTO addCharacter(CharacterDTO dto);
