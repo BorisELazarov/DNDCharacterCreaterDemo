@@ -75,7 +75,7 @@ public class ClassController {
                 HttpStatus.OK);
     }
 
-    @PutMapping(path="{classId}")
+    @PutMapping(path="restore/{classId}")
     public ResponseEntity<Void> restoreClass(
             @PathVariable("classId") Long id){
         classService.restoreClass(id);
