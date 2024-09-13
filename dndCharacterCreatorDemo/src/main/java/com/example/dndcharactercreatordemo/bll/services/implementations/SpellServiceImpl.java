@@ -209,6 +209,7 @@ public class SpellServiceImpl implements SpellService {
             Spell spell = optionalSpell.get();
             if (spell.getIsDeleted()) {
                 spellRepo.delete(spell);
+                return;
             }
             throw new NotSoftDeletedException("The spell must be soft deleted first!");
         }
