@@ -35,7 +35,7 @@ public class CharacterController {
         );
     }
 
-    @GetMapping(path = "/deleted")
+    @GetMapping(path = "/getForUser/deleted/{userId}")
     public ResponseEntity<List<CharacterDTO>> getDeletedCharacters(
             @PathVariable Long userId,
             @RequestParam Optional<String> name,

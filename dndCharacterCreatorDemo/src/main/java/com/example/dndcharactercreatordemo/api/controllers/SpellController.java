@@ -66,9 +66,8 @@ public class SpellController {
         );
     }
 
-    @PutMapping(path = "/{spellId}")
-    public ResponseEntity<SpellDTO> putSpell(@RequestBody @Valid SpellDTO spell,
-                         @PathVariable("spellId") Long id){
+    @PutMapping
+    public ResponseEntity<SpellDTO> putSpell(@RequestBody @Valid SpellDTO spell){
         return new ResponseEntity<>(
                 spellService.editSpell(spell),
                 HttpStatus.OK
