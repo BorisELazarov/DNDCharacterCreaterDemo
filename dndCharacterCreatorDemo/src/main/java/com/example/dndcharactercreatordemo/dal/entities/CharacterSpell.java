@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "character_spells")
-public class CharacterSpell {
+public class CharacterSpell{
     @EmbeddedId
     private CharacterSpellPairId id;
 

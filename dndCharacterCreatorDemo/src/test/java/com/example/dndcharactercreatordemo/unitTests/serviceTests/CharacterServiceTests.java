@@ -10,7 +10,6 @@ import com.example.dndcharactercreatordemo.dal.entities.Character;
 import com.example.dndcharactercreatordemo.dal.repos.CharacterRepo;
 import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
-import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -140,7 +139,7 @@ class CharacterServiceTests {
         ).thenReturn(
                 characterDTOS.stream().filter(CharacterDTO::isDeleted).toList()
         );
-        List<CharacterDTO> dtos=service.getCharacters(true,Optional.empty(),Optional.empty(),
+        List<CharacterDTO> dtos=service.getCharacters(1L,true,Optional.empty(),Optional.empty(),
                 Optional.empty(),Optional.empty(),true);
         assertFalse(dtos.isEmpty());
     }
@@ -155,7 +154,7 @@ class CharacterServiceTests {
         ).thenReturn(
                 characterDTOS.stream().filter(x->!x.isDeleted()).toList()
         );
-        List<CharacterDTO> dtos=service.getCharacters(false,Optional.empty(),Optional.empty(),
+        List<CharacterDTO> dtos=service.getCharacters(1L,false,Optional.empty(),Optional.empty(),
                 Optional.empty(),Optional.empty(),true);
         assertFalse(dtos.isEmpty());
     }

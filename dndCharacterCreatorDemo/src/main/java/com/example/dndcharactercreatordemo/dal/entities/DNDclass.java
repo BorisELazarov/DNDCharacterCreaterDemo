@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "Classes")
-public class DNDclass extends BaseEntity {
+public class DNDclass extends BaseEntity{
     @Column(name = "name", unique = true, nullable = false, length = 40)
     private String name;
     @Column(name = "description", nullable = false, length = 65535)
