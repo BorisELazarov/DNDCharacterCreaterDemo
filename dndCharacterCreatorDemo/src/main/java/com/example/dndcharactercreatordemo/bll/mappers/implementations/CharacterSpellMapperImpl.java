@@ -33,16 +33,16 @@ public class CharacterSpellMapperImpl implements CharacterSpellMapper {
 
     @Override
     public List<CharacterSpell> fromDTOs(Set<SpellDTO> spellDTOs, Character character) {
-        return spellDTOs.stream().map(x->fromDto(x,character)).toList();
+        return spellDTOs.stream().map(x-> fromDto(x,character)).toList();
     }
 
     @Override
-    public SpellDTO fromDto(CharacterSpell characterSpell) {
+    public SpellDTO toDto(CharacterSpell characterSpell) {
         return spellMapper.toDto(characterSpell.getId().getSpell());
     }
 
     @Override
     public Set<SpellDTO> toDTOs(List<CharacterSpell> characterSpells) {
-        return characterSpells.stream().map(this::fromDto).collect(Collectors.toSet());
+        return characterSpells.stream().map(this::toDto).collect(Collectors.toSet());
     }
 }

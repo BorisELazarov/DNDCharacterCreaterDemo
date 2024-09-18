@@ -3,13 +3,12 @@ package com.example.dndcharactercreatordemo.dal.entities;
 import jakarta.persistence.*;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name = "characters")
-public class Character extends BaseEntity implements Serializable {
+public class Character extends BaseEntity {
     @Column(name="name", nullable = false, length = 50)
     private String name;
     @ManyToOne
@@ -33,11 +32,13 @@ public class Character extends BaseEntity implements Serializable {
     @Column(name = "base_cha", nullable = false)
     private byte baseCha=10;
 
-    @OneToMany(mappedBy = "id.character", cascade= CascadeType.ALL)
+    @OneToMany(mappedBy = "id.character", cascade= CascadeType.ALL,
+    orphanRemoval = true)
     private List<ProficiencyCharacter> proficiencyCharacters;
 
 
-    @OneToMany(mappedBy = "id.character")
+    @OneToMany(mappedBy = "id.character", cascade= CascadeType.ALL,
+            orphanRemoval = true)
     private List<CharacterSpell> characterSpells;
 
     public String getName() {
