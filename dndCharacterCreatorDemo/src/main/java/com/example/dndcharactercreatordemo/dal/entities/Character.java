@@ -37,7 +37,8 @@ public class Character extends BaseEntity {
     private List<ProficiencyCharacter> proficiencyCharacters;
 
 
-    @OneToMany(mappedBy = "id.character")
+    @OneToMany(mappedBy = "id.character", cascade= CascadeType.ALL,
+            orphanRemoval = true)
     private List<CharacterSpell> characterSpells;
 
     public String getName() {
