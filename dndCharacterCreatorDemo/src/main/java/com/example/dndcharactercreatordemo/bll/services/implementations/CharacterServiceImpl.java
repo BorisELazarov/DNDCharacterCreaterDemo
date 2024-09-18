@@ -67,7 +67,10 @@ public class CharacterServiceImpl implements CharacterService {
                                         cb.isTrue(cb.literal(levelParam==0)),
                                         cb.equal(root.get("level"),levelParam)
                                 ),
-                                cb.equal(joinUsers.get("id"),userId)
+                                cb.and(
+                                        cb.equal(joinUsers.get("id"),userId),
+                                        cb.equal(root.get("isDeleted"),isDeleted)
+                                )
                         )
                 ));
         String sortByParam= sortBy.orElse("id");
