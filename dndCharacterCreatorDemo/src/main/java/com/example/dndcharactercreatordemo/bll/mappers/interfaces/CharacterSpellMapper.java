@@ -10,7 +10,7 @@ import java.util.Set;
 public interface CharacterSpellMapper {
     CharacterSpell fromDto(SpellDTO spellDTO, Character character);
     List<CharacterSpell> fromDTOs(Set<SpellDTO> spellDTO, Character character);
-    SpellDTO fromDto(CharacterSpell characterSpell);
+    SpellDTO toDto(CharacterSpell characterSpell);
 
     Set<SpellDTO> toDTOs(List<CharacterSpell> characterSpells);
 }
