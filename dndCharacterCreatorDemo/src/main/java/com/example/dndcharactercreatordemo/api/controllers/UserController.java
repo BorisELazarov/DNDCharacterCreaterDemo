@@ -1,5 +1,6 @@
 package com.example.dndcharactercreatordemo.api.controllers;
 
+import com.example.dndcharactercreatordemo.bll.dtos.users.SearchUserDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.users.UserDTO;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.UserService;
 import jakarta.validation.Valid;
@@ -22,16 +23,13 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PostMapping(path = "/getAll")
     public ResponseEntity<List<UserDTO>> getAllUsers(
-            @RequestParam Optional<String> name,
-            @RequestParam Optional<String> email,
-            @RequestParam Optional<String> roleTitle,
-            @RequestParam Optional<String> sortBy,
-            @RequestParam(defaultValue = "true") boolean ascending
-    )
+            @RequestBody SearchUserDTO searchUserDTO
+            )
     {
         return new ResponseEntity<>(
-                userService.getUsers(name,email,roleTitle,sortBy,ascending),
+                userService.getUsers(searchUserDTO),
                 HttpStatus.OK
         );
     }

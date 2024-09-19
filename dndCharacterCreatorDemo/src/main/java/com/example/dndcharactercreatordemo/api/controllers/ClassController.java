@@ -1,6 +1,7 @@
 package com.example.dndcharactercreatordemo.api.controllers;
 
 import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.ClassDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.SearchClassDTO;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.ClassService;
 import com.example.dndcharactercreatordemo.enums.HitDiceEnum;
 import jakarta.validation.Valid;
@@ -24,29 +25,34 @@ public class ClassController {
     }
 
     @GetMapping
+    public ResponseEntity<List<ClassDTO>> getClassesUnfiltered(
+            @RequestBody SearchClassDTO searchClassDTO
+    )
+    {
+        return new ResponseEntity<>(
+                classService.getClassesUnfiltered(),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping(path = "/getAll")
     public ResponseEntity<List<ClassDTO>> getClasses(
-            @RequestParam Optional<String> name,
-            @RequestParam Optional<HitDiceEnum> hitDice,
-            @RequestParam Optional<String> sortBy,
-            @RequestParam(defaultValue = "true") Boolean ascending
+            @RequestBody SearchClassDTO searchClassDTO
             )
     {
         return new ResponseEntity<>(
-            classService.getClasses(false, name, hitDice, sortBy, ascending),
+            classService.getClasses(false, searchClassDTO),
             HttpStatus.OK
         );
     }
 
-    @GetMapping(path = "/deleted")
+    @PostMapping(path = "/getAll/deleted")
     public ResponseEntity<List<ClassDTO>> getDeletedClasses(
-            @RequestParam Optional<String> name,
-            @RequestParam Optional<HitDiceEnum> hitDice,
-            @RequestParam Optional<String> sortBy,
-            @RequestParam(defaultValue = "true") boolean ascending
+            @RequestBody SearchClassDTO searchClassDTO
     )
     {
         return new ResponseEntity<>(
-                classService.getClasses(true, name, hitDice, sortBy, ascending),
+                classService.getClasses(true, searchClassDTO),
                 HttpStatus.OK
         );
     }

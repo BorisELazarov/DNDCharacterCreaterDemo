@@ -1,5 +1,6 @@
 package com.example.dndcharactercreatordemo.bll.services.implementations;
 
+import com.example.dndcharactercreatordemo.bll.dtos.spells.SearchSpellDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.spells.SpellDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.SpellMapper;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.SpellService;
@@ -11,7 +12,7 @@ import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedExce
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
@@ -90,47 +91,57 @@ public class SpellServiceImpl implements SpellService {
     }
 
     @Override
-    public List<SpellDTO> getSpells(boolean isDeleted, Optional<String> name,
-                                    Optional<Byte> level, Optional<String> castingTime,
-                                    Optional<Integer> range, Optional<String> sortBy,
-                                    boolean ascending) {
+    public List<SpellDTO> getSpellsUnfiltered() {
         CriteriaBuilder cb= em.getCriteriaBuilder();
         CriteriaQuery<Spell> criteriaQuery= cb.createQuery(Spell.class);
         Root<Spell> root= criteriaQuery.from(Spell.class);
-        String nameParam= name.orElse("");
-        byte levelParam= level.orElse((byte) -1);
-        String castingTimeParam= castingTime.orElse("");
-        int rangeParam= range.orElse(-1);
+        criteriaQuery.select(root)
+                .where(cb.equal(root.get("isDeleted"),false));
+        TypedQuery<Spell> query = em.createQuery(criteriaQuery);
+        List<Spell> spells=query.getResultList();
+        return mapper.toDTOs(spells);
+    }
+
+    @Override
+    public List<SpellDTO> getSpells(boolean isDeleted, SearchSpellDTO searchSpellDTO) {
+        CriteriaBuilder cb= em.getCriteriaBuilder();
+        CriteriaQuery<Spell> criteriaQuery= cb.createQuery(Spell.class);
+        Root<Spell> root= criteriaQuery.from(Spell.class);
+        byte level= searchSpellDTO.filter().level().orElse((byte) -1);
+        int range= searchSpellDTO.filter().range().orElse(-1);
+        final String castingTimeName="castingTime";
         criteriaQuery.select(root)
                 .where(cb.and(
                         cb.and(
                                 cb.and(
                                         cb.equal(root.get("isDeleted"),isDeleted),
-                                        cb.like(root.get("name"),"%"+nameParam+"%")
+                                        cb.like(root.get("name"),cb.parameter(String.class,"name"))
                                 ),
-                                cb.like(root.get("castingTime"),"%"+castingTimeParam+"%")
+                                cb.like(root.get(castingTimeName),cb.parameter(String.class,castingTimeName))
                         ),
                         cb.and(
                                 cb.or(
-                                        cb.isTrue(cb.literal(levelParam<0||levelParam>10)),
-                                        cb.equal(root.get("level"),levelParam)
+                                        cb.isTrue(cb.literal(level<0||level>10)),
+                                        cb.equal(root.get("level"),level)
                                 ),
                                 cb.or(
-                                        cb.isTrue(cb.literal(rangeParam<0)),
-                                        cb.equal(root.get("castingRange"),rangeParam)
+                                        cb.isTrue(cb.literal(range<0)),
+                                        cb.equal(root.get("castingRange"),range)
                                 )
                         )
                 ));
-        String sortByParam= sortBy.orElse("id");
+        String sortByParam= searchSpellDTO.sort().sortBy();
         if (sortByParam.isEmpty()){
             sortByParam="id";
         }
-        if (ascending){
+        if (searchSpellDTO.sort().ascending()){
             criteriaQuery.orderBy(cb.asc(root.get(sortByParam)));
         }else {
             criteriaQuery.orderBy(cb.desc(root.get(sortByParam)));
         }
-        Query query = em.createQuery(criteriaQuery);
+        TypedQuery<Spell> query = em.createQuery(criteriaQuery);
+        query.setParameter("name","%"+searchSpellDTO.filter().name()+"%");
+        query.setParameter(castingTimeName,"%"+searchSpellDTO.filter().castingTime()+"%");
         List<Spell> spells=query.getResultList();
         return mapper.toDTOs(spells);
     }

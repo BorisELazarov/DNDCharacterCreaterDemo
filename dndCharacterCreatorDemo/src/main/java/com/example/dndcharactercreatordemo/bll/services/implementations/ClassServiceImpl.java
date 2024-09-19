@@ -1,5 +1,6 @@
 package com.example.dndcharactercreatordemo.bll.services.implementations;
 
+import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.SearchClassDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.ClassMapper;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.ClassService;
 import com.example.dndcharactercreatordemo.dal.entities.Proficiency;
@@ -14,7 +15,7 @@ import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedExce
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
@@ -98,35 +99,46 @@ public class ClassServiceImpl implements ClassService {
     }
 
     @Override
-    public List<ClassDTO> getClasses(boolean isDeleted,
-                                     Optional<String> name,
-                                     Optional<HitDiceEnum> hitDice,
-                                     Optional<String> sortBy,
-                                     boolean ascending) {
+    public List<ClassDTO> getClassesUnfiltered() {
         CriteriaBuilder cb= em.getCriteriaBuilder();
         CriteriaQuery<DNDclass> criteriaQuery= cb.createQuery(DNDclass.class);
         Root<DNDclass> root= criteriaQuery.from(DNDclass.class);
-        String nameParam= name.orElse("");
-        String hitDiceParam="";
-        if (hitDice.isPresent()){
-            hitDiceParam=hitDice.get().toString();
+        criteriaQuery.select(root).where(cb.equal(root.get("isDeleted"),false));
+        TypedQuery<DNDclass> query = em.createQuery(criteriaQuery);
+        List<DNDclass> dnDclasses=query.getResultList();
+        return mapper.toDTOs(dnDclasses);
+    }
+
+    @Override
+    public List<ClassDTO> getClasses(boolean isDeleted,
+                                     SearchClassDTO searchClassDTO) {
+        CriteriaBuilder cb= em.getCriteriaBuilder();
+        CriteriaQuery<DNDclass> criteriaQuery= cb.createQuery(DNDclass.class);
+        Root<DNDclass> root= criteriaQuery.from(DNDclass.class);
+        String hitDice="";
+        Optional<HitDiceEnum> hitDiceEnum=searchClassDTO.filter().hitDice();
+        if (hitDiceEnum.isPresent()){
+            hitDice=hitDiceEnum.get().name();
         }
+        final String hitDiceName="hitDice";
         criteriaQuery.select(root)
                 .where(cb.and(cb.and(
                                 cb.equal(root.get("isDeleted"),isDeleted),
-                                cb.like(root.get("name"),"%"+nameParam+"%")),
-                        cb.like(root.get("hitDice"),"%"+hitDiceParam+"%")
+                                cb.like(root.get("name"),cb.parameter(String.class,"name"))),
+                        cb.like(root.get(hitDiceName),cb.parameter(String.class,hitDiceName))
                 ));
-        String sortByParam= sortBy.orElse("id");
-        if (sortByParam.isEmpty()){
-            sortByParam="id";
+        String sortBy= searchClassDTO.sort().sortBy();
+        if (sortBy.isEmpty()){
+            sortBy="id";
         }
-        if (ascending){
-            criteriaQuery.orderBy(cb.asc(root.get(sortByParam)));
+        if (searchClassDTO.sort().ascending()){
+            criteriaQuery.orderBy(cb.asc(root.get(sortBy)));
         }else {
-            criteriaQuery.orderBy(cb.desc(root.get(sortByParam)));
+            criteriaQuery.orderBy(cb.desc(root.get(sortBy)));
         }
-        Query query = em.createQuery(criteriaQuery);
+        TypedQuery<DNDclass> query = em.createQuery(criteriaQuery);
+        query.setParameter("name","%"+searchClassDTO.filter().name()+"%");
+        query.setParameter(hitDiceName,"%"+hitDice+"%");
         List<DNDclass> dnDclasses=query.getResultList();
         return mapper.toDTOs(dnDclasses);
     }

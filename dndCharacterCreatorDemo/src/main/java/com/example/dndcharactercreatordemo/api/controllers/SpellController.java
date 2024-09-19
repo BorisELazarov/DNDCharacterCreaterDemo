@@ -1,5 +1,6 @@
 package com.example.dndcharactercreatordemo.api.controllers;
 
+import com.example.dndcharactercreatordemo.bll.dtos.spells.SearchSpellDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.spells.SpellDTO;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.SpellService;
 import jakarta.validation.Valid;
@@ -23,29 +24,25 @@ public class SpellController {
     }
 
     @GetMapping
-    public ResponseEntity<List<SpellDTO>> getSpells(@RequestParam Optional<String> name,
-                                                    @RequestParam Optional<Byte> level,
-                                                    @RequestParam Optional<String> castingTime,
-                                                    @RequestParam Optional<Integer> range,
-                                                    @RequestParam Optional<String> sortBy,
-                                                    @RequestParam(defaultValue = "true") boolean ascending){
+    public ResponseEntity<List<SpellDTO>> getSpells(){
         return new ResponseEntity<>(
-                spellService.getSpells(false, name, level, castingTime,
-                        range, sortBy, ascending),
+                spellService.getSpellsUnfiltered(),
                 HttpStatus.OK
         );
     }
 
-    @GetMapping(path = "/deleted")
-    public ResponseEntity<List<SpellDTO>> getDeletedSpells(@RequestParam Optional<String> name,
-                                                           @RequestParam Optional<Byte> level,
-                                                           @RequestParam Optional<String> castingTime,
-                                                           @RequestParam Optional<Integer> range,
-                                                           @RequestParam Optional<String> sortBy,
-                                                           @RequestParam(defaultValue = "true") boolean ascending){
+    @PostMapping(path = "/getAll")
+    public ResponseEntity<List<SpellDTO>> getSpells(@RequestBody SearchSpellDTO searchSpellDTO){
         return new ResponseEntity<>(
-                spellService.getSpells(true, name, level, castingTime,
-                        range, sortBy, ascending),
+                spellService.getSpells(false, searchSpellDTO),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping(path = "/getAll/deleted")
+    public ResponseEntity<List<SpellDTO>> getDeletedSpells(@RequestBody SearchSpellDTO searchSpellDTO){
+        return new ResponseEntity<>(
+                spellService.getSpells(true, searchSpellDTO),
                 HttpStatus.OK
         );
     }

@@ -1,6 +1,7 @@
 package com.example.dndcharactercreatordemo.bll.services.implementations;
 
 import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.ProficiencyDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.SearchProficiencyDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.ProficiencyMapper;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.ProficiencyService;
 import com.example.dndcharactercreatordemo.dal.entities.Proficiency;
@@ -10,7 +11,7 @@ import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
@@ -34,34 +35,45 @@ public class ProficiencyServiceImpl implements ProficiencyService {
     }
 
     @Override
-    public List<ProficiencyDTO> getProficiencies(boolean isDeleted,
-                                                 Optional<String> name,
-                                                 Optional<String> type,
-                                                 Optional<String> sortBy,
-                                                 boolean ascending) {
+    public List<ProficiencyDTO> getProficienciesUnfiltered() {
         CriteriaBuilder cb= em.getCriteriaBuilder();
         CriteriaQuery<Proficiency> criteriaQuery= cb.createQuery(Proficiency.class);
         Root<Proficiency> root= criteriaQuery.from(Proficiency.class);
-        String nameParam= name.orElse("");
-        String typeParam= type.orElse("");
         criteriaQuery.select(root)
-                .where(cb.and(cb.and(
-                        cb.equal(root.get("isDeleted"),isDeleted),
-                        cb.like(root.get("name"),"%"+nameParam+"%")),
-                        cb.like(root.get("type"),"%"+typeParam+"%")
-                ));
-        String sortByParam= sortBy.orElse("id");
-        if (sortByParam.isEmpty()){
-            sortByParam="id";
-        }
-        if (ascending){
-            criteriaQuery.orderBy(cb.asc(root.get(sortByParam)));
-        }else {
-            criteriaQuery.orderBy(cb.desc(root.get(sortByParam)));
-        }
-        Query query = em.createQuery(criteriaQuery);
+                .where(cb.equal(root.get("isDeleted"),false));
+        TypedQuery<Proficiency> query = em.createQuery(criteriaQuery);
         List<Proficiency> proficiencies=query.getResultList();
 
+        return mapper.toDTOs(proficiencies);
+    }
+
+    @Override
+    public List<ProficiencyDTO> getProficiencies(boolean isDeleted,
+                                                 SearchProficiencyDTO searchProficiencyDTO) {
+        CriteriaBuilder cb= em.getCriteriaBuilder();
+        CriteriaQuery<Proficiency> criteriaQuery= cb.createQuery(Proficiency.class);
+        Root<Proficiency> root= criteriaQuery.from(Proficiency.class);
+        criteriaQuery.select(root)
+                .where(cb.and
+                        (cb.and(
+                        cb.equal(root.get("isDeleted"),isDeleted),
+                        cb.like(root.get("name"),cb.parameter(String.class,"name"))
+                        ),
+                        cb.like(root.get("type"),cb.parameter(String.class,"type"))
+                ));
+        String sortBy=searchProficiencyDTO.sort().sortBy();
+        if (sortBy.isEmpty()){
+            sortBy="id";
+        }
+        if (searchProficiencyDTO.sort().ascending()){
+            criteriaQuery.orderBy(cb.asc(root.get(sortBy)));
+        }else {
+            criteriaQuery.orderBy(cb.desc(root.get(sortBy)));
+        }
+        TypedQuery<Proficiency> query = em.createQuery(criteriaQuery);
+        query.setParameter("name","%"+searchProficiencyDTO.filter().name()+"%");
+        query.setParameter("type","%"+searchProficiencyDTO.filter().type()+"%");
+        List<Proficiency> proficiencies=query.getResultList();
         return mapper.toDTOs(proficiencies);
     }
 
