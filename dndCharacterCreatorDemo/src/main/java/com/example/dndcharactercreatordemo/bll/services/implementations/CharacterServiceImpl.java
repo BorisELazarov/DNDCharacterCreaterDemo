@@ -1,6 +1,7 @@
 package com.example.dndcharactercreatordemo.bll.services.implementations;
 
 import com.example.dndcharactercreatordemo.bll.dtos.characters.CharacterDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.characters.SearchCharacterDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.CharacterMapper;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.CharacterService;
 import com.example.dndcharactercreatordemo.dal.entities.Character;
@@ -14,6 +15,7 @@ import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedExce
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
@@ -43,29 +45,30 @@ public class CharacterServiceImpl implements CharacterService {
     @Override
     public List<CharacterDTO> getCharacters(Long userId,
                                             boolean isDeleted,
-                                            Optional<String> name,
-                                            Optional<Byte> level,
-                                            Optional<String> className,
-                                            Optional<String> sortBy,
-                                            boolean ascending) {
+                                            SearchCharacterDTO searchCharacterDTO) {
         CriteriaBuilder cb= em.getCriteriaBuilder();
         CriteriaQuery<Character> criteriaQuery= cb.createQuery(Character.class);
         Root<Character> root= criteriaQuery.from(Character.class);
-        String nameParam= name.orElse("");
-        String classNameParam= className.orElse("");
-        Byte levelParam= level.orElse((byte)0);
+        Byte levelParam= searchCharacterDTO.filter().level().orElse((byte)0);
         Join<Character, DNDclass> joinClasses= root.join("dndClass", JoinType.INNER);
         Join<Character, User> joinUsers= root.join("user", JoinType.INNER);
         criteriaQuery.select(root)
                 .where(cb.and(
                         cb.and(
-                        cb.like(root.get("name"),"%"+nameParam+"%"),
-                        cb.like(joinClasses.get("name"),"%"+classNameParam+"%")
+                            cb.like(root.get("name"),cb.parameter(String.class,"name")),
+                            cb.like(joinClasses.get("name"),cb.parameter(String.class,"className"))
                         ),
                         cb.and(
                                 cb.or(
-                                        cb.isTrue(cb.literal(levelParam==0)),
-                                        cb.equal(root.get("level"),levelParam)
+                                        cb.isTrue(
+                                                cb.literal(
+                                                        searchCharacterDTO.filter().level().isEmpty()
+                                                )
+                                        ),
+                                        cb.equal(
+                                                root.get("level"),
+                                                levelParam
+                                        )
                                 ),
                                 cb.and(
                                         cb.equal(joinUsers.get("id"),userId),
@@ -73,17 +76,19 @@ public class CharacterServiceImpl implements CharacterService {
                                 )
                         )
                 ));
-        String sortByParam= sortBy.orElse("id");
-        if (sortByParam.isEmpty()){
-            sortByParam="id";
+        String sortBy= searchCharacterDTO.sort().sortBy();
+        if (sortBy.isEmpty()){
+            sortBy="id";
         }
-        if (ascending){
-            criteriaQuery.orderBy(cb.asc(root.get(sortByParam)));
+        if (searchCharacterDTO.sort().ascending()){
+            criteriaQuery.orderBy(cb.asc(root.get(sortBy)));
         }else {
-            criteriaQuery.orderBy(cb.desc(root.get(sortByParam)));
+            criteriaQuery.orderBy(cb.desc(root.get(sortBy)));
         }
-        Query query = em.createQuery(criteriaQuery);
-        List<Character> characters=query.getResultList();
+        TypedQuery<Character> query = em.createQuery(criteriaQuery);
+        query.setParameter("name","%"+searchCharacterDTO.filter().name()+"%");
+        query.setParameter("className","%"+searchCharacterDTO.filter().className()+"%");
+        List<Character> characters=  query.getResultList();
         return mapper.toDTOs(characters);
     }
 

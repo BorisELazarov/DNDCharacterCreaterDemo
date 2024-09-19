@@ -1,13 +1,16 @@
 package com.example.dndcharactercreatordemo.unitTests.serviceTests;
 
+import com.example.dndcharactercreatordemo.bll.dtos.spells.SearchSpellDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.spells.SpellDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.SpellMapper;
 import com.example.dndcharactercreatordemo.bll.services.implementations.SpellServiceImpl;
+import com.example.dndcharactercreatordemo.common.Sort;
 import com.example.dndcharactercreatordemo.dal.entities.BaseEntity;
 import com.example.dndcharactercreatordemo.dal.entities.Spell;
 import com.example.dndcharactercreatordemo.dal.repos.SpellRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
+import com.example.dndcharactercreatordemo.filters.SpellFilter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -138,8 +141,12 @@ class SpellServiceTests {
         ).thenReturn(
                 spellDTOS.stream().filter(SpellDTO::isDeleted).toList()
         );
-        List<SpellDTO> dtos=service.getSpells(true, Optional.empty(), Optional.empty(),
-                Optional.empty(), Optional.empty(), Optional.empty(), true);
+        List<SpellDTO> dtos=service.getSpells(true,
+                new SearchSpellDTO(
+                        new SpellFilter("",Optional.empty(),"", Optional.empty()),
+                        new Sort("",true)
+                )
+        );
         assertFalse(dtos.isEmpty());
     }
 
@@ -153,8 +160,12 @@ class SpellServiceTests {
         ).thenReturn(
                 spellDTOS.stream().filter(x->!x.isDeleted()).toList()
         );
-        List<SpellDTO> dtos=service.getSpells(false, Optional.empty(), Optional.empty(),
-                Optional.empty(), Optional.empty(), Optional.empty(), true);
+        List<SpellDTO> dtos=service.getSpells(false,
+                new SearchSpellDTO(
+                        new SpellFilter("",Optional.empty(),"", Optional.empty()),
+                        new Sort("",true)
+                )
+        );
         assertFalse(dtos.isEmpty());
     }
 

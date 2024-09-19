@@ -1,16 +1,13 @@
 package com.example.dndcharactercreatordemo.bll.services.interfaces;
 
+import com.example.dndcharactercreatordemo.bll.dtos.users.SearchUserDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.users.UserDTO;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
-    List<UserDTO> getUsers(Optional<String> username,
-                           Optional<String> email,
-                           Optional<String> roleTitle,
-                           Optional<String> sortBy,
-                           boolean ascending);
+    List<UserDTO> getUsers(SearchUserDTO searchUserDTO);
 
     UserDTO addUser(UserDTO userDTO);
 

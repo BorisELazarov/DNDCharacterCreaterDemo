@@ -1,6 +1,7 @@
 package com.example.dndcharactercreatordemo.api.controllers;
 
 import com.example.dndcharactercreatordemo.bll.dtos.characters.CharacterDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.characters.SearchCharacterDTO;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.CharacterService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -20,32 +21,22 @@ public class CharacterController {
         this.service = service;
     }
 
-    @GetMapping(path="/getForUser/{userId}")
+    @PostMapping(path="/getForUser/{userId}")
     public ResponseEntity<List<CharacterDTO>> getCharacters(
             @PathVariable Long userId,
-            @RequestParam Optional<String> name,
-            @RequestParam Optional<Byte> level,
-            @RequestParam Optional<String> className,
-            @RequestParam Optional<String> sortBy,
-            @RequestParam(defaultValue = "true") boolean ascending){
+            @RequestBody SearchCharacterDTO searchCharacterDTO){
         return new ResponseEntity<>(
-                service.getCharacters(userId,false, name,
-                        level, className, sortBy, ascending),
+                service.getCharacters(userId,false, searchCharacterDTO),
             HttpStatus.OK
         );
     }
 
-    @GetMapping(path = "/getForUser/deleted/{userId}")
+    @PostMapping(path = "/getForUser/deleted/{userId}")
     public ResponseEntity<List<CharacterDTO>> getDeletedCharacters(
             @PathVariable Long userId,
-            @RequestParam Optional<String> name,
-            @RequestParam Optional<Byte> level,
-            @RequestParam Optional<String> className,
-            @RequestParam Optional<String> sortBy,
-            @RequestParam(defaultValue = "true") boolean ascending){
+            @RequestBody SearchCharacterDTO searchCharacterDTO){
         return new ResponseEntity<>(
-                service.getCharacters(userId,true, name,
-                        level, className, sortBy, ascending),
+                service.getCharacters(userId,true, searchCharacterDTO),
                 HttpStatus.OK
         );
     }

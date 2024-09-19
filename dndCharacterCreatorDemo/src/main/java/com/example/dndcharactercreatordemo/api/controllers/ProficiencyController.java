@@ -1,6 +1,7 @@
 package com.example.dndcharactercreatordemo.api.controllers;
 
 import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.ProficiencyDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.SearchProficiencyDTO;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.ProficiencyService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -23,29 +23,32 @@ public class ProficiencyController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProficiencyDTO>> getProficiencies(
-            @RequestParam Optional<String> name,
-            @RequestParam Optional<String> type,
-            @RequestParam Optional<String> sortBy,
-            @RequestParam(defaultValue = "true") boolean ascending
-            )
+    public ResponseEntity<List<ProficiencyDTO>> getProficienciesUnfiltered()
     {
         return new ResponseEntity<>(
-                proficiencyService.getProficiencies(false, name, type, sortBy, ascending),
+                proficiencyService.getProficienciesUnfiltered(),
                 HttpStatus.OK
         );
     }
 
-    @GetMapping(path = "/deleted")
+    @PostMapping(path = "/getAll")
+    public ResponseEntity<List<ProficiencyDTO>> getProficiencies(
+            @RequestBody SearchProficiencyDTO searchProficiencyDTO
+            )
+    {
+        return new ResponseEntity<>(
+                proficiencyService.getProficiencies(false, searchProficiencyDTO),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping(path = "/getAll/deleted")
     public ResponseEntity<List<ProficiencyDTO>> getDeletedProficiencies(
-            @RequestParam Optional<String> name,
-            @RequestParam Optional<String> type,
-            @RequestParam Optional<String> sortBy,
-            @RequestParam(defaultValue = "true") Boolean ascending
+            @RequestBody SearchProficiencyDTO searchProficiencyDTO
     )
     {
         return new ResponseEntity<>(
-                proficiencyService.getProficiencies(true, name, type, sortBy, ascending),
+                proficiencyService.getProficiencies(true, searchProficiencyDTO),
                 HttpStatus.OK
         );
     }

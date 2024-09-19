@@ -1,5 +1,6 @@
 package com.example.dndcharactercreatordemo.bll.services.implementations;
 
+import com.example.dndcharactercreatordemo.bll.dtos.users.SearchUserDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.users.UserDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.UserMapper;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.UserService;
@@ -13,6 +14,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
@@ -86,36 +88,32 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDTO> getUsers(Optional<String> username,
-                                  Optional<String> email,
-                                  Optional<String> roleTitle,
-                                  Optional<String> sortBy,
-                                  boolean ascending) {
+    public List<UserDTO> getUsers(SearchUserDTO searchUserDTO) {
         CriteriaBuilder cb= em.getCriteriaBuilder();
         CriteriaQuery<User> criteriaQuery= cb.createQuery(User.class);
         Root<User> root= criteriaQuery.from(User.class);
-        String usernameParam= username.orElse("");
-        String roleTitleParam= roleTitle.orElse("");
-        String emailParam= email.orElse("");
         Join<User,Role> joinRoles= root.join("role",JoinType.INNER);
         criteriaQuery.select(root)
                 .where(cb.and(
                         cb.and(
-                                cb.like(root.get("username"),"%"+usernameParam+"%"),
-                        cb.like(joinRoles.get("title"),"%"+roleTitleParam+"%")
+                                cb.like(root.get("username"),cb.parameter(String.class,"usernameParam")),
+                        cb.equal(joinRoles.get("title"),cb.parameter(String.class,"rolePara,"))
                         ),
-                        cb.like(root.get("email"),"%"+emailParam+"%")
+                        cb.like(root.get("email"),cb.parameter(String.class,"emailParam"))
                 ));
-        String sortByParam= sortBy.orElse("id");
-        if (sortByParam.isEmpty()){
-            sortByParam="id";
+        String sortBy= searchUserDTO.sort().sortBy();
+        if (sortBy.isEmpty()){
+            sortBy="id";
         }
-        if (ascending){
-            criteriaQuery.orderBy(cb.asc(root.get(sortByParam)));
+        if (searchUserDTO.sort().ascending()){
+            criteriaQuery.orderBy(cb.asc(root.get(sortBy)));
         }else {
-            criteriaQuery.orderBy(cb.desc(root.get(sortByParam)));
+            criteriaQuery.orderBy(cb.desc(root.get(sortBy)));
         }
-        Query query = em.createQuery(criteriaQuery);
+        TypedQuery<User> query = em.createQuery(criteriaQuery);
+        query.setParameter("usernameParam","%"+searchUserDTO.filter().username()+"%");
+        query.setParameter("emailParam","%"+searchUserDTO.filter().email()+"%");
+        query.setParameter("roleParam",searchUserDTO.filter().roleTitle());
         List<User> users=query.getResultList();
         return mapper.toDTOs(users);
     }

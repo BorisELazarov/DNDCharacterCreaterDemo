@@ -1,20 +1,22 @@
 package com.example.dndcharactercreatordemo.unitTests.serviceTests;
 
 import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.ProficiencyDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.SearchProficiencyDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.ProficiencyMapper;
 import com.example.dndcharactercreatordemo.bll.services.implementations.ProficiencyServiceImpl;
+import com.example.dndcharactercreatordemo.common.Sort;
 import com.example.dndcharactercreatordemo.dal.entities.BaseEntity;
 import com.example.dndcharactercreatordemo.dal.entities.Proficiency;
 import com.example.dndcharactercreatordemo.dal.repos.ProficiencyRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
+import com.example.dndcharactercreatordemo.filters.ProficiencyFilter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Optional;
@@ -100,8 +102,9 @@ class ProficiencyServiceTests {
         ).thenReturn(
                 proficiencyDTOS.stream().filter(ProficiencyDTO::isDeleted).toList()
         );
-        List<ProficiencyDTO> dtos=service.getProficiencies(true, Optional.empty(),
-                Optional.empty(), Optional.empty(), true);
+        List<ProficiencyDTO> dtos=service.getProficiencies(true,
+                new SearchProficiencyDTO(new ProficiencyFilter("",""),new Sort("",true))
+        );
         assertFalse(dtos.isEmpty());
     }
 
@@ -115,8 +118,9 @@ class ProficiencyServiceTests {
         ).thenReturn(
                 proficiencyDTOS.stream().filter(x->!x.isDeleted()).toList()
         );
-        List<ProficiencyDTO> dtos=service.getProficiencies(false, Optional.empty(),
-                Optional.empty(), Optional.empty(), true);
+        List<ProficiencyDTO> dtos=service.getProficiencies(false,
+                new SearchProficiencyDTO(new ProficiencyFilter("",""),new Sort("",true))
+        );
         assertFalse(dtos.isEmpty());
     }
 
