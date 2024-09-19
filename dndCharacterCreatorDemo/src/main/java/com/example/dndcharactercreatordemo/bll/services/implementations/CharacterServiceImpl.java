@@ -14,7 +14,6 @@ import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
 import jakarta.validation.constraints.NotNull;
@@ -56,7 +55,7 @@ public class CharacterServiceImpl implements CharacterService {
                 .where(cb.and(
                         cb.and(
                             cb.like(root.get("name"),cb.parameter(String.class,"name")),
-                            cb.like(joinClasses.get("name"),cb.parameter(String.class,"className"))
+                            cb.like(joinClasses.get("name"),cb.parameter(String.class,"dndClassName"))
                         ),
                         cb.and(
                                 cb.or(
@@ -87,7 +86,7 @@ public class CharacterServiceImpl implements CharacterService {
         }
         TypedQuery<Character> query = em.createQuery(criteriaQuery);
         query.setParameter("name","%"+searchCharacterDTO.filter().name()+"%");
-        query.setParameter("className","%"+searchCharacterDTO.filter().className()+"%");
+        query.setParameter("dndClassName","%"+searchCharacterDTO.filter().dndClassName()+"%");
         List<Character> characters=  query.getResultList();
         return mapper.toDTOs(characters);
     }

@@ -100,13 +100,7 @@ public class ClassServiceImpl implements ClassService {
 
     @Override
     public List<ClassDTO> getClassesUnfiltered() {
-        CriteriaBuilder cb= em.getCriteriaBuilder();
-        CriteriaQuery<DNDclass> criteriaQuery= cb.createQuery(DNDclass.class);
-        Root<DNDclass> root= criteriaQuery.from(DNDclass.class);
-        criteriaQuery.select(root).where(cb.equal(root.get("isDeleted"),false));
-        TypedQuery<DNDclass> query = em.createQuery(criteriaQuery);
-        List<DNDclass> dnDclasses=query.getResultList();
-        return mapper.toDTOs(dnDclasses);
+        return mapper.toDTOs(this.classRepo.findAll(false));
     }
 
     @Override
@@ -115,17 +109,17 @@ public class ClassServiceImpl implements ClassService {
         CriteriaBuilder cb= em.getCriteriaBuilder();
         CriteriaQuery<DNDclass> criteriaQuery= cb.createQuery(DNDclass.class);
         Root<DNDclass> root= criteriaQuery.from(DNDclass.class);
-        String hitDice="";
-        Optional<HitDiceEnum> hitDiceEnum=searchClassDTO.filter().hitDice();
-        if (hitDiceEnum.isPresent()){
-            hitDice=hitDiceEnum.get().name();
-        }
-        final String hitDiceName="hitDice";
+        HitDiceEnum hitDice=searchClassDTO.filter().hitDice().orElse(HitDiceEnum.NONE);
         criteriaQuery.select(root)
-                .where(cb.and(cb.and(
+                .where(cb.and(
+                        cb.and(
                                 cb.equal(root.get("isDeleted"),isDeleted),
-                                cb.like(root.get("name"),cb.parameter(String.class,"name"))),
-                        cb.like(root.get(hitDiceName),cb.parameter(String.class,hitDiceName))
+                                cb.like(root.get("name"),cb.parameter(String.class,"name"))
+                        ),
+                        cb.or(
+                                cb.equal(root.get("hitDice"),hitDice),
+                                cb.isTrue(cb.literal(hitDice==HitDiceEnum.NONE))
+                        )
                 ));
         String sortBy= searchClassDTO.sort().sortBy();
         if (sortBy.isEmpty()){
@@ -138,7 +132,6 @@ public class ClassServiceImpl implements ClassService {
         }
         TypedQuery<DNDclass> query = em.createQuery(criteriaQuery);
         query.setParameter("name","%"+searchClassDTO.filter().name()+"%");
-        query.setParameter(hitDiceName,"%"+hitDice+"%");
         List<DNDclass> dnDclasses=query.getResultList();
         return mapper.toDTOs(dnDclasses);
     }
