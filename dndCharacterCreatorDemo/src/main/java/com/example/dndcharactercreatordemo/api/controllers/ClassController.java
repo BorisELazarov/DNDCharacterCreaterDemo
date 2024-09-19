@@ -3,7 +3,6 @@ package com.example.dndcharactercreatordemo.api.controllers;
 import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.ClassDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.SearchClassDTO;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.ClassService;
-import com.example.dndcharactercreatordemo.enums.HitDiceEnum;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -25,9 +23,7 @@ public class ClassController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ClassDTO>> getClassesUnfiltered(
-            @RequestBody SearchClassDTO searchClassDTO
-    )
+    public ResponseEntity<List<ClassDTO>> getClassesUnfiltered()
     {
         return new ResponseEntity<>(
                 classService.getClassesUnfiltered(),

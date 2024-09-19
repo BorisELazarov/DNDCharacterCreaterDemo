@@ -36,15 +36,7 @@ public class ProficiencyServiceImpl implements ProficiencyService {
 
     @Override
     public List<ProficiencyDTO> getProficienciesUnfiltered() {
-        CriteriaBuilder cb= em.getCriteriaBuilder();
-        CriteriaQuery<Proficiency> criteriaQuery= cb.createQuery(Proficiency.class);
-        Root<Proficiency> root= criteriaQuery.from(Proficiency.class);
-        criteriaQuery.select(root)
-                .where(cb.equal(root.get("isDeleted"),false));
-        TypedQuery<Proficiency> query = em.createQuery(criteriaQuery);
-        List<Proficiency> proficiencies=query.getResultList();
-
-        return mapper.toDTOs(proficiencies);
+        return mapper.toDTOs(this.proficiencyRepo.findAll(false));
     }
 
     @Override

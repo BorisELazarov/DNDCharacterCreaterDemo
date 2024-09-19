@@ -92,14 +92,7 @@ public class SpellServiceImpl implements SpellService {
 
     @Override
     public List<SpellDTO> getSpellsUnfiltered() {
-        CriteriaBuilder cb= em.getCriteriaBuilder();
-        CriteriaQuery<Spell> criteriaQuery= cb.createQuery(Spell.class);
-        Root<Spell> root= criteriaQuery.from(Spell.class);
-        criteriaQuery.select(root)
-                .where(cb.equal(root.get("isDeleted"),false));
-        TypedQuery<Spell> query = em.createQuery(criteriaQuery);
-        List<Spell> spells=query.getResultList();
-        return mapper.toDTOs(spells);
+        return mapper.toDTOs(this.spellRepo.findAll(false));
     }
 
     @Override

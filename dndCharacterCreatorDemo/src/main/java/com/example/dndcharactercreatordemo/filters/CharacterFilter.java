@@ -5,5 +5,5 @@ import java.util.Optional;
 /**
  * @author boriselazarov@gmail
  */
-public record CharacterFilter(String name, Optional<Byte> level, String className) {
+public record CharacterFilter(String name, Optional<Byte> level, String dndClassName) {
 }
