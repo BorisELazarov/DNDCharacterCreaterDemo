@@ -4,7 +4,6 @@ import com.example.dndcharactercreatordemo.bll.dtos.spells.SearchSpellDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.spells.SpellDTO;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface SpellService {
     List<SpellDTO> getSpells(boolean isDeleted,

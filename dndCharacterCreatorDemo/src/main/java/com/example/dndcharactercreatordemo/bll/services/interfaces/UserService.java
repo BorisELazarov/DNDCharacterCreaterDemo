@@ -4,7 +4,6 @@ import com.example.dndcharactercreatordemo.bll.dtos.users.SearchUserDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.users.UserDTO;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface UserService {
     List<UserDTO> getUsers(SearchUserDTO searchUserDTO);
