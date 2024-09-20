@@ -45,48 +45,54 @@ public class SpellServiceImpl implements SpellService {
         Set<Spell> spells = new LinkedHashSet<>();
         spells.add(
                 getSpell(
+                        new SpellDTO(
+                                Optional.empty(),
                         false, "Fire",
                         1, "A",
                         20, "asfd",
                         "V, S, M", 0,
                         "FIreee"
+                        )
                 )
         );
         spells.add(
                 getSpell(
+                        new SpellDTO(
+                                Optional.empty(),
                         true, "Cold",
                         1, "A",
                         25, "ads",
                         "V, M", 0,
                         "Cold cold"
+                        )
                 )
         );
         spells.add(
                 getSpell(
+                        new SpellDTO(
+                                Optional.empty(),
                         false, "Thunder",
                         2, "BA",
                         20, "asfd",
                         "V, M", 60,
                         "Thunder"
+                        )
                 )
         );
         spellRepo.saveAll(spells);
     }
 
-    private Spell getSpell(Boolean isDeleted, String name, int level,
-                           String castingTime, int castingRange,
-                           String target, String components,
-                           int duration, String description) {
+    private Spell getSpell(SpellDTO spellDTO) {
         Spell spell = new Spell();
-        spell.setIsDeleted(isDeleted);
-        spell.setName(name);
-        spell.setDescription(description);
-        spell.setLevel(level);
-        spell.setCastingRange(castingRange);
-        spell.setTarget(target);
-        spell.setComponents(components);
-        spell.setDuration(duration);
-        spell.setCastingTime(castingTime);
+        spell.setIsDeleted(spellDTO.isDeleted());
+        spell.setName(spellDTO.name());
+        spell.setDescription(spellDTO.name());
+        spell.setLevel(spellDTO.level());
+        spell.setCastingRange(spellDTO.castingRange());
+        spell.setTarget(spellDTO.target());
+        spell.setComponents(spellDTO.components());
+        spell.setDuration(spellDTO.duration());
+        spell.setCastingTime(spellDTO.castingTime());
         return spell;
     }
 
