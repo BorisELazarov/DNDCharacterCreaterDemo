@@ -230,12 +230,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void restoreUser(String username, String password) {
-        Optional<User> deletedUser=userRepo.findDeletedByUsernameAndPassword(username, password);
+    public void restoreUser(Long id) {
+        Optional<User> deletedUser=userRepo.findById(id);
         if (deletedUser.isEmpty()){
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
-        if (userRepo.findByUsername(username).isPresent()){
+        if (userRepo.findByUsername(deletedUser.get().getUsername()).isPresent()){
             throw new NameAlreadyTakenException("There is already user with such username.");
         }
         User user= deletedUser.get();

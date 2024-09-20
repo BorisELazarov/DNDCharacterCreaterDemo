@@ -22,7 +22,7 @@ public interface UserService {
 
     void hardDeleteUser(Long id);
 
-    void restoreUser(String username, String password);
+    void restoreUser(Long id);
 
     UserDTO getUser(Long id);
 
