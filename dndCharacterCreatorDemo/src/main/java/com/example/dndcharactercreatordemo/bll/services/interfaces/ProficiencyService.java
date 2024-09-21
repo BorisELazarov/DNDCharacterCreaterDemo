@@ -4,7 +4,6 @@ import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.ProficiencyDTO
 import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.SearchProficiencyDTO;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ProficiencyService {
     List<ProficiencyDTO> getProficiencies(boolean isDeleted, SearchProficiencyDTO searchProficiencyDTO);

@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -43,10 +42,9 @@ public class UserController {
         );
     }
 
-    @PutMapping(path="/restore/{username}/{password}")
-    public ResponseEntity<Void> restoreAccount(@PathVariable("username") String username,
-                                         @PathVariable("password") String password){
-        userService.restoreUser(username,password);
+    @PutMapping(path="/restore/{id}")
+    public ResponseEntity<Void> restoreAccount(@PathVariable("id") Long id){
+        userService.restoreUser(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
