@@ -13,7 +13,6 @@ import com.example.dndcharactercreatordemo.exceptions.customs.*;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
 import jakarta.validation.constraints.NotNull;
@@ -231,12 +230,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void restoreUser(String username, String password) {
-        Optional<User> deletedUser=userRepo.findDeletedByUsernameAndPassword(username, password);
+    public void restoreUser(Long id) {
+        Optional<User> deletedUser=userRepo.findById(id);
         if (deletedUser.isEmpty()){
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
-        if (userRepo.findByUsername(username).isPresent()){
+        if (userRepo.findByUsername(deletedUser.get().getUsername()).isPresent()){
             throw new NameAlreadyTakenException("There is already user with such username.");
         }
         User user= deletedUser.get();
