@@ -79,10 +79,17 @@ public class CharacterServiceImpl implements CharacterService {
         if (sortBy.isEmpty()){
             sortBy="id";
         }
+        Path<Object> path;
+        if (sortBy.equals("className")){
+            path=joinClasses.get("name");
+        }
+        else {
+            path=root.get(sortBy);
+        }
         if (searchCharacterDTO.sort().ascending()){
-            criteriaQuery.orderBy(cb.asc(root.get(sortBy)));
+            criteriaQuery.orderBy(cb.asc(path));
         }else {
-            criteriaQuery.orderBy(cb.desc(root.get(sortBy)));
+            criteriaQuery.orderBy(cb.desc(path));
         }
         TypedQuery<Character> query = em.createQuery(criteriaQuery);
         query.setParameter("name","%"+searchCharacterDTO.filter().name()+"%");
