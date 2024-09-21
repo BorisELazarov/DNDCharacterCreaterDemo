@@ -96,7 +96,7 @@ public class UserServiceImpl implements UserService {
                 .where(cb.and(
                         cb.and(
                                 cb.like(root.get("username"),cb.parameter(String.class,"usernameParam")),
-                        cb.equal(joinRoles.get("title"),cb.parameter(String.class,"rolePara,"))
+                        cb.like(joinRoles.get("title"),cb.parameter(String.class,"roleParam"))
                         ),
                         cb.like(root.get("email"),cb.parameter(String.class,"emailParam"))
                 ));
@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService {
         TypedQuery<User> query = em.createQuery(criteriaQuery);
         query.setParameter("usernameParam","%"+searchUserDTO.filter().username()+"%");
         query.setParameter("emailParam","%"+searchUserDTO.filter().email()+"%");
-        query.setParameter("roleParam",searchUserDTO.filter().roleTitle());
+        query.setParameter("roleParam","%"+searchUserDTO.filter().roleTitle()+"%");
         List<User> users=query.getResultList();
         return mapper.toDTOs(users);
     }
