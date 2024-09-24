@@ -4,9 +4,11 @@ import com.example.dndcharactercreatordemo.bll.dtos.users.SearchUserDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.users.UserDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.UserMapper;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.UserService;
+import com.example.dndcharactercreatordemo.dal.entities.Character;
 import com.example.dndcharactercreatordemo.dal.entities.Privilege;
 import com.example.dndcharactercreatordemo.dal.entities.Role;
 import com.example.dndcharactercreatordemo.dal.entities.User;
+import com.example.dndcharactercreatordemo.dal.repos.CharacterRepo;
 import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
 import com.example.dndcharactercreatordemo.dal.repos.UserRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.*;
@@ -15,6 +17,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
+import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 
@@ -27,13 +30,15 @@ public class UserServiceImpl implements UserService {
     private final UserRepo userRepo;
     private final UserMapper mapper;
     private final RoleRepo roleRepo;
+    private final CharacterRepo characterRepo;
     @PersistenceContext
     private EntityManager em;
     public UserServiceImpl(@NotNull UserRepo userRepo, @NotNull RoleRepo roleRepo,
-                           @NotNull UserMapper mapper) {
+                           @NotNull UserMapper mapper, @NotNull CharacterRepo characterRepo) {
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
         this.mapper = mapper;
+        this.characterRepo=characterRepo;
     }
 
     @PostConstruct
@@ -211,13 +216,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void hardDeleteUser(Long id) {
         Optional<User> optionalUser = userRepo.findById(id);
-
         if (optionalUser.isPresent()) {
             User foundUser = optionalUser.get();
-
             if (foundUser.getIsDeleted()) {
+                CriteriaBuilder cb= em.getCriteriaBuilder();
+                CriteriaQuery<Character> criteriaQuery= cb.createQuery(Character.class);
+                Root<Character> root= criteriaQuery.from(Character.class);
+                criteriaQuery.select(root)
+                        .where(cb.equal(root.get("user"),foundUser));
+                TypedQuery<Character> query = em.createQuery(criteriaQuery);
+                List<Character> characters=query.getResultList();
+                characterRepo.deleteAllInBatch(
+                        characters
+                );
                 userRepo.delete(foundUser);
             } else {
                throw new NotSoftDeletedException("The user must be soft deleted first!");
