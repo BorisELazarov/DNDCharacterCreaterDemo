@@ -3,12 +3,13 @@ package com.example.dndcharactercreatordemo.dal.entities;
 import jakarta.persistence.*;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name = "characters")
-public class Character extends BaseEntity {
+public class Character extends BaseEntity implements Serializable {
     @Column(name="name", nullable = false, length = 50)
     private String name;
     @ManyToOne
