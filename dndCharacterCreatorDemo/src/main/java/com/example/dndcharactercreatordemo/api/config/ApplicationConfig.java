@@ -21,15 +21,15 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(){
-        return username -> userRepo.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("There is no such user with such username."));
+    public UserDetailsService userDetailsServiceEmail(){
+        return email -> userRepo.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("There is no such user with such email."));
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider(){
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService());
+        authProvider.setUserDetailsService(userDetailsServiceEmail());
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }

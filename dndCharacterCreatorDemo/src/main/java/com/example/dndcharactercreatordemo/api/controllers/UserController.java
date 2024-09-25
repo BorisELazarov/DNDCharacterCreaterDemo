@@ -1,5 +1,6 @@
 package com.example.dndcharactercreatordemo.api.controllers;
 
+import com.example.dndcharactercreatordemo.bll.dtos.users.SearchUserDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.users.UserDTO;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.UserService;
 import jakarta.validation.Valid;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping(path="api/users")
 public class UserController {
     private final UserService userService;
@@ -20,28 +22,29 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<UserDTO>> getAllUndeletedUsers()
+    @PostMapping(path = "/getAll")
+    public ResponseEntity<List<UserDTO>> getAllUsers(
+            @RequestBody SearchUserDTO searchUserDTO
+            )
     {
         return new ResponseEntity<>(
-                userService.getUsers(),
+                userService.getUsers(searchUserDTO),
                 HttpStatus.OK
         );
     }
 
-    @GetMapping(path="/login/{username}/{password}")
-    public ResponseEntity<UserDTO> login(@PathVariable("username") String username,
+    @GetMapping(path="/login/{email}/{password}")
+    public ResponseEntity<UserDTO> login(@PathVariable("email") String email,
                                          @PathVariable("password") String password){
         return new ResponseEntity<>(
-                userService.getUser(username,password),
+                userService.getUser(email,password),
                 HttpStatus.OK
         );
     }
 
-    @PutMapping(path="/restore/{username}/{password}")
-    public ResponseEntity<Void> restoreAccount(@PathVariable("username") String username,
-                                         @PathVariable("password") String password){
-        userService.restoreUser(username,password);
+    @PutMapping(path="/restore/{id}")
+    public ResponseEntity<Void> restoreAccount(@PathVariable("id") Long id){
+        userService.restoreUser(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -66,7 +69,7 @@ public class UserController {
             @PathVariable("userId") Long id,
             @PathVariable("username") String username){
         userService.changeUsername(id,username);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PutMapping(path="changePassword/{userId}/{oldPassword}/{newPassword}")
@@ -75,18 +78,36 @@ public class UserController {
             @PathVariable("oldPassword") String oldPassword,
             @PathVariable("newPassword") String newPassword){
         userService.changePassword(id,oldPassword,newPassword);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping(path = "changeEmail/{id}/{email}")
+    public ResponseEntity<Void> changeEmail(
+            @PathVariable("id") Long id,
+            @PathVariable("email") String email
+    ){
+        userService.changeEmail(id,email);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping(path = "changeRole/{id}/{role}")
+    public ResponseEntity<Void> changeRole(
+            @PathVariable("id") Long id,
+            @PathVariable("role") String role
+    ){
+        userService.changeRole(id,role);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping(path="/delete/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable("userId") Long id) {
          userService.softDeleteUser(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping(path = "/delete/confirmed/{userId}")
     public ResponseEntity<Void> hardDeleteUser(@PathVariable("userId") Long id){
         userService.hardDeleteUser(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

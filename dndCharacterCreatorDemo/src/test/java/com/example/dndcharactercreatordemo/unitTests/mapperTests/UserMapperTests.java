@@ -16,7 +16,7 @@ class UserMapperTests {
     @Test
     void fromDtoAreEquals() {
         UserDTO dto=new UserDTO(Optional.of(1L),false,
-                "username", "password",
+                "username", "password","email@abv.bg",
                 "user");
         Role role=new Role();
         role.setTitle("user");
@@ -35,6 +35,7 @@ class UserMapperTests {
         entity.setIsDeleted(true);
         entity.setUsername("Gosho");
         entity.setPassword("Ot edno do osem");
+        entity.setEmail("email@abv.bg");
         Role role=new Role();
         role.setTitle("admin");
         entity.setRole(role);

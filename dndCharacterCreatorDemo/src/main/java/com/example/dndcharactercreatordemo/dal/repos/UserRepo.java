@@ -21,4 +21,7 @@ public interface UserRepo extends JpaRepository<User, Long> {
 
     @Query("Select u from User u where u.username=:username and u.password=:password and u.isDeleted=true")
     Optional<User> findDeletedByUsernameAndPassword(String username, String password);
+
+    @Query("Select u from User u where u.email=:email")
+    Optional<User> findByEmail(String email);
 }

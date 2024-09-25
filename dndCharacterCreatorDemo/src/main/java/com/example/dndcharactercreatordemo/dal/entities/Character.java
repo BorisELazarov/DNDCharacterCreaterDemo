@@ -33,11 +33,13 @@ public class Character extends BaseEntity implements Serializable {
     @Column(name = "base_cha", nullable = false)
     private byte baseCha=10;
 
-    @OneToMany(mappedBy = "id.character", cascade= CascadeType.ALL)
+    @OneToMany(mappedBy = "id.character", cascade= CascadeType.ALL,
+    orphanRemoval = true)
     private List<ProficiencyCharacter> proficiencyCharacters;
 
 
-    @OneToMany(mappedBy = "id.character")
+    @OneToMany(mappedBy = "id.character", cascade= CascadeType.ALL,
+            orphanRemoval = true)
     private List<CharacterSpell> characterSpells;
 
     public String getName() {

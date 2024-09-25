@@ -1,6 +1,7 @@
 package com.example.dndcharactercreatordemo.bll.services.implementations;
 
 import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.ProficiencyDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.SearchProficiencyDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.ProficiencyMapper;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.ProficiencyService;
 import com.example.dndcharactercreatordemo.dal.entities.Proficiency;
@@ -8,6 +9,12 @@ import com.example.dndcharactercreatordemo.dal.repos.ProficiencyRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 
@@ -20,16 +27,46 @@ public class ProficiencyServiceImpl implements ProficiencyService {
     private static final String NAME_TAKEN_MESSAGE="There is already proficiency named like that!";
     private final ProficiencyRepo proficiencyRepo;
     private final ProficiencyMapper mapper;
-
+    @PersistenceContext
+    private EntityManager em;
     public ProficiencyServiceImpl(@NotNull ProficiencyRepo proficiencyRepo, @NotNull ProficiencyMapper mapper) {
         this.proficiencyRepo = proficiencyRepo;
         this.mapper = mapper;
     }
 
+    @Override
+    public List<ProficiencyDTO> getProficienciesUnfiltered() {
+        return mapper.toDTOs(this.proficiencyRepo.findAll(false));
+    }
 
     @Override
-    public List<ProficiencyDTO> getProficiencies(boolean isDeleted) {
-        return mapper.toDTOs(proficiencyRepo.findAll(isDeleted));
+    public List<ProficiencyDTO> getProficiencies(boolean isDeleted,
+                                                 SearchProficiencyDTO searchProficiencyDTO) {
+        CriteriaBuilder cb= em.getCriteriaBuilder();
+        CriteriaQuery<Proficiency> criteriaQuery= cb.createQuery(Proficiency.class);
+        Root<Proficiency> root= criteriaQuery.from(Proficiency.class);
+        criteriaQuery.select(root)
+                .where(cb.and
+                        (cb.and(
+                        cb.equal(root.get("isDeleted"),isDeleted),
+                        cb.like(root.get("name"),cb.parameter(String.class,"name"))
+                        ),
+                        cb.like(root.get("type"),cb.parameter(String.class,"type"))
+                ));
+        String sortBy=searchProficiencyDTO.sort().sortBy();
+        if (sortBy.isEmpty()){
+            sortBy="id";
+        }
+        if (searchProficiencyDTO.sort().ascending()){
+            criteriaQuery.orderBy(cb.asc(root.get(sortBy)));
+        }else {
+            criteriaQuery.orderBy(cb.desc(root.get(sortBy)));
+        }
+        TypedQuery<Proficiency> query = em.createQuery(criteriaQuery);
+        query.setParameter("name","%"+searchProficiencyDTO.filter().name()+"%");
+        query.setParameter("type","%"+searchProficiencyDTO.filter().type()+"%");
+        List<Proficiency> proficiencies=query.getResultList();
+        return mapper.toDTOs(proficiencies);
     }
 
     @Override
@@ -66,7 +103,7 @@ public class ProficiencyServiceImpl implements ProficiencyService {
                         }
                     }
             );
-            proficiencyRepo.save(proficiency.get());
+            proficiencyRepo.save(mapper.fromDto(proficiencyDTO));
         } else {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }

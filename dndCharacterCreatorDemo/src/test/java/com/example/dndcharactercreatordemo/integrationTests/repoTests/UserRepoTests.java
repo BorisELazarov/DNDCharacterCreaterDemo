@@ -1,6 +1,5 @@
 package com.example.dndcharactercreatordemo.integrationTests.repoTests;
 
-import com.example.dndcharactercreatordemo.dal.entities.BaseEntity;
 import com.example.dndcharactercreatordemo.dal.entities.Role;
 import com.example.dndcharactercreatordemo.dal.entities.User;
 import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
@@ -11,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.Set;
 import java.util.Optional;
@@ -33,20 +31,21 @@ class UserRepoTests {
     @BeforeAll
     static void seedUsers(@Autowired UserRepo seedRepo, @Autowired RoleRepo roleRepo) {
         Set<User> users=Set.of(
-                getUser("Boris","BPass"),
-                getUser("Ivan","IPass"),
-                getUser("Georgi","GPass"),
-                getUser("Peter","PPass")
+                getUser("Boris","BPass", "email@abv.bg"),
+                getUser("Ivan","IPass","email2@abv.bg"),
+                getUser("Georgi","GPass","email3@abv.bg"),
+                getUser("Peter","PPass","email4@abv.bg")
         );
         users.stream().findFirst().get().setIsDeleted(true);
         roleRepo.saveAll(users.stream().map(User::getRole).toList());
         seedRepo.saveAll(users);
     }
 
-    static User getUser(String username, String password){
+    static User getUser(String username, String password, String email){
         User user = new User();
         user.setUsername(username);
         user.setPassword(password);
+        user.setEmail(email);
         Role role=new Role();
         role.setTitle("user");
         user.setRole(new Role());
@@ -98,6 +97,23 @@ class UserRepoTests {
                 assertEquals(x,y);
                 assertEquals(x.getUsername(),y.getUsername());
                 assertEquals(x.getPassword(),y.getPassword());
+            });
+        });
+    }
+    @Test
+    void findByEmailAreEquals(){
+        Optional<User> user=userRepo
+                .findAll().stream()
+                .filter(x->x.getEmail().equals("email@abv.bg"))
+                .findFirst();
+        assertTrue(user.isPresent());
+        user.ifPresent(x->{
+            Optional<User> foundUser=userRepo
+                    .findByEmail(x.getEmail());
+            assertTrue(foundUser.isPresent());
+            foundUser.ifPresent(y->{
+                assertEquals(x,y);
+                assertEquals(x.getEmail(),y.getEmail());
             });
         });
     }

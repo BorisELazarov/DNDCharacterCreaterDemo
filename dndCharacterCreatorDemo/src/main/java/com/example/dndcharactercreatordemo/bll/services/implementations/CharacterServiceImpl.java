@@ -1,14 +1,21 @@
 package com.example.dndcharactercreatordemo.bll.services.implementations;
 
 import com.example.dndcharactercreatordemo.bll.dtos.characters.CharacterDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.characters.SearchCharacterDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.CharacterMapper;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.CharacterService;
 import com.example.dndcharactercreatordemo.dal.entities.Character;
+import com.example.dndcharactercreatordemo.dal.entities.DNDclass;
+import com.example.dndcharactercreatordemo.dal.entities.User;
 import com.example.dndcharactercreatordemo.dal.repos.CharacterRepo;
 import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.*;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +30,8 @@ public class CharacterServiceImpl implements CharacterService {
     private final RoleRepo roleRepo;
     private final CharacterRepo characterRepo;
     private final CharacterMapper mapper;
+    @PersistenceContext
+    private EntityManager em;
 
     public CharacterServiceImpl(@NotNull CharacterRepo characterRepo,
                                 @NotNull CharacterMapper mapper,
@@ -33,8 +42,60 @@ public class CharacterServiceImpl implements CharacterService {
     }
 
     @Override
-    public List<CharacterDTO> getCharacters(boolean isDeleted) {
-        return mapper.toDTOs(characterRepo.findAll(isDeleted));
+    public List<CharacterDTO> getCharacters(Long userId,
+                                            boolean isDeleted,
+                                            SearchCharacterDTO searchCharacterDTO) {
+        CriteriaBuilder cb= em.getCriteriaBuilder();
+        CriteriaQuery<Character> criteriaQuery= cb.createQuery(Character.class);
+        Root<Character> root= criteriaQuery.from(Character.class);
+        Byte levelParam= searchCharacterDTO.filter().level().orElse((byte)0);
+        Join<Character, DNDclass> joinClasses= root.join("dndClass", JoinType.INNER);
+        Join<Character, User> joinUsers= root.join("user", JoinType.INNER);
+        criteriaQuery.select(root)
+                .where(cb.and(
+                        cb.and(
+                            cb.like(root.get("name"),cb.parameter(String.class,"name")),
+                            cb.like(joinClasses.get("name"),cb.parameter(String.class,"dndClassName"))
+                        ),
+                        cb.and(
+                                cb.or(
+                                        cb.isTrue(
+                                                cb.literal(
+                                                        searchCharacterDTO.filter().level().isEmpty()
+                                                )
+                                        ),
+                                        cb.equal(
+                                                root.get("level"),
+                                                levelParam
+                                        )
+                                ),
+                                cb.and(
+                                        cb.equal(joinUsers.get("id"),userId),
+                                        cb.equal(root.get("isDeleted"),isDeleted)
+                                )
+                        )
+                ));
+        String sortBy= searchCharacterDTO.sort().sortBy();
+        if (sortBy.isEmpty()){
+            sortBy="id";
+        }
+        Path<Object> path;
+        if (sortBy.equals("className")){
+            path=joinClasses.get("name");
+        }
+        else {
+            path=root.get(sortBy);
+        }
+        if (searchCharacterDTO.sort().ascending()){
+            criteriaQuery.orderBy(cb.asc(path));
+        }else {
+            criteriaQuery.orderBy(cb.desc(path));
+        }
+        TypedQuery<Character> query = em.createQuery(criteriaQuery);
+        query.setParameter("name","%"+searchCharacterDTO.filter().name()+"%");
+        query.setParameter("dndClassName","%"+searchCharacterDTO.filter().dndClassName()+"%");
+        List<Character> characters=  query.getResultList();
+        return mapper.toDTOs(characters);
     }
 
     @Override
@@ -65,7 +126,10 @@ public class CharacterServiceImpl implements CharacterService {
                         }
                     }
             );
-            characterRepo.save(character.get());
+            characterRepo.save(
+                    mapper.fromDto(characterDTO,
+                            Optional.of(character.get().getUser().getRole())
+                    ));
         } else {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }

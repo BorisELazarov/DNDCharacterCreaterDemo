@@ -11,6 +11,7 @@ import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
 import com.example.dndcharactercreatordemo.dal.repos.UserRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +27,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authManager;
 
+    @Autowired
     public AuthServiceImpl(UserRepo userRepo, RoleRepo roleRepo, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authManager) {
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
@@ -37,9 +39,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthenticationResponse register(RegisterRequest request) {
         User user=new User();
+        user.setEmail(request.getEmail());
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        Optional<Role> role=roleRepo.findByTitle("USER");
+        Optional<Role> role=roleRepo.findByTitle("user");
         role.ifPresent(user::setRole);
         Optional<User> userByUsername = userRepo.findByUsername(user.getUsername());
         if (userByUsername.isPresent()) {
@@ -56,10 +59,10 @@ public class AuthServiceImpl implements AuthService {
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getUsername(), request.getPassword()
+                        request.getEmail(), request.getPassword()
                 )
         );
-        User user=userRepo.findByUsername(request.getUsername())
+        User user=userRepo.findByEmail(request.getEmail())
                 .orElseThrow(()->new NotFoundException("User not found"));
 
         String jwtToken=jwtService.generateToken(user);

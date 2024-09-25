@@ -1,6 +1,7 @@
 package com.example.dndcharactercreatordemo.api.controllers;
 
 import com.example.dndcharactercreatordemo.bll.dtos.characters.CharacterDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.characters.SearchCharacterDTO;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.CharacterService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping(path = "/api/characters")
 public class CharacterController {
     private final CharacterService service;
@@ -18,18 +20,22 @@ public class CharacterController {
         this.service = service;
     }
 
-    @GetMapping
-    public ResponseEntity<List<CharacterDTO>> getCharacters(){
+    @PostMapping(path="/getForUser/{userId}")
+    public ResponseEntity<List<CharacterDTO>> getCharacters(
+            @PathVariable Long userId,
+            @RequestBody SearchCharacterDTO searchCharacterDTO){
         return new ResponseEntity<>(
-                service.getCharacters(false),
+                service.getCharacters(userId,false, searchCharacterDTO),
             HttpStatus.OK
         );
     }
 
-    @GetMapping(path = "/deleted")
-    public ResponseEntity<List<CharacterDTO>> getDeletedCharacters(){
+    @PostMapping(path = "/getForUser/deleted/{userId}")
+    public ResponseEntity<List<CharacterDTO>> getDeletedCharacters(
+            @PathVariable Long userId,
+            @RequestBody SearchCharacterDTO searchCharacterDTO){
         return new ResponseEntity<>(
-                service.getCharacters(true),
+                service.getCharacters(userId,true, searchCharacterDTO),
                 HttpStatus.OK
         );
     }

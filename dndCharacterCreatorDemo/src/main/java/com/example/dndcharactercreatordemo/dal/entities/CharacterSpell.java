@@ -2,9 +2,11 @@ package com.example.dndcharactercreatordemo.dal.entities;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "character_spells")
-public class CharacterSpell {
+public class CharacterSpell implements Serializable {
     @EmbeddedId
     private CharacterSpellPairId id;
 

@@ -1,11 +1,13 @@
 package com.example.dndcharactercreatordemo.bll.services.interfaces;
 
+import com.example.dndcharactercreatordemo.bll.dtos.spells.SearchSpellDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.spells.SpellDTO;
 
 import java.util.List;
 
 public interface SpellService {
-    List<SpellDTO> getSpells(boolean isDeleted);
+    List<SpellDTO> getSpells(boolean isDeleted,
+                             SearchSpellDTO searchSpellDTO);
 
     SpellDTO getSpell(Long id);
 
@@ -18,4 +20,6 @@ public interface SpellService {
     void hardDeleteSpell(Long id);
 
     void restoreSpell(Long id);
+
+    List<SpellDTO> getSpellsUnfiltered();
 }

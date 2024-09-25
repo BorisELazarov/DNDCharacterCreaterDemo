@@ -1,18 +1,22 @@
 package com.example.dndcharactercreatordemo.bll.services.implementations;
 
+import com.example.dndcharactercreatordemo.bll.dtos.users.SearchUserDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.users.UserDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.UserMapper;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.UserService;
+import com.example.dndcharactercreatordemo.dal.entities.Character;
 import com.example.dndcharactercreatordemo.dal.entities.Privilege;
 import com.example.dndcharactercreatordemo.dal.entities.Role;
 import com.example.dndcharactercreatordemo.dal.entities.User;
+import com.example.dndcharactercreatordemo.dal.repos.CharacterRepo;
 import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
 import com.example.dndcharactercreatordemo.dal.repos.UserRepo;
-import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
-import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenException;
-import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
-import com.example.dndcharactercreatordemo.exceptions.customs.WrongPasswordException;
+import com.example.dndcharactercreatordemo.exceptions.customs.*;
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
@@ -26,12 +30,15 @@ public class UserServiceImpl implements UserService {
     private final UserRepo userRepo;
     private final UserMapper mapper;
     private final RoleRepo roleRepo;
-
+    private final CharacterRepo characterRepo;
+    @PersistenceContext
+    private EntityManager em;
     public UserServiceImpl(@NotNull UserRepo userRepo, @NotNull RoleRepo roleRepo,
-                           @NotNull UserMapper mapper) {
+                           @NotNull UserMapper mapper, @NotNull CharacterRepo characterRepo) {
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
         this.mapper = mapper;
+        this.characterRepo=characterRepo;
     }
 
     @PostConstruct
@@ -76,7 +83,8 @@ public class UserServiceImpl implements UserService {
         if (userRepo.findByUsername("Boris").isEmpty()) {
             User user = new User();
             user.setUsername("Boris");
-            user.setPassword("BPass");
+            user.setPassword(String.valueOf("BPass".hashCode()));
+            user.setEmail("email@abv.bg");
             Optional<Role> role = roleRepo.findByTitle("admin");
             role.ifPresent(user::setRole);
             userRepo.save(user);
@@ -84,23 +92,51 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDTO> getUsers() {
-        return mapper.toDTOs(userRepo.findAll());
+    public List<UserDTO> getUsers(SearchUserDTO searchUserDTO) {
+        CriteriaBuilder cb= em.getCriteriaBuilder();
+        CriteriaQuery<User> criteriaQuery= cb.createQuery(User.class);
+        Root<User> root= criteriaQuery.from(User.class);
+        Join<User,Role> joinRoles= root.join("role",JoinType.INNER);
+        criteriaQuery.select(root)
+                .where(cb.and(
+                        cb.and(
+                                cb.like(root.get("username"),cb.parameter(String.class,"usernameParam")),
+                        cb.like(joinRoles.get("title"),cb.parameter(String.class,"roleParam"))
+                        ),
+                        cb.like(root.get("email"),cb.parameter(String.class,"emailParam"))
+                ));
+        String sortBy= searchUserDTO.sort().sortBy();
+        if (sortBy.isEmpty()){
+            sortBy="id";
+        }
+        if (searchUserDTO.sort().ascending()){
+            criteriaQuery.orderBy(cb.asc(root.get(sortBy)));
+        }else {
+            criteriaQuery.orderBy(cb.desc(root.get(sortBy)));
+        }
+        TypedQuery<User> query = em.createQuery(criteriaQuery);
+        query.setParameter("usernameParam","%"+searchUserDTO.filter().username()+"%");
+        query.setParameter("emailParam","%"+searchUserDTO.filter().email()+"%");
+        query.setParameter("roleParam","%"+searchUserDTO.filter().roleTitle()+"%");
+        List<User> users=query.getResultList();
+        return mapper.toDTOs(users);
     }
 
     @Override
     public UserDTO addUser(UserDTO userDTO) {
-        Optional<User> userByUsername = userRepo.findByUsername(userDTO.username());
-        if (userByUsername.isPresent()) {
+        if (userRepo.findByUsername(userDTO.username()).isPresent()) {
             throw new NameAlreadyTakenException(USERNAME_TAKEN_MESSAGE);
+        }
+        if (userRepo.findByEmail(userDTO.email()).isPresent()){
+            throw new EmailAlreadyTakenException("This email is already taken!");
         }
         Optional<Role> role= roleRepo.findByTitle(userDTO.role());
         User user = mapper.fromDto(userDTO, role);
+        user.setPassword(String.valueOf(user.getPassword().hashCode()));
         return mapper.toDto(userRepo.save(user));
     }
 
     @Override
-    @Transactional
     public void changeUsername(Long id, String username) {
         Optional<User> optionalUser = userRepo.findById(id);
         if (optionalUser.isEmpty()) {
@@ -115,26 +151,55 @@ public class UserServiceImpl implements UserService {
                 throw new NameAlreadyTakenException(USERNAME_TAKEN_MESSAGE);
             }
             foundUser.setUsername(username);
+            userRepo.save(foundUser);
         }
     }
 
     @Override
-    @Transactional
     public void changePassword(Long id, String oldPassword, String newPassword) {
         Optional<User> optionalUser = userRepo.findById(id);
         if (optionalUser.isEmpty()) {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
         User foundUser = optionalUser.get();
+        oldPassword=String.valueOf(oldPassword.hashCode());
 
-        if (foundUser.getPassword().equals(oldPassword))
+        if (!foundUser.getPassword().equals(oldPassword))
             throw new WrongPasswordException("Wrong password");
-
         if (newPassword != null &&
-                newPassword.length() > 0 &&
-                !newPassword.equals(oldPassword)) {
-            foundUser.setPassword(newPassword);
+                newPassword.length() > 0) {
+            foundUser.setPassword(String.valueOf(newPassword.hashCode()));
+            userRepo.save(foundUser);
         }
+    }
+
+    @Override
+    public void changeEmail(Long id, String email) {
+        Optional<User> optionalUser = userRepo.findById(id);
+        if (optionalUser.isEmpty()) {
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        }
+        User foundUser = optionalUser.get();
+        if (userRepo.findByEmail(email).isPresent()){
+            throw new EmailAlreadyTakenException("");
+        }
+        foundUser.setEmail(email);
+        userRepo.save(foundUser);
+    }
+
+    @Override
+    public void changeRole(Long id, String role) {
+        Optional<User> optionalUser = userRepo.findById(id);
+        if (optionalUser.isEmpty()) {
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        }
+        User foundUser = optionalUser.get();
+        Optional<Role> foundRole=roleRepo.findByTitle(role);
+        if (foundRole.isEmpty()){
+            throw new NotFoundException("There is no such role!");
+        }
+        foundUser.setRole(foundRole.get());
+        userRepo.save(foundUser);
     }
 
     @Override
@@ -151,13 +216,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void hardDeleteUser(Long id) {
         Optional<User> optionalUser = userRepo.findById(id);
-
         if (optionalUser.isPresent()) {
             User foundUser = optionalUser.get();
-
             if (foundUser.getIsDeleted()) {
+                CriteriaBuilder cb= em.getCriteriaBuilder();
+                CriteriaQuery<Character> criteriaQuery= cb.createQuery(Character.class);
+                Root<Character> root= criteriaQuery.from(Character.class);
+                criteriaQuery.select(root)
+                        .where(cb.equal(root.get("user"),foundUser));
+                TypedQuery<Character> query = em.createQuery(criteriaQuery);
+                List<Character> characters=query.getResultList();
+                characterRepo.deleteAllInBatch(
+                        characters
+                );
                 userRepo.delete(foundUser);
             } else {
                throw new NotSoftDeletedException("The user must be soft deleted first!");
@@ -170,12 +244,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void restoreUser(String username, String password) {
-        Optional<User> deletedUser=userRepo.findDeletedByUsernameAndPassword(username, password);
+    public void restoreUser(Long id) {
+        Optional<User> deletedUser=userRepo.findById(id);
         if (deletedUser.isEmpty()){
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
-        if (userRepo.findByUsername(username).isPresent()){
+        if (userRepo.findByUsername(deletedUser.get().getUsername()).isPresent()){
             throw new NameAlreadyTakenException("There is already user with such username.");
         }
         User user= deletedUser.get();
@@ -193,13 +267,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO getUser(String username, String password) {
-        Optional<User> optionalUser = userRepo.findByUsername(password);
+    public UserDTO getUser(String email, String password) {
+        Optional<User> optionalUser = userRepo.findByEmail(email);
         if (optionalUser.isEmpty()) {
-            throw new NotFoundException(NOT_FOUND_MESSAGE);
+            throw new NotFoundException("There is no user with such email!");
         }
         User user= optionalUser.get();
-        if (!user.getPassword().equals(password))
+        if (!user.getPassword().equals(String.valueOf(password.hashCode())))
             throw new WrongPasswordException("Wrong password!");
         return mapper.toDto(optionalUser.get());
     }

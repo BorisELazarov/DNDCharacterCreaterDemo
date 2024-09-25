@@ -30,6 +30,7 @@ public class UserMapperImpl implements UserMapper {
         entity.setIsDeleted(dto.isDeleted());
         entity.setUsername(dto.username());
         entity.setPassword(dto.password());
+        entity.setEmail(dto.email());
         return entity;
     }
 
@@ -42,6 +43,7 @@ public class UserMapperImpl implements UserMapper {
                 entity.getIsDeleted(),
                 entity.getUsername(),
                 entity.getPassword(),
+                entity.getEmail(),
                 entity.getRole().getTitle()
         );
     }

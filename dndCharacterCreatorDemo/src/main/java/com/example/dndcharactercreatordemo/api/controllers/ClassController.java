@@ -1,6 +1,7 @@
 package com.example.dndcharactercreatordemo.api.controllers;
 
 import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.ClassDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.SearchClassDTO;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.ClassService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping(path="api/classes")
 public class ClassController {
     private final ClassService classService;
@@ -21,19 +23,32 @@ public class ClassController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ClassDTO>> getClasses()
+    public ResponseEntity<List<ClassDTO>> getClassesUnfiltered()
     {
         return new ResponseEntity<>(
-            classService.getClasses(false),
+                classService.getClassesUnfiltered(),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping(path = "/getAll")
+    public ResponseEntity<List<ClassDTO>> getClasses(
+            @RequestBody SearchClassDTO searchClassDTO
+            )
+    {
+        return new ResponseEntity<>(
+            classService.getClasses(false, searchClassDTO),
             HttpStatus.OK
         );
     }
 
-    @GetMapping(path = "/deleted")
-    public ResponseEntity<List<ClassDTO>> getDeletedClasses()
+    @PostMapping(path = "/getAll/deleted")
+    public ResponseEntity<List<ClassDTO>> getDeletedClasses(
+            @RequestBody SearchClassDTO searchClassDTO
+    )
     {
         return new ResponseEntity<>(
-                classService.getClasses(true),
+                classService.getClasses(true, searchClassDTO),
                 HttpStatus.OK
         );
     }
@@ -62,7 +77,7 @@ public class ClassController {
                 HttpStatus.OK);
     }
 
-    @PutMapping(path="{classId}")
+    @PutMapping(path="restore/{classId}")
     public ResponseEntity<Void> restoreClass(
             @PathVariable("classId") Long id){
         classService.restoreClass(id);

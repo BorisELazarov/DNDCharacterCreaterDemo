@@ -1,5 +1,6 @@
 package com.example.dndcharactercreatordemo.api.controllers;
 
+import com.example.dndcharactercreatordemo.bll.dtos.spells.SearchSpellDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.spells.SpellDTO;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.SpellService;
 import jakarta.validation.Valid;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping(path = "api/spells")
 public class SpellController {
     private final SpellService spellService;
@@ -23,15 +25,23 @@ public class SpellController {
     @GetMapping
     public ResponseEntity<List<SpellDTO>> getSpells(){
         return new ResponseEntity<>(
-                spellService.getSpells(false),
+                spellService.getSpellsUnfiltered(),
                 HttpStatus.OK
         );
     }
 
-    @GetMapping(path = "/deleted")
-    public ResponseEntity<List<SpellDTO>> getDeletedSpells(){
+    @PostMapping(path = "/getAll")
+    public ResponseEntity<List<SpellDTO>> getSpells(@RequestBody SearchSpellDTO searchSpellDTO){
         return new ResponseEntity<>(
-                spellService.getSpells(true),
+                spellService.getSpells(false, searchSpellDTO),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping(path = "/getAll/deleted")
+    public ResponseEntity<List<SpellDTO>> getDeletedSpells(@RequestBody SearchSpellDTO searchSpellDTO){
+        return new ResponseEntity<>(
+                spellService.getSpells(true, searchSpellDTO),
                 HttpStatus.OK
         );
     }
@@ -52,9 +62,8 @@ public class SpellController {
         );
     }
 
-    @PutMapping(path = "/{spellId}")
-    public ResponseEntity<SpellDTO> putSpell(@RequestBody @Valid SpellDTO spell,
-                         @PathVariable("spellId") Long id){
+    @PutMapping
+    public ResponseEntity<SpellDTO> putSpell(@RequestBody @Valid SpellDTO spell){
         return new ResponseEntity<>(
                 spellService.editSpell(spell),
                 HttpStatus.OK

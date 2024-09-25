@@ -1,5 +1,6 @@
 package com.example.dndcharactercreatordemo.bll.services.implementations;
 
+import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.SearchClassDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.ClassMapper;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.ClassService;
 import com.example.dndcharactercreatordemo.dal.entities.Proficiency;
@@ -12,6 +13,12 @@ import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenEx
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotSoftDeletedException;
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
@@ -25,6 +32,8 @@ public class ClassServiceImpl implements ClassService {
     private final ClassRepo classRepo;
     private final ProficiencyRepo proficiencyRepo;
     private final ClassMapper mapper;
+    @PersistenceContext
+    private EntityManager em;
 
     public ClassServiceImpl(@NotNull ClassRepo classRepo, @NotNull ProficiencyRepo proficiencyRepo,
                             @NotNull ClassMapper mapper) {
@@ -90,8 +99,41 @@ public class ClassServiceImpl implements ClassService {
     }
 
     @Override
-    public List<ClassDTO> getClasses(boolean isDeleted) {
-        return mapper.toDTOs(classRepo.findAll(isDeleted));
+    public List<ClassDTO> getClassesUnfiltered() {
+        return mapper.toDTOs(this.classRepo.findAll(false));
+    }
+
+    @Override
+    public List<ClassDTO> getClasses(boolean isDeleted,
+                                     SearchClassDTO searchClassDTO) {
+        CriteriaBuilder cb= em.getCriteriaBuilder();
+        CriteriaQuery<DNDclass> criteriaQuery= cb.createQuery(DNDclass.class);
+        Root<DNDclass> root= criteriaQuery.from(DNDclass.class);
+        HitDiceEnum hitDice=searchClassDTO.filter().hitDice().orElse(HitDiceEnum.NONE);
+        criteriaQuery.select(root)
+                .where(cb.and(
+                        cb.and(
+                                cb.equal(root.get("isDeleted"),isDeleted),
+                                cb.like(root.get("name"),cb.parameter(String.class,"name"))
+                        ),
+                        cb.or(
+                                cb.equal(root.get("hitDice"),hitDice),
+                                cb.isTrue(cb.literal(hitDice==HitDiceEnum.NONE))
+                        )
+                ));
+        String sortBy= searchClassDTO.sort().sortBy();
+        if (sortBy.isEmpty()){
+            sortBy="id";
+        }
+        if (searchClassDTO.sort().ascending()){
+            criteriaQuery.orderBy(cb.asc(root.get(sortBy)));
+        }else {
+            criteriaQuery.orderBy(cb.desc(root.get(sortBy)));
+        }
+        TypedQuery<DNDclass> query = em.createQuery(criteriaQuery);
+        query.setParameter("name","%"+searchClassDTO.filter().name()+"%");
+        List<DNDclass> dnDclasses=query.getResultList();
+        return mapper.toDTOs(dnDclasses);
     }
 
     @Override
@@ -122,7 +164,7 @@ public class ClassServiceImpl implements ClassService {
                         }
                     }
             );
-            classRepo.save(dnDclass.get());
+            classRepo.save(mapper.fromDto(classDTO));
         } else {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }

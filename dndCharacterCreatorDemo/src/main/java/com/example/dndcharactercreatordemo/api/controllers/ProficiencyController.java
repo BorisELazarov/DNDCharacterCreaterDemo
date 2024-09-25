@@ -1,6 +1,7 @@
 package com.example.dndcharactercreatordemo.api.controllers;
 
 import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.ProficiencyDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.proficiencies.SearchProficiencyDTO;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.ProficiencyService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping(path="api/proficiencies")
 public class ProficiencyController {
     private final ProficiencyService proficiencyService;
@@ -21,19 +23,32 @@ public class ProficiencyController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProficiencyDTO>> getProficiencies()
+    public ResponseEntity<List<ProficiencyDTO>> getProficienciesUnfiltered()
     {
         return new ResponseEntity<>(
-                proficiencyService.getProficiencies(false),
+                proficiencyService.getProficienciesUnfiltered(),
                 HttpStatus.OK
         );
     }
 
-    @GetMapping(path = "/deleted")
-    public ResponseEntity<List<ProficiencyDTO>> getDeletedProficiencies()
+    @PostMapping(path = "/getAll")
+    public ResponseEntity<List<ProficiencyDTO>> getProficiencies(
+            @RequestBody SearchProficiencyDTO searchProficiencyDTO
+            )
     {
         return new ResponseEntity<>(
-                proficiencyService.getProficiencies(true),
+                proficiencyService.getProficiencies(false, searchProficiencyDTO),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping(path = "/getAll/deleted")
+    public ResponseEntity<List<ProficiencyDTO>> getDeletedProficiencies(
+            @RequestBody SearchProficiencyDTO searchProficiencyDTO
+    )
+    {
+        return new ResponseEntity<>(
+                proficiencyService.getProficiencies(true, searchProficiencyDTO),
                 HttpStatus.OK
         );
     }
