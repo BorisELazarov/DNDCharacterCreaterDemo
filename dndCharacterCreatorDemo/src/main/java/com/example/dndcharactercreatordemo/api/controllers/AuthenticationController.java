@@ -1,9 +1,10 @@
 package com.example.dndcharactercreatordemo.api.controllers;
 
-import com.example.dndcharactercreatordemo.api.AuthenticationRequest;
-import com.example.dndcharactercreatordemo.api.AuthenticationResponse;
-import com.example.dndcharactercreatordemo.api.RegisterRequest;
+import com.example.dndcharactercreatordemo.bll.dtos.auth.AuthenticationRequest;
+import com.example.dndcharactercreatordemo.bll.dtos.auth.AuthenticationResponse;
+import com.example.dndcharactercreatordemo.bll.dtos.auth.RegisterRequest;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.AuthService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,14 +22,14 @@ public class AuthenticationController {
 
     @PostMapping(path = "/register")
     public ResponseEntity<AuthenticationResponse> register(
-            @RequestBody RegisterRequest request
+            @Valid @RequestBody RegisterRequest request
     ){
         return ResponseEntity.ok(authService.register(request));
     }
 
     @PostMapping(path = "/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(
-            @RequestBody AuthenticationRequest request
+            @Valid @RequestBody AuthenticationRequest request
     ){
         return ResponseEntity.ok(authService.authenticate(request));
     }

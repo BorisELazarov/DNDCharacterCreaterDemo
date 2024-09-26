@@ -5,10 +5,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
-public class ClassSpellPairId {
+public class ClassSpellPairId implements Serializable {
     @ManyToOne
     @JoinColumn(name="spell_id", nullable = false)
     private Spell spell;

@@ -3,12 +3,13 @@ package com.example.dndcharactercreatordemo.dal.entities;
 import jakarta.persistence.*;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.Set;
 
 @Entity
 @Table(name = "Roles")
-public class Role{
+public class Role implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
