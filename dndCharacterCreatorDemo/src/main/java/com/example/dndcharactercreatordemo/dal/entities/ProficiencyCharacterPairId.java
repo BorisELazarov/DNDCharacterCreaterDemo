@@ -2,10 +2,8 @@ package com.example.dndcharactercreatordemo.dal.entities;
 
 import jakarta.persistence.*;
 
-import java.io.Serializable;
-
 @Embeddable
-public class ProficiencyCharacterPairId implements Serializable {
+public class ProficiencyCharacterPairId{
     @ManyToOne
     @JoinColumn(name="proficiency_id",nullable = false)
     private Proficiency proficiency;

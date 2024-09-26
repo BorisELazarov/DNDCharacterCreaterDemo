@@ -4,12 +4,11 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
 @Table(name = "privileges")
-public class Privilege implements Serializable {
+public class Privilege{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

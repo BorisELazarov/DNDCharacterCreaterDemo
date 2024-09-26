@@ -4,10 +4,8 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
-import java.io.Serializable;
-
 @Embeddable
-public class CharacterSpellPairId implements Serializable {
+public class CharacterSpellPairId {
     @ManyToOne
     @JoinColumn(name="spell_id", nullable = false)
     private Spell spell;

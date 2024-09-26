@@ -6,12 +6,11 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
 @Table(name = "spells")
-public class Spell extends BaseEntity implements Serializable {
+public class Spell extends BaseEntity{
     @Column(name="name", nullable = false, length = 50)
     private String name;
     @Column(name="level", nullable = false)

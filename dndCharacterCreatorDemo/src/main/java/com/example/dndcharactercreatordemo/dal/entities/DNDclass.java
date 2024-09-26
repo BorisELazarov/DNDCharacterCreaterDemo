@@ -4,14 +4,13 @@ import com.example.dndcharactercreatordemo.enums.HitDiceEnum;
 import jakarta.persistence.*;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 @Entity
 @Table(name = "Classes")
-public class DNDclass extends BaseEntity implements Serializable {
+public class DNDclass extends BaseEntity{
     @Column(name = "name", unique = true, nullable = false, length = 40)
     private String name;
     @Column(name = "description", nullable = false, length = 65535)

@@ -2,11 +2,9 @@ package com.example.dndcharactercreatordemo.dal.entities;
 
 import jakarta.persistence.*;
 
-import java.io.Serializable;
-
 @Entity
 @Table(name="Proficiency_Characters")
-public class ProficiencyCharacter implements Serializable {
+public class ProficiencyCharacter {
     @EmbeddedId
     private ProficiencyCharacterPairId id;
     @Column(name="expertise", nullable = false)
