@@ -33,15 +33,6 @@ public class UserController {
         );
     }
 
-    @GetMapping(path="/login/{email}/{password}")
-    public ResponseEntity<UserDTO> login(@PathVariable("email") String email,
-                                         @PathVariable("password") String password){
-        return new ResponseEntity<>(
-                userService.getUser(email,password),
-                HttpStatus.OK
-        );
-    }
-
     @PutMapping(path="/restore/{id}")
     public ResponseEntity<Void> restoreAccount(@PathVariable("id") Long id){
         userService.restoreUser(id);
@@ -53,14 +44,6 @@ public class UserController {
         return new ResponseEntity<>(
                 userService.getUser(id),
                 HttpStatus.OK
-        );
-    }
-
-    @PostMapping(path = "/register")
-    public ResponseEntity<UserDTO> registerUser(@RequestBody @Valid UserDTO user){
-        return new ResponseEntity<>(
-                userService.addUser(user),
-                HttpStatus.CREATED
         );
     }
 

@@ -3,6 +3,7 @@ import com.example.dndcharactercreatordemo.exceptions.customs.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,6 +18,13 @@ public class GlobalExceptionHandler {
     public @ResponseBody ErrorResponse handleException(NotFoundException ex){
         logger.error(ex.getMessage(),ex);
         return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public @ResponseBody ErrorResponse handleException(BadCredentialsException ex){
+        logger.error(ex.getMessage(),ex);
+        return new ErrorResponse(HttpStatus.FORBIDDEN.value(), "Wrong email or password!");
     }
 
     @ExceptionHandler

@@ -123,20 +123,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO addUser(UserDTO userDTO) {
-        if (userRepo.findByUsername(userDTO.username()).isPresent()) {
-            throw new NameAlreadyTakenException(USERNAME_TAKEN_MESSAGE);
-        }
-        if (userRepo.findByEmail(userDTO.email()).isPresent()){
-            throw new EmailAlreadyTakenException("This email is already taken!");
-        }
-        Optional<Role> role= roleRepo.findByTitle(userDTO.role());
-        User user = mapper.fromDto(userDTO, role);
-        user.setPassword(String.valueOf(user.getPassword().hashCode()));
-        return mapper.toDto(userRepo.save(user));
-    }
-
-    @Override
     public void changeUsername(Long id, String username) {
         Optional<User> optionalUser = userRepo.findById(id);
         if (optionalUser.isEmpty()) {
@@ -222,16 +208,6 @@ public class UserServiceImpl implements UserService {
         if (optionalUser.isPresent()) {
             User foundUser = optionalUser.get();
             if (foundUser.getIsDeleted()) {
-                CriteriaBuilder cb= em.getCriteriaBuilder();
-                CriteriaQuery<Character> criteriaQuery= cb.createQuery(Character.class);
-                Root<Character> root= criteriaQuery.from(Character.class);
-                criteriaQuery.select(root)
-                        .where(cb.equal(root.get("user"),foundUser));
-                TypedQuery<Character> query = em.createQuery(criteriaQuery);
-                List<Character> characters=query.getResultList();
-                characterRepo.deleteAllInBatch(
-                        characters
-                );
                 userRepo.delete(foundUser);
             } else {
                throw new NotSoftDeletedException("The user must be soft deleted first!");
@@ -263,18 +239,6 @@ public class UserServiceImpl implements UserService {
         if (optionalUser.isEmpty()) {
             throw new NotFoundException(NOT_FOUND_MESSAGE);
         }
-        return mapper.toDto(optionalUser.get());
-    }
-
-    @Override
-    public UserDTO getUser(String email, String password) {
-        Optional<User> optionalUser = userRepo.findByEmail(email);
-        if (optionalUser.isEmpty()) {
-            throw new NotFoundException("There is no user with such email!");
-        }
-        User user= optionalUser.get();
-        if (!user.getPassword().equals(String.valueOf(password.hashCode())))
-            throw new WrongPasswordException("Wrong password!");
         return mapper.toDto(optionalUser.get());
     }
 }
