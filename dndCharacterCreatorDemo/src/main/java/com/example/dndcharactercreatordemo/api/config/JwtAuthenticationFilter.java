@@ -1,5 +1,6 @@
-package com.example.dndcharactercreatordemo.api.auth.config;
+package com.example.dndcharactercreatordemo.api.config;
 
+import com.example.dndcharactercreatordemo.bll.services.interfaces.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         jwt=authHeader.substring(7);
-        userEmail=jwtService.extractEmail(jwt);
+        userEmail= jwtService.extractEmail(jwt);
         if (userEmail!=null && SecurityContextHolder.getContext().getAuthentication()==null){
             UserDetails userDetails=this.userDetailsService.loadUserByUsername(userEmail);
             if (jwtService.isTokenValid(jwt, userDetails)) {

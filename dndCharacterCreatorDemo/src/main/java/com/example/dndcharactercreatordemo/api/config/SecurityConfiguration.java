@@ -1,4 +1,4 @@
-package com.example.dndcharactercreatordemo.api.auth.config;
+package com.example.dndcharactercreatordemo.api.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,13 +23,21 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        String dataManagerAuthority="data manager";
+
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         authorizationManagerRequestMatcherRegistry
                                 -> authorizationManagerRequestMatcherRegistry
-                                .requestMatchers("api/auth/**")
-                                .permitAll()
+                                .requestMatchers("api/auth/**").permitAll()
+                                .requestMatchers("api/characters/**").hasAuthority("user")
+                                .requestMatchers("api/spells/**").hasAuthority(dataManagerAuthority)
+                                .requestMatchers("api/classes/**").hasAuthority(dataManagerAuthority)
+                                .requestMatchers("api/proficiencies/**").hasAuthority(dataManagerAuthority)
+                                .requestMatchers("api/users/changeRole/**").hasAuthority("admin")
+                                .requestMatchers("api/users/getAll").hasAuthority("admin")
+                                .requestMatchers("api/users/**").permitAll()
                                 .anyRequest()
                                 .authenticated()
                 )

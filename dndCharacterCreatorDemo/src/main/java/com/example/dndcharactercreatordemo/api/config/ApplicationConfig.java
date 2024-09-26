@@ -1,4 +1,4 @@
-package com.example.dndcharactercreatordemo.api.auth.config;
+package com.example.dndcharactercreatordemo.api.config;
 
 import com.example.dndcharactercreatordemo.bll.dtos.users.LoginCredentials;
 import com.example.dndcharactercreatordemo.dal.entities.User;

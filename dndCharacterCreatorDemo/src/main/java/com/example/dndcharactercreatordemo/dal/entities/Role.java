@@ -5,7 +5,6 @@ import org.hibernate.proxy.HibernateProxy;
 
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name = "Roles")
@@ -15,13 +14,6 @@ public class Role implements Serializable {
     private Integer id;
     @Column(nullable = false, length = 20)
     private String title="user";
-    @ManyToMany(cascade = CascadeType.PERSIST)
-    @JoinTable(
-            name = "Role_privileges",
-            joinColumns = { @JoinColumn(name = "role_id") },
-            inverseJoinColumns = { @JoinColumn(name = "privilege_id") }
-    )
-    private Set<Privilege> privileges;
 
     public String getTitle() {
         return title;
@@ -29,14 +21,6 @@ public class Role implements Serializable {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public Set<Privilege> getPrivileges() {
-        return privileges;
-    }
-
-    public void setPrivileges(Set<Privilege> privileges) {
-        this.privileges = privileges;
     }
 
     @Override

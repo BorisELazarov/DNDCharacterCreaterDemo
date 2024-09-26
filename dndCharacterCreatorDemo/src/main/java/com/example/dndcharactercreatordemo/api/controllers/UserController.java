@@ -3,7 +3,6 @@ package com.example.dndcharactercreatordemo.api.controllers;
 import com.example.dndcharactercreatordemo.bll.dtos.users.SearchUserDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.users.UserDTO;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.UserService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
