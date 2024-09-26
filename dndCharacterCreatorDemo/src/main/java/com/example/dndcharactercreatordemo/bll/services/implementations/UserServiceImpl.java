@@ -4,15 +4,11 @@ import com.example.dndcharactercreatordemo.bll.dtos.users.SearchUserDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.users.UserDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.UserMapper;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.UserService;
-import com.example.dndcharactercreatordemo.dal.entities.Character;
-import com.example.dndcharactercreatordemo.dal.entities.Privilege;
 import com.example.dndcharactercreatordemo.dal.entities.Role;
 import com.example.dndcharactercreatordemo.dal.entities.User;
-import com.example.dndcharactercreatordemo.dal.repos.CharacterRepo;
 import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
 import com.example.dndcharactercreatordemo.dal.repos.UserRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.*;
-import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -30,65 +26,13 @@ public class UserServiceImpl implements UserService {
     private final UserRepo userRepo;
     private final UserMapper mapper;
     private final RoleRepo roleRepo;
-    private final CharacterRepo characterRepo;
     @PersistenceContext
     private EntityManager em;
     public UserServiceImpl(@NotNull UserRepo userRepo, @NotNull RoleRepo roleRepo,
-                           @NotNull UserMapper mapper, @NotNull CharacterRepo characterRepo) {
+                           @NotNull UserMapper mapper) {
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
         this.mapper = mapper;
-        this.characterRepo=characterRepo;
-    }
-
-    @PostConstruct
-    private void seedDataForUsersAndRoles() {
-        seedRoles();
-        seedUser();
-    }
-
-    private void seedRoles() {
-        if (roleRepo.count()>0)
-            return;
-        List<Role> roles = new ArrayList<>();
-        Set<Privilege> privileges=new LinkedHashSet<>();
-
-        privileges.add(getPrivilege("manage profile"));
-        privileges.add(getPrivilege("manage characters"));
-        roles.add(getRole("user",privileges));
-
-        privileges.stream().skip(1).findFirst().orElse(new Privilege()).setTitle("manage data");
-        roles.add(getRole("data manager",privileges));
-
-        privileges.stream().skip(1).findFirst().orElse(new Privilege()).setTitle("manage users");
-        roles.add(getRole("admin",privileges));
-
-        roleRepo.saveAll(roles);
-    }
-
-    static Role getRole(String title, Set<Privilege> privileges){
-        Role role=new Role();
-        role.setTitle(title);
-        role.setPrivileges(privileges);
-        return role;
-    }
-
-    static Privilege getPrivilege(String title) {
-        Privilege privilege = new Privilege();
-        privilege.setTitle(title);
-        return privilege;
-    }
-
-    private void seedUser() {
-        if (userRepo.findByUsername("Boris").isEmpty()) {
-            User user = new User();
-            user.setUsername("Boris");
-            user.setPassword(String.valueOf("BPass".hashCode()));
-            user.setEmail("email@abv.bg");
-            Optional<Role> role = roleRepo.findByTitle("admin");
-            role.ifPresent(user::setRole);
-            userRepo.save(user);
-        }
     }
 
     @Override

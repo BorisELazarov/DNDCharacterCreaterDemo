@@ -2,12 +2,11 @@ package com.example.dndcharactercreatordemo.bll.services.implementations;
 
 import com.example.dndcharactercreatordemo.bll.dtos.auth.AuthenticationRequest;
 import com.example.dndcharactercreatordemo.bll.dtos.auth.AuthenticationResponse;
-import com.example.dndcharactercreatordemo.api.auth.config.JwtService;
 import com.example.dndcharactercreatordemo.bll.dtos.users.LoginCredentials;
 import com.example.dndcharactercreatordemo.bll.dtos.users.RegisterDTO;
-import com.example.dndcharactercreatordemo.bll.dtos.users.UserDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.UserMapper;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.AuthService;
+import com.example.dndcharactercreatordemo.bll.services.interfaces.JwtService;
 import com.example.dndcharactercreatordemo.dal.entities.Role;
 import com.example.dndcharactercreatordemo.dal.entities.User;
 import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
@@ -15,14 +14,14 @@ import com.example.dndcharactercreatordemo.dal.repos.UserRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.EmailAlreadyTakenException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
-import com.example.dndcharactercreatordemo.exceptions.customs.WrongPasswordException;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -45,6 +44,43 @@ public class AuthServiceImpl implements AuthService {
         this.userMapper=userMapper;
     }
 
+
+
+    @PostConstruct
+    private void seedDataForUsersAndRoles() {
+        seedRoles();
+        seedUser();
+    }
+
+    private void seedRoles() {
+        if (roleRepo.count()>0)
+            return;
+        List<Role> roles = List.of(
+                getRole("user"),
+                getRole("data manager"),
+                getRole("admin")
+        );
+        roleRepo.saveAll(roles);
+    }
+
+    static Role getRole(String title){
+        Role role=new Role();
+        role.setTitle(title);
+        return role;
+    }
+
+    private void seedUser() {
+        if (userRepo.findByUsername("Boris").isEmpty()) {
+            User user = new User();
+            user.setUsername("Boris");
+            user.setPassword(passwordEncoder.encode(user.getUsername()));
+            user.setEmail("admin@email.com");
+            Optional<Role> role = roleRepo.findByTitle("admin");
+            role.ifPresent(user::setRole);
+            userRepo.save(user);
+        }
+    }
+
     @Override
     public AuthenticationResponse register(RegisterDTO registerDTO) {
         if (userRepo.findByEmail(registerDTO.email()).isPresent()){
@@ -62,7 +98,7 @@ public class AuthServiceImpl implements AuthService {
         LoginCredentials login=new LoginCredentials();
         login.setEmail(user.getEmail());
         login.setPassword(user.getPassword());
-        String jwtToken=jwtService.generateToken(login);
+        String jwtToken= jwtService.generateToken(login);
         return new AuthenticationResponse(jwtToken,this.userMapper.toDto(user));
     }
 
@@ -82,7 +118,7 @@ public class AuthServiceImpl implements AuthService {
         login.setEmail(user.getEmail());
         login.setPassword(user.getPassword());
 
-        String jwtToken=jwtService.generateToken(login);
+        String jwtToken= jwtService.generateToken(login);
         return new AuthenticationResponse(jwtToken,this.userMapper.toDto(user));
     }
 }

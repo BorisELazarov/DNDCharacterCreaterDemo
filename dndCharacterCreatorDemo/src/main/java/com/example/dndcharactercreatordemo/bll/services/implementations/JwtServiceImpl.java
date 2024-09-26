@@ -1,5 +1,6 @@
-package com.example.dndcharactercreatordemo.api.auth.config;
+package com.example.dndcharactercreatordemo.bll.services.implementations;
 
+import com.example.dndcharactercreatordemo.bll.services.interfaces.JwtService;
 import com.example.dndcharactercreatordemo.dal.entities.User;
 import com.example.dndcharactercreatordemo.dal.repos.UserRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
@@ -18,15 +19,16 @@ import java.util.Optional;
 import java.util.function.Function;
 
 @Service
-public class JwtService {
+public class JwtServiceImpl implements JwtService {
     private static final String KEY
             ="K7aToyGnmyxFF+GHzMOsArYMibOqtWn3J9DxJGN2CczFIwc12/dAty4eV5tRtvPeLEC2cSiRtrtGBHuET8buSQ==";
     private final UserRepo userRepo;
 
-    public JwtService(UserRepo userRepo) {
+    public JwtServiceImpl(UserRepo userRepo) {
         this.userRepo = userRepo;
     }
 
+    @Override
     public String extractEmail(String token) {
         String username = extractClaim(token,Claims::getSubject);
         Optional<User> user=this.userRepo.findByEmail(username);
@@ -36,30 +38,36 @@ public class JwtService {
         throw new NotFoundException("There is no such user!");
     }
 
+    @Override
     public boolean isTokenValid(String token, UserDetails login){
         final String email= extractEmail(token);
         return email.equals(login.getUsername()) && !isTokenExpired(token);
     }
 
-    private boolean isTokenExpired(String token) {
+    @Override
+    public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    private Date extractExpiration(String token) {
+    @Override
+    public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
+    @Override
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver){
         final Claims claims=extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
+    @Override
     public String generateToken(UserDetails userDetails){
         return generateToken(
                 Map.of(),
         userDetails);
     }
 
+    @Override
     public String generateToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails
@@ -74,7 +82,8 @@ public class JwtService {
                 .compact();
     }
 
-    private Claims extractAllClaims(String token){
+    @Override
+    public Claims extractAllClaims(String token){
         return Jwts
                 .parserBuilder()
                 .setSigningKey(getSignInKey())
@@ -84,7 +93,8 @@ public class JwtService {
 
     }
 
-    private Key getSignInKey() {
+    @Override
+    public Key getSignInKey() {
         byte[] keyBytes= Decoders.BASE64.decode(KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
