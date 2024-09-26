@@ -1,5 +1,7 @@
-package com.example.dndcharactercreatordemo.api.config;
+package com.example.dndcharactercreatordemo.api.auth.config;
 
+import com.example.dndcharactercreatordemo.bll.dtos.users.LoginCredentials;
+import com.example.dndcharactercreatordemo.dal.entities.User;
 import com.example.dndcharactercreatordemo.dal.repos.UserRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
 import org.springframework.context.annotation.Bean;
@@ -22,8 +24,17 @@ public class ApplicationConfig {
 
     @Bean
     public UserDetailsService userDetailsServiceEmail(){
-        return email -> userRepo.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("There is no such user with such email."));
+        return username -> {
+            User user=userRepo.findByEmail(username)
+                    .orElseThrow(() -> new NotFoundException("There is no such user with such email."));
+
+            LoginCredentials login=new LoginCredentials();
+            login.setEmail(username);
+            login.setPassword(user.getPassword());
+            login.setRole(user.getRole().getTitle());
+
+            return login;
+        };
     }
 
     @Bean

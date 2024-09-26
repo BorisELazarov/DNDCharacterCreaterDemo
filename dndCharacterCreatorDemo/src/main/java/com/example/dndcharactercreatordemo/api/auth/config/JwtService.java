@@ -1,4 +1,4 @@
-package com.example.dndcharactercreatordemo.api.config;
+package com.example.dndcharactercreatordemo.api.auth.config;
 
 import com.example.dndcharactercreatordemo.dal.entities.User;
 import com.example.dndcharactercreatordemo.dal.repos.UserRepo;
@@ -29,16 +29,16 @@ public class JwtService {
 
     public String extractEmail(String token) {
         String username = extractClaim(token,Claims::getSubject);
-        Optional<User> user=this.userRepo.findByUsername(username);
+        Optional<User> user=this.userRepo.findByEmail(username);
         if (user.isPresent()){
             return user.get().getEmail();
         }
         throw new NotFoundException("There is no such user!");
     }
 
-    public boolean isTokenValid(String token, User user){
+    public boolean isTokenValid(String token, UserDetails login){
         final String email= extractEmail(token);
-        return email.equals(user.getEmail()) && !isTokenExpired(token);
+        return email.equals(login.getUsername()) && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {

@@ -1,8 +1,8 @@
 package com.example.dndcharactercreatordemo.bll.services.interfaces;
 
-import com.example.dndcharactercreatordemo.api.AuthenticationRequest;
-import com.example.dndcharactercreatordemo.api.AuthenticationResponse;
-import com.example.dndcharactercreatordemo.api.RegisterRequest;
+import com.example.dndcharactercreatordemo.bll.dtos.auth.AuthenticationRequest;
+import com.example.dndcharactercreatordemo.bll.dtos.auth.AuthenticationResponse;
+import com.example.dndcharactercreatordemo.bll.dtos.auth.RegisterRequest;
 
 public interface AuthService {
 

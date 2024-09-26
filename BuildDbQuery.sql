@@ -6,7 +6,7 @@ use dnddb;
 
 create table roles(
 id int primary key auto_increment,
-title nvarchar(20) not null default 'USER'-- ,
+title nvarchar(20) not null default 'user'-- ,
 -- is_deleted bit not null default 0
 );
 
@@ -30,10 +30,12 @@ create table users(
 id bigint primary key auto_increment,
 username nvarchar(50) not null,
 password nvarchar(64) not null,
+email nvarchar(320) not null,
 is_deleted bit not null default 0,
 role_id int null,
 foreign key(role_id)
-references roles(id)
+references roles(id),
+unique(email)
 );
 
 create table classes(
