@@ -18,17 +18,13 @@ public class User extends BaseEntity implements Serializable {
             length = 320, unique = true)
     private String email;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<Character> characters;
 
     @ManyToOne
     @JoinColumn(name="role_id", referencedColumnName = "id",
     nullable = false)
     private Role role;
-
-    public List<Character> getCharacters() {
-        return this.characters;
-    }
 
     public String getUsername() {
         return username;

@@ -1,15 +1,18 @@
 package com.example.dndcharactercreatordemo.unitTests.serviceTests;
 
 import com.example.dndcharactercreatordemo.bll.dtos.characters.CharacterDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.characters.SearchCharacterDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.dnd_classes.ClassDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.users.UserDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.CharacterMapper;
 import com.example.dndcharactercreatordemo.bll.services.implementations.CharacterServiceImpl;
+import com.example.dndcharactercreatordemo.common.Sort;
 import com.example.dndcharactercreatordemo.dal.entities.*;
 import com.example.dndcharactercreatordemo.dal.entities.Character;
 import com.example.dndcharactercreatordemo.dal.repos.CharacterRepo;
 import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
+import com.example.dndcharactercreatordemo.filters.CharacterFilter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -139,8 +142,11 @@ class CharacterServiceTests {
         ).thenReturn(
                 characterDTOS.stream().filter(CharacterDTO::isDeleted).toList()
         );
-        List<CharacterDTO> dtos=service.getCharacters(1L,true,Optional.empty(),Optional.empty(),
-                Optional.empty(),Optional.empty(),true);
+        List<CharacterDTO> dtos=service.getCharacters(1L,true,
+                new SearchCharacterDTO(
+                        new CharacterFilter("",Optional.empty(),""),
+                        new Sort("",true)
+                        ));
         assertFalse(dtos.isEmpty());
     }
 
@@ -154,8 +160,11 @@ class CharacterServiceTests {
         ).thenReturn(
                 characterDTOS.stream().filter(x->!x.isDeleted()).toList()
         );
-        List<CharacterDTO> dtos=service.getCharacters(1L,false,Optional.empty(),Optional.empty(),
-                Optional.empty(),Optional.empty(),true);
+        List<CharacterDTO> dtos=service.getCharacters(1L,false,
+                new SearchCharacterDTO(
+                        new CharacterFilter("",Optional.empty(),""),
+                        new Sort("",true)
+                ));
         assertFalse(dtos.isEmpty());
     }
 

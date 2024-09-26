@@ -8,8 +8,6 @@ import java.util.List;
 public interface UserService {
     List<UserDTO> getUsers(SearchUserDTO searchUserDTO);
 
-    UserDTO addUser(UserDTO userDTO);
-
     void changeUsername(Long id, String username);
 
     void changePassword(Long id, String oldPassword, String newPassword);
@@ -25,6 +23,4 @@ public interface UserService {
     void restoreUser(Long id);
 
     UserDTO getUser(Long id);
-
-    UserDTO getUser(String email, String password);
 }

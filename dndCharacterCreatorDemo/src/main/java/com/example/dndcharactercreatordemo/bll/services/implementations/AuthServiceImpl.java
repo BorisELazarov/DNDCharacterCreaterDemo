@@ -2,17 +2,20 @@ package com.example.dndcharactercreatordemo.bll.services.implementations;
 
 import com.example.dndcharactercreatordemo.bll.dtos.auth.AuthenticationRequest;
 import com.example.dndcharactercreatordemo.bll.dtos.auth.AuthenticationResponse;
-import com.example.dndcharactercreatordemo.bll.dtos.auth.RegisterRequest;
 import com.example.dndcharactercreatordemo.api.auth.config.JwtService;
 import com.example.dndcharactercreatordemo.bll.dtos.users.LoginCredentials;
+import com.example.dndcharactercreatordemo.bll.dtos.users.RegisterDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.users.UserDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.UserMapper;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.AuthService;
 import com.example.dndcharactercreatordemo.dal.entities.Role;
 import com.example.dndcharactercreatordemo.dal.entities.User;
 import com.example.dndcharactercreatordemo.dal.repos.RoleRepo;
 import com.example.dndcharactercreatordemo.dal.repos.UserRepo;
+import com.example.dndcharactercreatordemo.exceptions.customs.EmailAlreadyTakenException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NameAlreadyTakenException;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;
+import com.example.dndcharactercreatordemo.exceptions.customs.WrongPasswordException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -43,18 +46,19 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthenticationResponse register(RegisterRequest request) {
-        User user=new User();
-        user.setEmail(request.email());
-        user.setUsername(request.username());
-        user.setPassword(passwordEncoder.encode(request.password()));
-        Optional<Role> role=roleRepo.findByTitle("user");
-        role.ifPresent(user::setRole);
-        Optional<User> userByUsername = userRepo.findByUsername(user.getUsername());
-        if (userByUsername.isPresent()) {
+    public AuthenticationResponse register(RegisterDTO registerDTO) {
+        if (userRepo.findByEmail(registerDTO.email()).isPresent()){
+            throw new EmailAlreadyTakenException("This email is already taken!");
+        }
+        if (userRepo.findByUsername(registerDTO.username()).isPresent()) {
             throw new NameAlreadyTakenException("This username is already taken!");
         }
-        userRepo.save(user);
+
+        User user= userMapper.fromDto(registerDTO);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        Optional<Role> role=roleRepo.findByTitle("user");
+        role.ifPresent(user::setRole);
+        user = userRepo.save(user);
         LoginCredentials login=new LoginCredentials();
         login.setEmail(user.getEmail());
         login.setPassword(user.getPassword());
@@ -64,13 +68,15 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
+
+        User user = userRepo.findByEmail(request.email())
+                .orElseThrow(()->new NotFoundException("There is no user with such email!"));
+
         authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.email(), request.password()
                 )
         );
-        User user=userRepo.findByEmail(request.email())
-                .orElseThrow(()->new NotFoundException("User not found"));
 
         LoginCredentials login=new LoginCredentials();
         login.setEmail(user.getEmail());

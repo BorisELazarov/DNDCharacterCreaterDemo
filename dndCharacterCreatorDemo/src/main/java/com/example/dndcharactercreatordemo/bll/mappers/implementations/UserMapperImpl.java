@@ -1,5 +1,6 @@
 package com.example.dndcharactercreatordemo.bll.mappers.implementations;
 
+import com.example.dndcharactercreatordemo.bll.dtos.users.RegisterDTO;
 import com.example.dndcharactercreatordemo.bll.dtos.users.UserDTO;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.UserMapper;
 import com.example.dndcharactercreatordemo.dal.entities.Role;
@@ -28,6 +29,18 @@ public class UserMapperImpl implements UserMapper {
         User entity=new User();
         dto.id().ifPresent(entity::setId);
         entity.setIsDeleted(dto.isDeleted());
+        entity.setUsername(dto.username());
+        entity.setPassword(dto.password());
+        entity.setEmail(dto.email());
+        return entity;
+    }
+
+    @Override
+    public User fromDto(RegisterDTO dto) {
+        if(dto==null)
+            return null;
+        User entity=new User();
+        entity.setIsDeleted(false);
         entity.setUsername(dto.username());
         entity.setPassword(dto.password());
         entity.setEmail(dto.email());
