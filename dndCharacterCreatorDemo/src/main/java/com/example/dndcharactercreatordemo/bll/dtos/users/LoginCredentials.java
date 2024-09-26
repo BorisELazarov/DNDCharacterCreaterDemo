@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * @author boriselazarov@gmail
  */
-public class LoginDTO implements UserDetails {
+public class LoginCredentials implements UserDetails {
     private String email;
     private String password;
     private String role;

@@ -4,7 +4,7 @@ import com.example.dndcharactercreatordemo.bll.dtos.auth.AuthenticationRequest;
 import com.example.dndcharactercreatordemo.bll.dtos.auth.AuthenticationResponse;
 import com.example.dndcharactercreatordemo.bll.dtos.auth.RegisterRequest;
 import com.example.dndcharactercreatordemo.api.auth.config.JwtService;
-import com.example.dndcharactercreatordemo.bll.dtos.users.LoginDTO;
+import com.example.dndcharactercreatordemo.bll.dtos.users.LoginCredentials;
 import com.example.dndcharactercreatordemo.bll.mappers.interfaces.UserMapper;
 import com.example.dndcharactercreatordemo.bll.services.interfaces.AuthService;
 import com.example.dndcharactercreatordemo.dal.entities.Role;
@@ -55,7 +55,7 @@ public class AuthServiceImpl implements AuthService {
             throw new NameAlreadyTakenException("This username is already taken!");
         }
         userRepo.save(user);
-        LoginDTO login=new LoginDTO();
+        LoginCredentials login=new LoginCredentials();
         login.setEmail(user.getEmail());
         login.setPassword(user.getPassword());
         String jwtToken=jwtService.generateToken(login);
@@ -72,7 +72,7 @@ public class AuthServiceImpl implements AuthService {
         User user=userRepo.findByEmail(request.email())
                 .orElseThrow(()->new NotFoundException("User not found"));
 
-        LoginDTO login=new LoginDTO();
+        LoginCredentials login=new LoginCredentials();
         login.setEmail(user.getEmail());
         login.setPassword(user.getPassword());
 

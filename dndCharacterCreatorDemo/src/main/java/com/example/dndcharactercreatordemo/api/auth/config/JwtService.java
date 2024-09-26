@@ -1,6 +1,5 @@
 package com.example.dndcharactercreatordemo.api.auth.config;
 
-import com.example.dndcharactercreatordemo.bll.dtos.users.LoginDTO;
 import com.example.dndcharactercreatordemo.dal.entities.User;
 import com.example.dndcharactercreatordemo.dal.repos.UserRepo;
 import com.example.dndcharactercreatordemo.exceptions.customs.NotFoundException;

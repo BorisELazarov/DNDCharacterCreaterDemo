@@ -9,4 +9,12 @@ import java.io.Serializable;
 public class ClassSpell implements Serializable {
     @EmbeddedId
     private ClassSpellPairId id;
+
+    public ClassSpellPairId getId() {
+        return id;
+    }
+
+    public void setId(ClassSpellPairId id) {
+        this.id = id;
+    }
 }

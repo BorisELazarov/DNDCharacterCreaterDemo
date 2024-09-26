@@ -2,17 +2,14 @@ package com.example.dndcharactercreatordemo.dal.entities;
 
 import jakarta.persistence.*;
 import org.hibernate.proxy.HibernateProxy;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name="users")
-public class User extends BaseEntity {
+public class User extends BaseEntity implements Serializable {
     @Column(name="username", nullable = false, length = 50)
     private String username;
     @Column(name="password", nullable = false, length = 64)
@@ -30,7 +27,7 @@ public class User extends BaseEntity {
     private Role role;
 
     public List<Character> getCharacters() {
-        return characters;
+        return this.characters;
     }
 
     public String getUsername() {
