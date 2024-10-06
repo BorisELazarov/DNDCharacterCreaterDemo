@@ -1,7 +1,21 @@
 package com.example.dndcharactercreatordemo.bll.dtos.users;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 /**
  * @author boriselazarov@gmail
  */
-public record RegisterDTO(String username, String email, String password) {
+public record RegisterDTO(
+        @NotNull(message = "Username must not be null")
+        @Size(min=3, max = 50)
+        String username,
+        @NotNull(message = "Email must not be null")
+        @Size(min = 6, max=320)
+        @Email
+        String email,
+        @NotNull(message = "Password must not be null")
+        @Size(min=8, max = 50)
+        String password) {
 }

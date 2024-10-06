@@ -73,7 +73,8 @@ public class AuthServiceImpl implements AuthService {
         if (userRepo.findByUsername("Boris").isEmpty()) {
             User user = new User();
             user.setUsername("Boris");
-            user.setPassword(passwordEncoder.encode(user.getUsername()));
+            user.setPassword("BorisPass");
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setEmail("admin@email.com");
             Optional<Role> role = roleRepo.findByTitle("admin");
             role.ifPresent(user::setRole);
