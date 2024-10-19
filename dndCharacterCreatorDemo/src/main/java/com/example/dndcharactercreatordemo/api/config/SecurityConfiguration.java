@@ -32,9 +32,9 @@ public class SecurityConfiguration {
                         authorizationManagerRequestMatcherRegistry
                                 -> authorizationManagerRequestMatcherRegistry
                                 .requestMatchers("api/auth/**").permitAll()
-                                .requestMatchers("api/classes").hasAuthority(userAuthority)
-                                .requestMatchers("api/proficiencies").hasAuthority(userAuthority)
-                                .requestMatchers("api/spells").hasAuthority(userAuthority)
+                                .requestMatchers("api/classes").hasAnyAuthority(userAuthority,dataManagerAuthority)
+                                .requestMatchers("api/proficiencies").hasAnyAuthority(userAuthority,dataManagerAuthority)
+                                .requestMatchers("api/spells").hasAnyAuthority(userAuthority,dataManagerAuthority)
                                 .requestMatchers("api/characters/**").hasAuthority(userAuthority)
                                 .requestMatchers("api/spells/**").hasAuthority(dataManagerAuthority)
                                 .requestMatchers("api/classes/**").hasAuthority(dataManagerAuthority)
