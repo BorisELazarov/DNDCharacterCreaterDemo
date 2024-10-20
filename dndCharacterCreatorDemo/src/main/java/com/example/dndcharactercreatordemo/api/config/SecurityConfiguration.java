@@ -24,6 +24,7 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         String dataManagerAuthority="data manager";
+        String userAuthority="user";
 
         http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -31,7 +32,10 @@ public class SecurityConfiguration {
                         authorizationManagerRequestMatcherRegistry
                                 -> authorizationManagerRequestMatcherRegistry
                                 .requestMatchers("api/auth/**").permitAll()
-                                .requestMatchers("api/characters/**").hasAuthority("user")
+                                .requestMatchers("api/classes").hasAnyAuthority(userAuthority,dataManagerAuthority)
+                                .requestMatchers("api/proficiencies").hasAnyAuthority(userAuthority,dataManagerAuthority)
+                                .requestMatchers("api/spells").hasAnyAuthority(userAuthority,dataManagerAuthority)
+                                .requestMatchers("api/characters/**").hasAuthority(userAuthority)
                                 .requestMatchers("api/spells/**").hasAuthority(dataManagerAuthority)
                                 .requestMatchers("api/classes/**").hasAuthority(dataManagerAuthority)
                                 .requestMatchers("api/proficiencies/**").hasAuthority(dataManagerAuthority)
